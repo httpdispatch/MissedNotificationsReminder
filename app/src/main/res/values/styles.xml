@@ -1,0 +1,59 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds" tools:ignore="NewApi">true</item>
+    </style>
+
+    <style name="ToolbarCardWrapper" parent="CardView">
+        <item name="android:layout_marginTop">-7dip</item>
+        <item name="android:layout_marginLeft">-5dip</item>
+        <item name="android:layout_marginRight">-5dip</item>
+        <item name="cardBackgroundColor">?attr/colorPrimaryDark</item>
+        <item name="cardElevation">4dip</item>
+        <item name="cardCornerRadius">0dip</item>
+    </style>
+
+    <style name="Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">?attr/colorPrimaryDark</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    </style>
+
+    <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@color/color_primary_inverse</item>
+    </style>
+
+    <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textColor">@color/color_primary_inverse</item>
+    </style>
+
+    <style name="SettingsCard" parent="CardView">
+    </style>
+
+    <style name="CardTitle" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:padding">@dimen/default_widget_interval</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">?colorAccent</item>
+    </style>
+
+    <style name="CardContent">
+        <item name="android:padding">@dimen/default_widget_interval</item>
+    </style>
+
+    <style name="CardTitleSeparator">
+        <item name="android:background">?colorPrimaryDark</item>
+    </style>
+
+    <!-- same label as in TextInputLayout-->
+    <style name="Label" parent="TextAppearance.AppCompat.Small">
+        <item name="android:paddingLeft">4dip</item>
+        <item name="android:textColor">?colorAccent</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+
+
+</resources>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".ui.activity.SettingsActivity">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
+    </data>
+
+    <android.support.v7.widget.CardView
+        style="@style/SettingsCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_applications_select_title"
+                />
+
+            <View
+                style="@style/CardTitleSeparator"
+                android:layout_width="match_parent"
+                android:layout_height="1dip"/>
+
+            <TextView
+                style="@style/CardContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="?attr/listPreferredItemHeight"
+                android:onClick="@{model.onSelectApplicationsButtonClicked}"
+                android:text="@string/settings_applications_select_button"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+</layout>

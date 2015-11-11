@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Item start padding (16) + checkbox width + checkbox margin + avatar width (40) + avatar margin (16). -->
+    <dimen name="applications_divider_padding_start">116dp</dimen>
+    <dimen name="application_icon_size">40dip</dimen>
+    <dimen name="default_widget_interval">16dip</dimen>
+</resources>

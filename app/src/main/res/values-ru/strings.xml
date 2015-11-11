@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="applications_empty_message">Не удаётся найти ни одного приложения</string>
+    <string name="applications_empty_title">Странно…</string>
+    <string name="applications_error_message">Возникла ошибка, пока загружались данные приложений. Пожалуйста, попробуйте позже</string>
+    <string name="applications_error_title">Ой!</string>
+    <string name="applications_selection_title">Выбор приложений</string>
+    <string name="interval_disabled">Отключено</string>
+    <string name="interval_enabled">Включено</string>
+    <string name="loading_message">загрузка…</string>
+    <string name="reminder_interval_hint">Интервал напоминаний (минуты)</string>
+    <string name="settings_acess_disabled">Служба уведомлений отключена. Нажмите кнопку \"Управление доступом\" и отметьте приложение \"Missed Notification Reminder\". Иначе напоминания не будут работать.</string>
+    <string name="settings_acess_enabled">Служба уведомлений включена</string>
+    <string name="settings_acess_manage">Управление доступом</string>
+    <string name="settings_acess_title">Доступ к службе уведомлений</string>
+    <string name="settings_applications_select_button">Выбрать приложения</string>
+    <string name="settings_applications_select_title">Отслеживание пропущенных уведомлений</string>
+    <string name="settings_interval">Интервал напоминаний</string>
+    <string name="settings_title">Настройки</string>
+</resources>

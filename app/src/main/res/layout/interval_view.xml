@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.app.missednotificationsreminder.binding.model.IntervalViewModel"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{model.enabled.get() ? @string/interval_enabled : @string/interval_disabled}"/>
+
+        <android.support.v7.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/interval_disabled"
+            android:textOn="@string/interval_enabled"
+            tools:binding="@{model.enabled}"/>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:error="@{model.intervalError}">
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="@{model.enabled}"
+                android:hint="@string/reminder_interval_hint"
+                android:inputType="numberDecimal"
+                tools:binding="@{model.interval}"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="@{model.enabled}"
+            android:max="@{model.maxInterval - model.minInterval}"
+            tools:binding="@{model.seekInterval}"/>
+
+    </LinearLayout>
+</layout>
