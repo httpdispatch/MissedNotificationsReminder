@@ -1,13 +1,12 @@
 package com.app.missednotificationsreminder.binding.model;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
-import android.provider.Settings;
 import android.view.View;
 
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
+import com.app.missednotificationsreminder.service.ReminderNotificationListenerService;
+import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils;
 import com.app.missednotificationsreminder.ui.activity.ApplicationsSelectionActivity;
 import com.app.missednotificationsreminder.ui.view.SettingsView;
 
@@ -48,7 +47,7 @@ public class SettingsViewModel extends BaseViewModel {
     public void checkServiceEnabled() {
         monitor(
                 Observable
-                        .just(context.getPackageName())
+                        .just(ReminderNotificationListenerService.class)
                         .flatMap(checkAccess)
                         .subscribe(enabled -> {
                             accessEnabled.set(enabled);
@@ -76,21 +75,16 @@ public class SettingsViewModel extends BaseViewModel {
      * @param v
      */
     public void onManageAccessButtonPressed(View v) {
-        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-        context.startActivity(intent);
+        context.startActivity(ReminderNotificationListenerServiceUtils.getServiceEnabledManagementIntent());
     }
 
     /**
      * The function to check whether the notification service is enabled for the specified
      * package name
      */
-    private final Func1<String, Observable<Boolean>> checkAccess =
-            packageName -> {
-                boolean result = false;
-                ContentResolver contentResolver = context.getContentResolver();
-                String enabledNotificationListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners");
-                result = enabledNotificationListeners != null && enabledNotificationListeners
-                        .contains(packageName);
+    private final Func1<Class<?>, Observable<Boolean>> checkAccess =
+            serviceClass -> {
+                boolean result = ReminderNotificationListenerServiceUtils.isServiceEnabled(context, serviceClass);
                 return Observable.just(result);
             };
 }

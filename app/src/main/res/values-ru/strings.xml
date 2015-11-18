@@ -9,7 +9,6 @@
     <string name="interval_enabled">Включено</string>
     <string name="loading_message">загрузка…</string>
     <string name="reminder_interval_hint">Интервал напоминаний (минуты)</string>
-    <string name="settings_acess_disabled">Служба уведомлений отключена. Нажмите кнопку \"Управление доступом\" и отметьте приложение \"Missed Notification Reminder\". Иначе напоминания не будут работать.</string>
     <string name="settings_acess_enabled">Служба уведомлений включена</string>
     <string name="settings_acess_manage">Управление доступом</string>
     <string name="settings_acess_title">Доступ к службе уведомлений</string>

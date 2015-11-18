@@ -7,9 +7,6 @@
     <string name="settings_subtitle" translatable="false">@string/app_name</string>
     <string name="settings_acess_title">Notifications Service Access</string>
     <string name="settings_acess_enabled">The notification service is currently enabled</string>
-    <string name="settings_acess_disabled">The notification service is currently disabled.
-        Press \"Manage Access\" button and check \"Missed Notification Reminder\" application.
-        Otherwise the reminder will not work.</string>
     <string name="settings_acess_manage">Manage Access</string>
     <string name="settings_interval">Reminder Interval</string>
     <string name="settings_applications_select_title">Applications to monitor

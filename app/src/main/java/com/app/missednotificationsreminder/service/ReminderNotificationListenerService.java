@@ -16,9 +16,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.service.notification.NotificationListenerService;
-import android.service.notification.StatusBarNotification;
-import android.text.TextUtils;
 import android.view.Display;
 
 import com.app.missednotificationsreminder.di.Injector;
@@ -43,7 +40,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-public class ReminderNotificationListenerService extends NotificationListenerService {
+public class ReminderNotificationListenerService extends AbstractReminderNotificationListenerService {
     /**
      * Action for the pending intent used by alarm manager to periodically wake the device and send broadcast with this
      * action
@@ -173,14 +170,7 @@ public class ReminderNotificationListenerService extends NotificationListenerSer
                 Timber.d("checkWakingConditions: disabled, skipping");
                 return;
             }
-            boolean schedule = false;
-
-            for (StatusBarNotification notification : getActiveNotifications()) {
-                schedule |= checkNotification(notification);
-                if (schedule) {
-                    break;
-                }
-            }
+            boolean schedule = checkNotificationForAtLeastOnePackageExists(selectedApplications.get());
 
             if (schedule) {
                 Timber.d("checkWakingConditions: Schedule reminder for %1$d minutes",
@@ -206,30 +196,15 @@ public class ReminderNotificationListenerService extends NotificationListenerSer
             mAlarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() + reminderInterval.get() * MILLIS_IN_MINUTE,
                     mPendingIntent);
-        } else {
+        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
             mAlarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() + reminderInterval.get() * MILLIS_IN_MINUTE,
                     mPendingIntent);
+        } else {
+            mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + reminderInterval.get() * MILLIS_IN_MINUTE,
+                    mPendingIntent);
         }
-    }
-
-    /**
-     * Check whether the notification matches to any selected application
-     *
-     * @param notification the notification to check
-     * @return true if found same package name as notification has in the list of selected applications
-     */
-    private boolean checkNotification(StatusBarNotification notification) {
-        Timber.d("checkNotification: called for package %1$s", notification.getPackageName());
-        boolean result = false;
-        for (String packageName : selectedApplications.get()) {
-            if (TextUtils.equals(notification.getPackageName(), packageName)) {
-                Timber.d("checkNotification: found match with selected applications");
-                result = true;
-                break;
-            }
-        }
-        return result;
     }
 
     /**
@@ -266,14 +241,14 @@ public class ReminderNotificationListenerService extends NotificationListenerSer
     }
 
     @Override
-    public void onNotificationPosted(StatusBarNotification sbn) {
-        Timber.d("onNotificationPosted: for package %1$s", sbn.getPackageName());
+    public void onNotificationPosted() {
+        Timber.d("onNotificationPosted");
         sendCheckWakingConditionsCommand();
     }
 
     @Override
-    public void onNotificationRemoved(StatusBarNotification sbn) {
-        Timber.d("onNotificationRemoved: for package %1$s", sbn.getPackageName());
+    public void onNotificationRemoved() {
+        Timber.d("onNotificationRemoved");
         // stop alarm and check whether it should be launched again
         stopWaking();
         sendCheckWakingConditionsCommand();

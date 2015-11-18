@@ -1,7 +1,7 @@
 // Manifest version information!
 def versionMajor = 1
 def versionMinor = 0
-def versionPatch = 0
+def versionPatch = 1
 def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 apply plugin: 'com.android.application'
@@ -56,7 +56,6 @@ android {
 
     defaultConfig {
         applicationId "com.app.missednotificationsreminder"
-        minSdkVersion 18
         targetSdkVersion 23
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
@@ -86,12 +85,19 @@ android {
                 variant.outputs.each { output ->
                     def newName = output.outputFile.name
                     newName = newName.replace("app", rootProject.name)
-                    newName = newName.replace("release", "release-v" + android.defaultConfig.versionName)
+                    newName = newName.replace("release", "release-v" + variant.mergedFlavor.versionName)
                     output.outputFile = new File(output.outputFile.parent, newName)
                 }
             }
         }
     }
+
+    productFlavors {
+        v18 {
+            minSdkVersion 18
+        }
+    }
+
     lintOptions {
         textReport true
         textOutput 'stdout'

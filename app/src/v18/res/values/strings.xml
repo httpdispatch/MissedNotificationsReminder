@@ -1,0 +1,7 @@
+<resources>
+    <!-- Settings -->
+    <string name="settings_acess_disabled">The notification service is currently disabled.
+        Press \"Manage Access\" button and check \"Missed Notification Reminder\" application.
+        Otherwise the reminder will not work.</string>
+
+</resources>
