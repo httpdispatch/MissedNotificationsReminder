@@ -17,6 +17,11 @@ def preDexEnabled = "true".equals(System.getProperty("pre-dex", "true"))
 // get the keystore properties file
 def propsFile = rootProject.file('keystore.properties')
 
+// method to generate version code depend on min sdk version
+def getVersionCode = {minSdkVersion ->
+    return minSdkVersion * 100000000 + versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
@@ -57,7 +62,6 @@ android {
     defaultConfig {
         applicationId "com.app.missednotificationsreminder"
         targetSdkVersion 23
-        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
 
         buildConfigField "String", "GIT_SHA", "\"${gitSha}\""
@@ -95,6 +99,11 @@ android {
     productFlavors {
         v18 {
             minSdkVersion 18
+            versionCode getVersionCode(18)
+        }
+        v14 {
+            minSdkVersion 14
+            versionCode getVersionCode(14)
         }
     }
 
@@ -108,7 +117,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
 }
 
 configurations.all {

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings -->
+    <string name="settings_acess_disabled">The notification service is currently disabled.
+        Press \"Manage Access\" button, select \"Missed Notification Reminder Service\" item
+        and enable it. Otherwise the reminder will not work.</string>
+
+    <string name="accessibility_service_description">Enable to allow Missed Notifications Reminder
+        receive all incoming notifications.
+        This app DOES NOT collect any of your data. Please note that this app doesn\'t have internet
+        access permission so it actually cannot send the data anywhere.</string>
+    <string name="accessibility_service">Missed Notifications Reminder Service</string>
+</resources>
