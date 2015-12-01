@@ -18,7 +18,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-public class CustomApplication extends Application {
+public abstract class CustomApplicationBase extends Application {
 
     private ObjectGraph mObjectGraph;
 
@@ -31,7 +31,7 @@ public class CustomApplication extends Application {
         // leak inspection
         refWatcher = LeakCanary.install(this);
         // Initialize dependency injection graph
-        mObjectGraph = ObjectGraph.create(Modules.list(this));
+        mObjectGraph = ObjectGraph.create(getModules());
         mObjectGraph.inject(this);
         // initialize logging
         Timber.plant(new Timber.DebugTree());
@@ -39,6 +39,7 @@ public class CustomApplication extends Application {
         registerActivityLifecycleCallbacks(activityHierarchyServer);
     }
 
+    abstract Object[] getModules();
 
     @Override
     public Object getSystemService(@NonNull String name) {

@@ -121,7 +121,7 @@ android {
 
 configurations.all {
     resolutionStrategy {
-        force 'com.android.support:support-annotations:23.0.1'
+        force 'com.android.support:support-annotations:23.1.0'
     }
 }
 
@@ -134,6 +134,13 @@ dependencies {
     compile 'com.android.support:design:23.1.0'
 
     compile 'com.jakewharton.timber:timber:3.0.2'
+
+    debugCompile 'com.jakewharton:butterknife:7.0.1'
+    debugCompile 'com.jakewharton.madge:madge:1.1.2'
+    debugCompile 'com.jakewharton.scalpel:scalpel:1.1.2'
+    debugCompile 'com.jakewharton.threetenabp:threetenabp:1.0.2'
+    debugCompile 'com.squareup.okio:okio:1.6.0'
+    debugCompile 'com.mattprecious.telescope:telescope:1.5.0@aar'
 
     compile 'com.squareup.dagger:dagger:1.2.2'
     apt 'com.squareup.dagger:dagger-compiler:1.2.2'

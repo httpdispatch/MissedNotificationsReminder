@@ -1,6 +1,6 @@
 package com.app.missednotificationsreminder;
 
-import com.app.missednotificationsreminder.data.DebugDataModule;
+import com.jakewharton.u2020.data.DebugDataModule;
 import com.app.missednotificationsreminder.di.qualifiers.IsInstrumentationTest;
 import com.app.missednotificationsreminder.ui.DebugUiModule;
 
