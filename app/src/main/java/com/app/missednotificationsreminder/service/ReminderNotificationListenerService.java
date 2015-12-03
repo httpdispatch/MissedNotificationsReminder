@@ -25,11 +25,16 @@ import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
 import com.f2prateek.rx.preferences.Preference;
 
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
 import dagger.ObjectGraph;
+import rx.Observable;
+import rx.exceptions.OnErrorThrowable;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -153,6 +158,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Send the check waing condition message to the service handler
      */
     private void sendCheckWakingConditionsCommand() {
+        Timber.d("sendCheckWakingConditionsCommand");
         mHandler.sendMessage(mHandler.obtainMessage(CHECK_WAKING_CONDITIONS_MSG));
     }
 
@@ -192,11 +198,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     private void scheduleNextWakup() {
         Timber.d("scheduleNextWakup: called");
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mAlarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() + reminderInterval.get() * MILLIS_IN_MINUTE,
                     mPendingIntent);
-        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             mAlarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() + reminderInterval.get() * MILLIS_IN_MINUTE,
                     mPendingIntent);
@@ -243,7 +249,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Override
     public void onNotificationPosted() {
         Timber.d("onNotificationPosted");
-        sendCheckWakingConditionsCommand();
+        checkWakingConditions();
     }
 
     @Override
@@ -251,7 +257,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         Timber.d("onNotificationRemoved");
         // stop alarm and check whether it should be launched again
         stopWaking();
-        sendCheckWakingConditionsCommand();
+        checkWakingConditions();
     }
 
     /**
@@ -262,40 +268,68 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
          * Media player used to play notification sound
          */
         MediaPlayer mMediaPlayer = null;
+        /**
+         * The lock used during media player preparation and notification sound play
+         * to make sure onReceive method will be running for some time keeping the device
+         * awake
+         */
+        CountDownLatch mLock;
 
         ScheduledSoundNotificationReceiver() {
             // initialize media player
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
-            mMediaPlayer.setOnPreparedListener(mp -> mp.start());
+            mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+            mMediaPlayer.setOnPreparedListener(__ -> Timber.d("MediaPlayer prepared"));
+            mMediaPlayer.setOnCompletionListener(__ -> Timber.d("MediaPlayer completed playing")
+            );
         }
 
         @Override
         public void onReceive(Context context, Intent intent) {
             Timber.d("onReceive");
             if (!mActive.get()) {
-                Timber.w("Invalid service activity state, stopping reminder");
+                Timber.w("onReceive: Invalid service activity state, stopping reminder");
                 stopWaking(true);
                 return;
             }
             if (!isScreenOn(context)) {
-                Timber.d("The screen is off, notify");
+                Timber.d("onReceive: The screen is off, notify");
                 try {
                     if (mMediaPlayer.isPlaying()) {
-                        Timber.d("Media player is playing. Stopping...");
+                        Timber.d("onReceive: Media player is playing. Stopping...");
                         mMediaPlayer.stop();
                     }
                     mMediaPlayer.reset();
-                    // get the default notification sound URI
-                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                    mMediaPlayer.setDataSource(getApplicationContext(), notification);
-                    mMediaPlayer.prepareAsync();
+                    // create lock object with timeout
+                    mLock = new CountDownLatch(1);
+                    Timber.d("onReceive: current thread %1$s", Thread.currentThread().getName());
+                    Observable.just(mMediaPlayer)
+                            .observeOn(Schedulers.io())
+                            .subscribe(mp -> {
+                                try {
+                                    Timber.d("onReceive subscription: current thread %1$s", Thread.currentThread().getName());
+                                    // get the default notification sound URI
+                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                    mp.setDataSource(getApplicationContext(), notification);
+                                    mp.prepare();
+                                    mp.start();
+                                    mLock.countDown();
+                                } catch (Exception ex) {
+                                    throw OnErrorThrowable.from(ex);
+                                }
+                            }, ex -> Timber.e(ex, null));
+                    // give max 5 seconds to play notification sound
+                    mLock.await(5, TimeUnit.SECONDS);
+                    if (mLock.getCount() > 0) {
+                        Timber.w("onReceive: media player initializes too long, didn't receive onComplete for 5 seconds.");
+                    }
                 } catch (Exception ex) {
                     Timber.e(ex, null);
                     throw new RuntimeException(ex);
                 }
             } else {
-                Timber.d("The screen is on, skip notification");
+                Timber.d("onReceive: The screen is on, skip notification");
             }
             scheduleNextWakup();
         }

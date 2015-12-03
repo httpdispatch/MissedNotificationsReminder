@@ -6,7 +6,6 @@
     <uses-sdk tools:overrideLibrary="com.jakewharton.threetenabp"/>
     <!-- Used for instrumentation tests. -->
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- Used for telescope. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
