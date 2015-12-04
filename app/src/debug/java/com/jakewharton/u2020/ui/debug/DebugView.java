@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.app.missednotificationsreminder.BuildConfig;
 import com.app.missednotificationsreminder.R;
@@ -224,7 +225,7 @@ public final class DebugView extends FrameLayout {
       Method method = ValueAnimator.class.getDeclaredMethod("setDurationScale", float.class);
       method.invoke(null, (float) multiplier);
     } catch (Exception e) {
-      throw new RuntimeException("Unable to apply animation speed.", e);
+      Toast.makeText(getContext(), "Unable to apply animation speed. "+e.getMessage(),Toast.LENGTH_LONG).show();
     }
   }
 
