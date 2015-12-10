@@ -31,9 +31,9 @@ public class BindingAdapterUtils {
     @BindingAdapter({"bind:binding"})
     public static void bindEditText(EditText view,
                                     final BindableString observable) {
-        if (view.getTag(R.id.dataBinding) == null) {
+        if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
-            view.setTag(R.id.dataBinding, true);
+            view.setTag(R.id.binded, true);
             // subscribe view to the observable value changed event
             RxBindingUtils
                     .valueChanged(observable)
@@ -57,9 +57,9 @@ public class BindingAdapterUtils {
     @BindingAdapter({"bind:binding"})
     public static void bindEditText(EditText view,
                                     final BindableObject<Integer> observable) {
-        if (view.getTag(R.id.dataBinding) == null) {
+        if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
-            view.setTag(R.id.dataBinding, true);
+            view.setTag(R.id.binded, true);
             // subscribe view to the observable value changed event
             RxBindingUtils
                     .valueChanged(observable)
@@ -90,9 +90,9 @@ public class BindingAdapterUtils {
     @BindingAdapter({"bind:binding"})
     public static void bindSeekBar(SeekBar view,
                                    final BindableObject<Integer> observable) {
-        if (view.getTag(R.id.dataBinding) == null) {
+        if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
-            view.setTag(R.id.dataBinding, true);
+            view.setTag(R.id.binded, true);
             // subscribe view to the observable value changed event
             RxBindingUtils
                     .valueChanged(observable)
@@ -113,9 +113,9 @@ public class BindingAdapterUtils {
     @BindingAdapter({"bind:binding"})
     public static void bindCompoundButton(CompoundButton view,
                                           final BindableBoolean observable) {
-        if (view.getTag(R.id.dataBinding) == null) {
+        if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
-            view.setTag(R.id.dataBinding, true);
+            view.setTag(R.id.binded, true);
             // subscribe view to the observable value changed event
             RxBindingUtils
                     .valueChanged(observable)
