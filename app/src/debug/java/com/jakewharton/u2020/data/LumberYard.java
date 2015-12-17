@@ -81,6 +81,8 @@ public final class LumberYard {
                 }
 
                 String fileName = ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())+".txt";
+                // replace ':' char to avoid file saving issue on some devices
+                fileName = fileName.replaceAll("\\:","_");
                 File output = new File(folder, fileName);
 
                 BufferedSink sink = null;

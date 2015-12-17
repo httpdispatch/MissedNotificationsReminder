@@ -14,6 +14,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 public final class LogsDialog extends AlertDialog {
   private final LumberYard lumberYard;
@@ -67,6 +68,7 @@ public final class LogsDialog extends AlertDialog {
           }
 
           @Override public void onError(Throwable e) {
+            Timber.e(e, null);
             Toast.makeText(getContext(), "Couldn't save the logs for sharing.", Toast.LENGTH_SHORT)
                 .show();
           }
