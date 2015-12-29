@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.app.missednotificationsreminder.binding.model.SchedulerViewModel"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{model.enabled.get() ? @string/scheduler_enabled : @string/scheduler_disabled}"/>
+
+        <android.support.v7.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/scheduler_disabled"
+            android:textOn="@string/scheduler_enabled"
+            app:binding="@{model.enabled}"/>
+
+        <TextView
+            style="@style/Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{model.mode.get() ? @string/scheduler_working_period : @string/scheduler_disabled_period}"/>
+
+        <android.support.v7.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="@{model.enabled}"
+            android:textOff="@string/scheduler_disabled_period"
+            android:textOn="@string/scheduler_working_period"
+            app:binding="@{model.mode}"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:error="@{model.beginError}">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:editable="false"
+                    android:enabled="@{model.enabled}"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:hint="@string/scheduler_begin_hint"
+                    android:inputType="numberDecimal"
+                    android:onClick="@{model.onBeginClicked}"
+                    app:binding="@{model.beginTime}"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:error="@{model.endError}">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:editable="false"
+                    android:enabled="@{model.enabled}"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:hint="@string/scheduler_end_hint"
+                    android:inputType="numberDecimal"
+                    android:onClick="@{model.onEndClicked}"
+                    app:binding="@{model.endTime}"/>
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+
+        <FrameLayout style="@style/RangeBarContainer">
+
+            <com.appyvet.rangebar.RangeBar
+                android:id="@+id/rangeBar"
+                style="@style/RangeBar"
+                android:layout_width="match_parent"
+                android:enabled="@{model.enabled}"
+                app:bindingLeft="@{model.rangeBegin}"
+                app:bindingRight="@{model.rangeEnd}"
+                app:tickEnd="@{model.maximum}"
+                app:tickInterval="@{model.interval}"
+                app:tickStart="@{model.minimum}"/>
+        </FrameLayout>
+
+    </LinearLayout>
+</layout>

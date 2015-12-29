@@ -21,9 +21,15 @@ import android.view.Display;
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
+import com.app.missednotificationsreminder.di.qualifiers.SchedulerEnabled;
+import com.app.missednotificationsreminder.di.qualifiers.SchedulerMode;
+import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
+import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeEnd;
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
+import com.app.missednotificationsreminder.util.TimeUtils;
 import com.f2prateek.rx.preferences.Preference;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -52,10 +58,6 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     static final String PENDING_INTENT_ACTION = ReminderNotificationListenerService.class.getCanonicalName();
     /**
-     * Amount of milliseconds in one minute
-     */
-    static final int MILLIS_IN_MINUTE = 60 * 1000;
-    /**
      * The constant used to identify handler message to start checking of the service waking conditions
      */
     static final int CHECK_WAKING_CONDITIONS_MSG = 0;
@@ -63,6 +65,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @ReminderEnabled Preference<Boolean> reminderEnabled;
     @Inject @ReminderInterval Preference<Integer> reminderInterval;
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
+    @Inject @SchedulerEnabled Preference<Boolean> schedulerEnabled;
+    @Inject @SchedulerMode Preference<Boolean> schedulerMode;
+    @Inject @SchedulerRangeBegin Preference<Integer> schedulerRangeBegin;
+    @Inject @SchedulerRangeEnd Preference<Integer> schedulerRangeEnd;
 
     /**
      * Alarm manager to schedule/cancel periodical actions
@@ -134,19 +140,32 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         .filter(enabled -> !enabled) // if reminder disabled
                         .subscribe(b -> stopWaking()));
         mSubscriptions.add(
-                reminderInterval.asObservable()
-                        .skip(1) // skip initial value emitted right after the subscription
+                Observable.merge(
+                        reminderInterval.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Reminder interval changed"))
+                                .map(__ -> true),
+                        selectedApplications.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Selected applications changed"))
+                                .map(__ -> true),
+                        schedulerEnabled.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Scheduler enabled changed"))
+                                .map(__ -> true),
+                        schedulerMode.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Scheduler mode changed"))
+                                .map(__ -> true),
+                        schedulerRangeBegin.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Scheduler range begin changed"))
+                                .map(__ -> true),
+                        schedulerRangeEnd.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Scheduler range end changed"))
+                                .map(__ -> true))
                         .subscribe(data -> {
-                            Timber.d("Reminder interval changed");
-                            // restart alarm with new conditions if necessary
-                            stopWaking();
-                            sendCheckWakingConditionsCommand();
-                        }));
-        mSubscriptions.add(
-                selectedApplications.asObservable()
-                        .skip(1) // skip initial value emitted right after the subscription
-                        .subscribe(data -> {
-                            Timber.d("Selected applications changed");
                             // restart alarm with new conditions if necessary
                             stopWaking();
                             sendCheckWakingConditionsCommand();
@@ -179,12 +198,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             boolean schedule = checkNotificationForAtLeastOnePackageExists(selectedApplications.get());
 
             if (schedule) {
-                Timber.d("checkWakingConditions: Schedule reminder for %1$d minutes",
-                        reminderInterval.get());
+                Timber.d("checkWakingConditions: there are notifications from selected applications. Scheduling reminder");
                 // remember active state
                 mActive.set(true);
                 scheduleNextWakup();
-
             } else {
                 Timber.d("checkWakingConditions: there are no notifications from selected applications to periodically remind");
             }
@@ -197,19 +214,40 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Schedule wakup alarm for the sound notification pending intent
      */
     private void scheduleNextWakup() {
+        long scheduledTime = 0;
+        if (schedulerEnabled.get()) {
+            // if custom scheduler is enabled
+            scheduledTime = TimeUtils.getScheduledTime(
+                    schedulerMode.get()? TimeUtils.SchedulerMode.WORKING_PERIOD: TimeUtils.SchedulerMode.NON_WORKING_PERIOD,
+                    schedulerRangeBegin.get(), schedulerRangeEnd.get(),
+                    System.currentTimeMillis() + reminderInterval.get() * TimeUtils.MILLIS_IN_MINUTE);
+        }
+
+        if (scheduledTime == 0) {
+            Timber.d("scheduleNextWakup: Schedule reminder for %1$d minutes",
+                    reminderInterval.get());
+            scheduleNextWakup(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + reminderInterval.get() * TimeUtils.MILLIS_IN_MINUTE);
+        } else {
+            Timber.d("scheduleNextWakup: Schedule reminder for time %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",
+                    new Date(scheduledTime));
+            scheduleNextWakup(AlarmManager.RTC_WAKEUP, scheduledTime);
+        }
+    }
+
+    /**
+     * Schedule wakup alarm for the sound notification pending intent
+     *
+     * @alarmType the type of the alarm either @{link AlarmManager#RTC_WAKEUP} or {link AlarmManager#ELAPSED_REALTIME_WAKEUP}
+     * @time the next wakeup time
+     */
+    private void scheduleNextWakup(int alarmType, long time) {
         Timber.d("scheduleNextWakup: called");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mAlarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + reminderInterval.get() * MILLIS_IN_MINUTE,
-                    mPendingIntent);
+            mAlarmManager.setExactAndAllowWhileIdle(alarmType, time, mPendingIntent);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mAlarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + reminderInterval.get() * MILLIS_IN_MINUTE,
-                    mPendingIntent);
+            mAlarmManager.setExact(alarmType, time, mPendingIntent);
         } else {
-            mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + reminderInterval.get() * MILLIS_IN_MINUTE,
-                    mPendingIntent);
+            mAlarmManager.set(alarmType, time, mPendingIntent);
         }
     }
 

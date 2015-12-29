@@ -50,6 +50,12 @@
 
                 <include layout="@layout/settings_view_card_interval"/>
 
+                <android.support.v4.widget.Space
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/default_widget_interval"/>
+
+                <include layout="@layout/settings_view_card_scheduler"/>
+
             </LinearLayout>
 
         </LinearLayout>

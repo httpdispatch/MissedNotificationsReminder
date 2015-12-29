@@ -50,10 +50,32 @@
     <!-- same label as in TextInputLayout-->
     <style name="Label" parent="TextAppearance.AppCompat.Small">
         <item name="android:paddingLeft">4dip</item>
-        <item name="android:textColor">?colorAccent</item>
+        <item name="android:textColor">?colorPrimaryDark</item>
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="RangeBarContainer">
+        <item name="android:layout_marginLeft">10dip</item>
+        <item name="android:layout_marginRight">10dip</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+
+    <style name="RangeBar" parent="Base.Widget.AppCompat.SeekBar">
+        <item name="selectorColor">?attr/colorAccent</item>
+        <item name="connectingLineColor">?attr/colorAccent</item>
+        <item name="pinRadius">0dip</item>
+        <item name="tickHeight">0dip</item>
+        <item name="selectorSize">6dip</item>
+        <item name="barWeight">2dip</item>
+        <item name="pinPadding">0dip</item>
+        <item name="connectingLineWeight">3dip</item>
+        <item name="rangeBarPaddingBottom">16dip</item>
+        <item name="rangeBarColor">#33000000</item>
+        <item name="android:layout_height">32dip</item>
+        <item name="android:paddingLeft">0dip</item>
+        <item name="android:paddingRight">0dip</item>
+    </style>
 
 
 </resources>

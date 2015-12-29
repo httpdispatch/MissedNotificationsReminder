@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import com.app.missednotificationsreminder.R;
+import com.appyvet.rangebar.RangeBar;
 import com.jakewharton.rxbinding.widget.RxCompoundButton;
 import com.jakewharton.rxbinding.widget.RxSeekBar;
 import com.jakewharton.rxbinding.widget.RxTextView;
@@ -101,6 +102,39 @@ public class BindingAdapterUtils {
                     .subscribe(value -> view.setProgress(value));
             // subscribe observable to the seekbar changes event
             RxSeekBar.changes(view).subscribe(observable.asAction());
+        }
+    }
+
+    /**
+     * Bind the {@link RangeBar} view with the {@link BindableObject}s of the {@link Integer} type
+     *
+     * @param view       the view to bind observable with
+     * @param leftObservable the observable to bind the left value of the view with
+     * @param rightObservable the observable to bind the right value of the view with
+     */
+    @BindingAdapter({"bind:bindingLeft", "bind:bindingRight"})
+    public static void bindRangeBar(RangeBar view,
+                                    final BindableObject<Integer> leftObservable,
+                                    final BindableObject<Integer> rightObservable) {
+        if (view.getTag(R.id.binded) == null) {
+            // if the binding was not done before
+            view.setTag(R.id.binded, true);
+            // subscribe view to the observable value changed event
+            RxBindingUtils
+                    .valueChanged(leftObservable)
+                    .filter(value -> value != view.getLeftIndex()) // filter if value
+                            // doesn't need to be updated
+                    .subscribe(value -> view.setRangePinsByIndices(value, rightObservable.get()));
+            RxBindingUtils
+                    .valueChanged(rightObservable)
+                    .filter(value -> value != view.getRightIndex()) // filter if value
+                            // doesn't need to be updated
+                    .subscribe(value -> view.setRangePinsByIndices(leftObservable.get(), value));
+            // subscribe observable to the rangebar changes event
+            view.setOnRangeBarChangeListener((v, left, right, lv, rv) -> {
+                leftObservable.set(left);
+                rightObservable.set(right);
+            });
         }
     }
 

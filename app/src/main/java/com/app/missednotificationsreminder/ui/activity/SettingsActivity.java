@@ -9,6 +9,7 @@ import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.databinding.SettingsActivityBinding;
 import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity;
 import com.app.missednotificationsreminder.ui.fragment.IntervalFragment;
+import com.app.missednotificationsreminder.ui.fragment.SchedulerFragment;
 import com.app.missednotificationsreminder.ui.fragment.SettingsFragment;
 
 import dagger.ObjectGraph;
@@ -63,6 +64,18 @@ public class SettingsActivity extends CommonFragmentActivity {
                 getSettingsFragment().
                         getChildFragmentManager()
                         .findFragmentById(R.id.interval_fragment);
+    }
+
+    /**
+     * Get the {@link SchedulerFragment} attached to the activity
+     *
+     * @return
+     */
+    public SchedulerFragment getSchedulerFragment() {
+        return (SchedulerFragment)
+                getSettingsFragment().
+                        getChildFragmentManager()
+                        .findFragmentById(R.id.scheduler_fragment);
     }
 }
 

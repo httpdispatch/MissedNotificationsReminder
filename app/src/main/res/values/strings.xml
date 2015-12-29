@@ -9,6 +9,7 @@
     <string name="settings_acess_enabled">The notification service is currently enabled</string>
     <string name="settings_acess_manage">Manage Access</string>
     <string name="settings_interval">Reminder Interval</string>
+    <string name="settings_scheduler">Custom Scheduler</string>
     <string name="settings_applications_select_title">Applications to monitor
         for missed notifications</string>
     <string name="settings_applications_select_button">Select applications</string>
@@ -17,6 +18,14 @@
     <string name="reminder_interval_hint">Reminder Interval (minutes)</string>
     <string name="interval_disabled">Disabled</string>
     <string name="interval_enabled">Enabled</string>
+
+    <!-- Scheduler-->
+    <string name="scheduler_begin_hint">Begins at</string>
+    <string name="scheduler_end_hint">Ends at</string>
+    <string name="scheduler_disabled">Disabled</string>
+    <string name="scheduler_enabled">Enabled</string>
+    <string name="scheduler_working_period">Working period</string>
+    <string name="scheduler_disabled_period">Disabled period</string>
 
     <!-- Applications selection activity -->
     <string name="applications_selection_title">Applications selection</string>

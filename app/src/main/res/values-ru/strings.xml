@@ -16,4 +16,11 @@
     <string name="settings_applications_select_title">Отслеживание пропущенных уведомлений</string>
     <string name="settings_interval">Интервал напоминаний</string>
     <string name="settings_title">Настройки</string>
+    <string name="scheduler_begin_hint">Начинается</string>
+    <string name="settings_scheduler">Планировщик</string>
+    <string name="scheduler_disabled">Выключен</string>
+    <string name="scheduler_working_period">Период работы</string>
+    <string name="scheduler_disabled_period">Период сна</string>
+    <string name="scheduler_enabled">Включен</string>
+    <string name="scheduler_end_hint">Заканчивается</string>
 </resources>
