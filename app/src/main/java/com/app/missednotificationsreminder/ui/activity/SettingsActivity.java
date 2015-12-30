@@ -11,6 +11,7 @@ import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActi
 import com.app.missednotificationsreminder.ui.fragment.IntervalFragment;
 import com.app.missednotificationsreminder.ui.fragment.SchedulerFragment;
 import com.app.missednotificationsreminder.ui.fragment.SettingsFragment;
+import com.app.missednotificationsreminder.ui.fragment.SoundFragment;
 
 import dagger.ObjectGraph;
 
@@ -76,6 +77,18 @@ public class SettingsActivity extends CommonFragmentActivity {
                 getSettingsFragment().
                         getChildFragmentManager()
                         .findFragmentById(R.id.scheduler_fragment);
+    }
+    
+    /**
+     * Get the {@link SoundFragment} attached to the activity
+     *
+     * @return
+     */
+    public SoundFragment getSoundFragment() {
+        return (SoundFragment)
+                getSettingsFragment().
+                        getChildFragmentManager()
+                        .findFragmentById(R.id.sound_fragment);
     }
 }
 

@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
 
 import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
@@ -14,6 +16,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalDefault;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMax;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
+import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
@@ -61,6 +64,10 @@ public final class DataModule {
      * Key used for the reminder interval preference
      */
     static final String REMINDER_INTERVAL_PREF = "REMINDER_INTERVAL";
+    /**
+     * Key used for the reminder ringtone preference
+     */
+    static final String REMINDER_RINGTONE_PREF = "REMINDER_RINGTONE";
     /**
      * Key used for the scheduler enabled preference
      */
@@ -113,6 +120,11 @@ public final class DataModule {
     @Provides @Singleton @ReminderInterval Preference<Integer> provideReminderInterval
             (RxSharedPreferences prefs, @ReminderIntervalDefault int reminderIntervalDefault) {
         return prefs.getInteger(REMINDER_INTERVAL_PREF, reminderIntervalDefault);
+    }
+
+    @Provides @Singleton @ReminderRingtone Preference<String> provideReminderRingtone(RxSharedPreferences prefs) {
+        Uri defaultRingtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        return prefs.getString(REMINDER_RINGTONE_PREF, defaultRingtone == null ? "" : defaultRingtone.toString());
     }
 
     @Provides @Singleton @SelectedApplications Preference<Set<String>> provideSelectedApplications(RxSharedPreferences prefs) {

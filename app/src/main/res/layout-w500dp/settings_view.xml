@@ -28,13 +28,23 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <include layout="@layout/settings_view_card_access" tools:model="@{model}"/>
+                <include
+                    layout="@layout/settings_view_card_access"
+                    tools:model="@{model}"/>
 
                 <android.support.v4.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_widget_interval"/>
 
-                <include layout="@layout/settings_view_card_apps" tools:model="@{model}"/>
+                <include
+                    layout="@layout/settings_view_card_apps"
+                    tools:model="@{model}"/>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/default_widget_interval"/>
+
+                <include layout="@layout/settings_view_card_scheduler"/>
 
             </LinearLayout>
 
@@ -54,7 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_widget_interval"/>
 
-                <include layout="@layout/settings_view_card_scheduler"/>
+                <include layout="@layout/settings_view_card_sound"/>
 
             </LinearLayout>
 

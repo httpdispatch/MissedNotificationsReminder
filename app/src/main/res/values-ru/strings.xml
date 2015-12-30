@@ -23,4 +23,7 @@
     <string name="scheduler_disabled_period">Период сна</string>
     <string name="scheduler_enabled">Включен</string>
     <string name="scheduler_end_hint">Заканчивается</string>
+    <string name="settings_sound">Звук</string>
+    <string name="sound_reminder_ringtone_button">Рингтон напоминаний</string>
+    <string name="sound_select_ringtone_dialog_title">Выберите рингтон</string>
 </resources>

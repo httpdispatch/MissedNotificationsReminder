@@ -26,7 +26,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-public class CommonFragmentActivity extends AppCompatActivity implements
+public class CommonFragmentActivity extends AppCompatActivityWithNestedFragmentFix implements
         ActivityStateAccessor {
 
     @Inject

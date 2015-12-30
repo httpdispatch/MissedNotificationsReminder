@@ -16,11 +16,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.view.Display;
 
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
+import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
@@ -69,6 +71,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @SchedulerMode Preference<Boolean> schedulerMode;
     @Inject @SchedulerRangeBegin Preference<Integer> schedulerRangeBegin;
     @Inject @SchedulerRangeEnd Preference<Integer> schedulerRangeEnd;
+    @Inject @ReminderRingtone Preference<String> reminderRingtone;
 
     /**
      * Alarm manager to schedule/cancel periodical actions
@@ -347,8 +350,13 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                             .subscribe(mp -> {
                                 try {
                                     Timber.d("onReceive subscription: current thread %1$s", Thread.currentThread().getName());
-                                    // get the default notification sound URI
-                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                    // get the selected notification sound URI
+                                    String ringtone = reminderRingtone.get();
+                                    if(TextUtils.isEmpty(ringtone)){
+                                        Timber.w("The reminder ringtone is not specified. Skip playing");
+                                        return;
+                                    }
+                                    Uri notification = Uri.parse(ringtone);
                                     mp.setDataSource(getApplicationContext(), notification);
                                     mp.prepare();
                                     mp.start();
