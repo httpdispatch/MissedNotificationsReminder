@@ -3,6 +3,7 @@ package com.app.missednotificationsreminder.ui.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 
 import com.app.missednotificationsreminder.R;
@@ -16,7 +17,9 @@ import com.app.missednotificationsreminder.ui.fragment.SoundFragment;
 import dagger.ObjectGraph;
 
 /**
- * Created by Eugene on 21.10.2015.
+ * Main settings activity
+ *
+ * @author Eugene Popovich
  */
 public class SettingsActivity extends CommonFragmentActivity {
     /**
@@ -28,6 +31,9 @@ public class SettingsActivity extends CommonFragmentActivity {
         super.onCreate(savedInstanceState);
         LayoutInflater inflater = getLayoutInflater();
         mBinding = SettingsActivityBinding.inflate(inflater, getRootContainer(), true);
+
+        // can't use binding here because of release bug (http://stackoverflow.com/a/30880378/527759)
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
     }
 
     @Override

@@ -14,6 +14,7 @@
     <string name="settings_applications_select_title">Applications to monitor
         for missed notifications</string>
     <string name="settings_applications_select_button">Select Applications</string>
+    <string name="menu_advanced_settings_visible">Show advanced settings</string>
 
     <!-- Reminder Interval -->
     <string name="reminder_interval_hint">Reminder Interval (minutes)</string>

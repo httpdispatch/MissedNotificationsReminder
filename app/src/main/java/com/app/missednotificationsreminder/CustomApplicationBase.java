@@ -2,6 +2,7 @@ package com.app.missednotificationsreminder;
 
 import android.app.Application;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.ui.ActivityHierarchyServer;
@@ -34,7 +35,11 @@ public abstract class CustomApplicationBase extends Application {
         mObjectGraph = ObjectGraph.create(getModules());
         mObjectGraph.inject(this);
         // initialize logging
-        Timber.plant(new Timber.DebugTree());
+        if(BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new CrashReportingTree());
+        }
 
         registerActivityLifecycleCallbacks(activityHierarchyServer);
     }
@@ -47,5 +52,15 @@ public abstract class CustomApplicationBase extends Application {
             return mObjectGraph;
         }
         return super.getSystemService(name);
+    }
+
+    private static class CrashReportingTree extends Timber.DebugTree {
+        @Override protected void log(int priority, String tag, String message, Throwable t) {
+            if (priority == Log.VERBOSE || priority == Log.DEBUG) {
+                // skip debug and verbose messages
+                return;
+            }
+            super.log(priority, tag, message, t);
+        }
     }
 }

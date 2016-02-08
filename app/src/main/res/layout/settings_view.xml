@@ -5,11 +5,12 @@
 
     <data>
 
+        <import type="android.view.View"/>
+
         <variable
             name="model"
             type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
     </data>
-
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -42,17 +43,22 @@
 
             <android.support.v4.widget.Space
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/default_widget_interval"/>
+                android:layout_height="@dimen/default_widget_interval"
+                android:visibility="@{model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
 
             <include
-                layout="@layout/settings_view_card_sound"/>
+                layout="@layout/settings_view_card_sound"
+                tools:model="@{model}"
+                />
 
             <android.support.v4.widget.Space
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/default_widget_interval"/>
+                android:layout_height="@dimen/default_widget_interval"
+                android:visibility="@{model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
 
             <include
-                layout="@layout/settings_view_card_scheduler"/>
+                layout="@layout/settings_view_card_scheduler"
+                tools:model="@{model}"/>
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

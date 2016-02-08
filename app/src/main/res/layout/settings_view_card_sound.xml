@@ -5,12 +5,18 @@
 
     <data>
 
+        <import type="android.view.View"/>
+
+        <variable
+            name="model"
+            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
     </data>
 
     <android.support.v7.widget.CardView
         style="@style/SettingsCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="@{model.advancedSettingsVisible != null &amp;&amp; model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}">
 
         <LinearLayout
             android:layout_width="match_parent"

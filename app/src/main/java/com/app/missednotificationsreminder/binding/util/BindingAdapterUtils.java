@@ -70,15 +70,27 @@ public class BindingAdapterUtils {
                     .subscribe(RxTextView.text(view))
             ;
             // subscribe observable to the text changes event
-            RxTextView.textChanges(view)
+            Observable<Integer> textChangesObservable = RxTextView.textChanges(view)
                     .flatMap(s -> Observable
-                            .defer(() -> Observable.just(TextUtils.isEmpty(s) ? 0 : Integer.parseInt(s.toString())))
+                            .defer(() -> Observable.just(TextUtils.isEmpty(s) ? null : Integer.parseInt(s.toString())))
                             .onErrorResumeNext(t -> {
                                         Timber.e(t, "onErrorResumeNext");
-                                        return Observable.just(0, observable.get());
+                                        return Observable.just(null);
                                     }
                             ))
+                    .share();
+            // if value is not null (no parse error occurred), set it to observable field
+            textChangesObservable
+                    .filter(v -> v != null)
                     .subscribe(observable.asAction());
+            // if value is null (parse error occurred), set view text to the current observable value and select it so
+            // it may be overwritten
+            textChangesObservable
+                    .filter(v -> v == null)
+                    .subscribe(__ -> {
+                        view.setText(Integer.toString(observable.get()));
+                        view.selectAll();
+                    });
         }
     }
 
@@ -108,8 +120,8 @@ public class BindingAdapterUtils {
     /**
      * Bind the {@link RangeBar} view with the {@link BindableObject}s of the {@link Integer} type
      *
-     * @param view       the view to bind observable with
-     * @param leftObservable the observable to bind the left value of the view with
+     * @param view            the view to bind observable with
+     * @param leftObservable  the observable to bind the left value of the view with
      * @param rightObservable the observable to bind the right value of the view with
      */
     @BindingAdapter({"bind:bindingLeft", "bind:bindingRight"})
@@ -124,16 +136,35 @@ public class BindingAdapterUtils {
                     .valueChanged(leftObservable)
                     .filter(value -> value != view.getLeftIndex()) // filter if value
                             // doesn't need to be updated
+                    .filter(value -> value >= view.getTickStart() / view.getTickInterval())// RangeBar is not stable enough.
+                            // Check the value fits the possible range
+                    .filter(value -> value <= view.getTickEnd() / view.getTickInterval())// RangeBar is not stable enough.
+                            // Check the value fits the possible range
                     .subscribe(value -> view.setRangePinsByIndices(value, rightObservable.get()));
             RxBindingUtils
                     .valueChanged(rightObservable)
                     .filter(value -> value != view.getRightIndex()) // filter if value
                             // doesn't need to be updated
+                    .filter(value -> value >= view.getTickStart() / view.getTickInterval())// RangeBar is not stable enough.
+                            // Check the value fits the possible range
+                    .filter(value -> value <= view.getTickEnd() / view.getTickInterval())// RangeBar is not stable enough.
+                            // Check the value fits the possible range
                     .subscribe(value -> view.setRangePinsByIndices(leftObservable.get(), value));
             // subscribe observable to the rangebar changes event
             view.setOnRangeBarChangeListener((v, left, right, lv, rv) -> {
-                leftObservable.set(left);
-                rightObservable.set(right);
+                int min = (int) (v.getTickStart() / v.getTickInterval());
+                int max = (int) (v.getTickEnd() / v.getTickInterval());
+                if (left < min) {
+                    // if range bar glitch occurs and left index moves outside allowed bounds
+                    view.setRangePinsByIndices(min, right);
+                } else if (right > max) {
+                    // if range bar glitch occurs and right index moves outside allowed bounds
+                    view.setRangePinsByIndices(left, max);
+                } else {
+                    // if values are within the possible range
+                    leftObservable.set(left);
+                    rightObservable.set(right);
+                }
             });
         }
     }

@@ -31,6 +31,10 @@ public class SettingsViewModel extends BaseViewModel {
      * Data binding field used for the access enabled flag
      */
     public BindableBoolean accessEnabled = new BindableBoolean(false);
+    /**
+     * Data binding field used for the show advanced settings flag
+     */
+    public BindableBoolean advancedSettingsVisible = new BindableBoolean(false);
 
     /**
      * The activity context

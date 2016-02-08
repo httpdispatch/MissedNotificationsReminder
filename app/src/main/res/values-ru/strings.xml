@@ -26,4 +26,5 @@
     <string name="settings_sound">Звук</string>
     <string name="sound_reminder_ringtone_button">Рингтон напоминаний</string>
     <string name="sound_select_ringtone_dialog_title">Выберите рингтон</string>
+    <string name="menu_advanced_settings_visible">Расширенные настройки</string>
 </resources>
