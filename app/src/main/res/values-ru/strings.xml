@@ -27,4 +27,10 @@
     <string name="sound_reminder_ringtone_button">Рингтон напоминаний</string>
     <string name="sound_select_ringtone_dialog_title">Выберите рингтон</string>
     <string name="menu_advanced_settings_visible">Расширенные настройки</string>
+    <string name="wakelock_disabled">Позволять устройству засыпать (РЕКОМЕНДУЕТСЯ)</string>
+    <string name="wakelock_enabled">Не позволять устройству засыпать (ВНИМАНИЕ, используйте эту опцию только, если испытываете проблемы с периодичностью напоминаний)</string>
+    <string name="settings_battery_optimization">Экономия заряда батареи</string>
+    <string name="settings_manage_battery_optimization">Управление экономией заряда батареи</string>
+    <string name="settings_battery_optimization_enabled">Android OS оптимизиурует расходования батареи для данного приложения. Если у Вас наблюдаются проблемы с работой напоминаний, пожалуйста, отключите экономию заряда для приложения "Missed Notification Reminder".</string>
+    <string name="settings_battery_optimization_disabled">Приложение добавлено в белый список экономии заряда батареи</string>
 </resources>

@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -20,6 +19,7 @@ import android.text.TextUtils;
 import android.view.Display;
 
 import com.app.missednotificationsreminder.di.Injector;
+import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
@@ -41,6 +41,7 @@ import javax.inject.Inject;
 
 import dagger.ObjectGraph;
 import rx.Observable;
+import rx.Subscription;
 import rx.exceptions.OnErrorThrowable;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -66,6 +67,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
 
     @Inject @ReminderEnabled Preference<Boolean> reminderEnabled;
     @Inject @ReminderInterval Preference<Integer> reminderInterval;
+    @Inject @ForceWakeLock Preference<Boolean> forceWakeLock;
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
     @Inject @SchedulerEnabled Preference<Boolean> schedulerEnabled;
     @Inject @SchedulerMode Preference<Boolean> schedulerMode;
@@ -81,6 +83,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * The pending intent used by alarm manager to wake the service
      */
     PendingIntent mPendingIntent;
+    /**
+     * Reference to the current device wake lock if exists
+     */
+    PowerManager.WakeLock mWakeLock;
 
     /**
      * The flag to indicate periodical notification active state
@@ -90,6 +96,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Composite subscription used to handle subscriptions added in this service
      */
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
+    /**
+     * Field used to store reference to the timer subscription used when the wake lock option is specified
+     */
+    private Subscription mTimerSubscription;
     /**
      * Receiver used to handle actions from the pending intent used for periodical alarms
      */
@@ -147,6 +157,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         reminderInterval.asObservable()
                                 .skip(1) // skip initial value emitted right after the subscription
                                 .doOnEach(__ -> Timber.d("Reminder interval changed"))
+                                .map(__ -> true),
+                        forceWakeLock.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Force WakeLock changed"))
                                 .map(__ -> true),
                         selectedApplications.asObservable()
                                 .skip(1) // skip initial value emitted right after the subscription
@@ -229,10 +243,19 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         if (scheduledTime == 0) {
             Timber.d("scheduleNextWakup: Schedule reminder for %1$d minutes",
                     reminderInterval.get());
+            if(forceWakeLock.get() && mWakeLock == null){
+                // if wakelock workaround should be used
+                Timber.d("scheduleNextWakup: force wake lock");
+                PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+                mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                        ReminderNotificationListenerService.class.getSimpleName());
+                mWakeLock.acquire();
+            }
             scheduleNextWakup(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + reminderInterval.get() * TimeUtils.MILLIS_IN_MINUTE);
         } else {
             Timber.d("scheduleNextWakup: Schedule reminder for time %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",
                     new Date(scheduledTime));
+            releaseWakeLockIfRequired();
             scheduleNextWakup(AlarmManager.RTC_WAKEUP, scheduledTime);
         }
     }
@@ -245,12 +268,27 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     private void scheduleNextWakup(int alarmType, long time) {
         Timber.d("scheduleNextWakup: called");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mAlarmManager.setExactAndAllowWhileIdle(alarmType, time, mPendingIntent);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mAlarmManager.setExact(alarmType, time, mPendingIntent);
+        if(mWakeLock != null){
+            // use the manual timer action to trigger pending intent receiver instead instead of alarm manager
+            mTimerSubscription = Observable
+                    .just(true)
+                    .delay(time - SystemClock.elapsedRealtime(), TimeUnit.MILLISECONDS)
+                    .doOnNext(__ -> Timber.d("Wake from subscription"))
+                    .subscribe(__ -> mPendingIntentReceiver.onReceive(getApplicationContext(), null));
         } else {
-            mAlarmManager.set(alarmType, time, mPendingIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mAlarmManager.setExactAndAllowWhileIdle(alarmType, time, mPendingIntent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (alarmType == AlarmManager.ELAPSED_REALTIME_WAKEUP) {
+                    // adjust the time to the UTC time instead of elapsed time, such as setAlarmClock uses RTC_WAKUP always
+                    time = time - SystemClock.elapsedRealtime() + System.currentTimeMillis();
+                }
+                mAlarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(time, mPendingIntent), mPendingIntent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                mAlarmManager.setExact(alarmType, time, mPendingIntent);
+            } else {
+                mAlarmManager.set(alarmType, time, mPendingIntent);
+            }
         }
     }
 
@@ -259,6 +297,22 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     private void stopWaking() {
         stopWaking(false);
+        if(mTimerSubscription != null){
+            mTimerSubscription.unsubscribe();
+            mTimerSubscription = null;
+        }
+        releaseWakeLockIfRequired();
+    }
+
+    /**
+     * Release a wakelock if exists
+     */
+    private void releaseWakeLockIfRequired() {
+        if(mWakeLock != null){
+            Timber.d("releaseWakeLockIfRequired: release wake lock");
+            mWakeLock.release();
+            mWakeLock = null;
+        }
     }
 
     /**
@@ -356,6 +410,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                         Timber.w("The reminder ringtone is not specified. Skip playing");
                                         return;
                                     }
+                                    Timber.d("onReceive: ringtone %1$s", ringtone);
                                     Uri notification = Uri.parse(ringtone);
                                     mp.setDataSource(getApplicationContext(), notification);
                                     mp.prepare();

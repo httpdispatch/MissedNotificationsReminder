@@ -1,12 +1,11 @@
 // Manifest version information!
 def versionMajor = 1
 def versionMinor = 1
-def versionPatch = 0
-def versionBuild = 1 // bump for dogfood builds, public betas, etc.
+def versionPatch = 3
+def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'com.android.databinding'
 apply plugin: 'me.tatarka.retrolambda'
 
 def gitSha = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
@@ -24,7 +23,11 @@ def getVersionCode = {minSdkVersion ->
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
+
+    dataBinding {
+        enabled = true
+    }
 
     dexOptions {
         // Skip pre-dexing when running on Travis CI or when disabled via -Dpre-dex=false.

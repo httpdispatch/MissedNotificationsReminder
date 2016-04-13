@@ -9,8 +9,10 @@ import com.app.missednotificationsreminder.service.ReminderNotificationListenerS
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils;
 import com.app.missednotificationsreminder.ui.activity.ApplicationsSelectionActivity;
 import com.app.missednotificationsreminder.ui.view.SettingsView;
+import com.app.missednotificationsreminder.util.BatteryUtils;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.functions.Func1;
@@ -21,6 +23,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
+@Singleton
 public class SettingsViewModel extends BaseViewModel {
 
     /**
@@ -31,6 +34,10 @@ public class SettingsViewModel extends BaseViewModel {
      * Data binding field used for the access enabled flag
      */
     public BindableBoolean accessEnabled = new BindableBoolean(false);
+    /**
+     * Data binding field used for the battery optimization disabled information flag
+     */
+    public BindableBoolean batteryOptimizationDisabled = new BindableBoolean(false);
     /**
      * Data binding field used for the show advanced settings flag
      */
@@ -60,6 +67,19 @@ public class SettingsViewModel extends BaseViewModel {
         );
     }
 
+    /**
+     * Run the operation to check whether the battery optimization is disabled for the application
+     */
+    public void checkBatteryOptimizationDisabled() {
+        monitor(
+                Observable
+                        .just(true)
+                        .map(checkBatteryOptimizationDisabled)
+                        .subscribe(v -> batteryOptimizationDisabled.set(v),
+                                t -> Timber.e(t, "Unexpected"))
+        );
+    }
+
 
     /**
      * Method which is called when the select applications button is clicked. It launches the
@@ -83,6 +103,25 @@ public class SettingsViewModel extends BaseViewModel {
     }
 
     /**
+     * Method which is called when the manage access button is clicked. It launches the system
+     * notification listener settings window
+     *
+     * @param v
+     */
+    public void onManageBatteryOptimizationPressed(View v) {
+        context.startActivity(BatteryUtils.getBatteryOptimizationIntent(context));
+    }
+
+    /**
+     * Data binding method used to determine whether to display battery optimization settings
+     *
+     * @return
+     */
+    public boolean isBatteryOptimizationSettingsVisible() {
+        return BatteryUtils.isBatteryOptimizationSettingsAvailable();
+    }
+
+    /**
      * The function to check whether the notification service is enabled for the specified
      * package name
      */
@@ -91,4 +130,11 @@ public class SettingsViewModel extends BaseViewModel {
                 boolean result = ReminderNotificationListenerServiceUtils.isServiceEnabled(context, serviceClass);
                 return Observable.just(result);
             };
+
+    /**
+     * The function to check whether the battery optimization is disabled for the application
+     */
+    private final Func1<Boolean, Boolean> checkBatteryOptimizationDisabled =
+            __ -> isBatteryOptimizationSettingsVisible() ?
+                    BatteryUtils.isBatteryOptimizationDisabled(context) : true;
 }

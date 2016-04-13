@@ -3,7 +3,10 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <import type="android.view.View"/>
+        <variable
+            name="parentModel"
+            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
         <variable
             name="model"
             type="com.app.missednotificationsreminder.binding.model.IntervalViewModel"/>
@@ -49,6 +52,23 @@
             android:enabled="@{model.enabled}"
             android:max="@{model.maxInterval - model.minInterval}"
             tools:binding="@{model.seekInterval}"/>
+
+
+        <TextView
+            style="@style/Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{parentModel.advancedSettingsVisible.get() || model.forceWakeLock.get() ? View.VISIBLE : View.GONE}"
+            android:text="@{model.forceWakeLock.get() ? @string/wakelock_enabled : @string/wakelock_disabled}"/>
+
+        <android.support.v7.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/wakelock_disabled"
+            android:textOn="@string/wakelock_enabled"
+            android:visibility="@{parentModel.advancedSettingsVisible.get() || model.forceWakeLock.get() ? View.VISIBLE : View.GONE}"
+            android:enabled="@{model.interval.get() &lt; model.maxIntervalForWakeLock}"
+            tools:binding="@{model.forceWakeLock}"/>
 
     </LinearLayout>
 </layout>

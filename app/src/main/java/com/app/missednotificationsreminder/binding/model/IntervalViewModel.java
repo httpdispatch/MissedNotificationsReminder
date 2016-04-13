@@ -4,6 +4,7 @@ import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.BindableString;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
+import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMax;
@@ -34,6 +35,10 @@ public class IntervalViewModel extends BaseViewModel {
      */
     public BindableBoolean enabled = new BindableBoolean(false);
     /**
+     * Data binding field used to handle use wake lock setting
+     */
+    public BindableBoolean forceWakeLock = new BindableBoolean(false);
+    /**
      * Data binding field used to handle interval value information
      */
     public BindableObject<Integer> interval = new BindableObject<Integer>(0);
@@ -50,9 +55,15 @@ public class IntervalViewModel extends BaseViewModel {
      * Data binding field to provide minimum possible interval information to the SeekBar
      */
     public int minInterval;
+    /**
+     * Data binding field to provide maximum possible interval value when the force wake lock functionality
+     * is available
+     */
+    public int maxIntervalForWakeLock = 10;
 
     private Preference<Boolean> mReminderEnabled;
     private Preference<Integer> mReminderInterval;
+    private Preference<Boolean> mForceWakeLock;
     private IntervalView mView;
 
 
@@ -65,12 +76,14 @@ public class IntervalViewModel extends BaseViewModel {
      */
     @Inject public IntervalViewModel(
             IntervalView view, @ReminderEnabled Preference<Boolean> reminderEnabled,
+            @ForceWakeLock Preference<Boolean> forceWakeLock,
             @ReminderInterval Preference<Integer> reminderInterval,
             @ReminderIntervalMax int maxInterval,
             @ReminderIntervalMin int minInterval
     ) {
         mView = view;
         mReminderEnabled = reminderEnabled;
+        mForceWakeLock = forceWakeLock;
         mReminderInterval = reminderInterval;
         this.maxInterval = maxInterval;
         this.minInterval = minInterval;
@@ -80,6 +93,7 @@ public class IntervalViewModel extends BaseViewModel {
     void init() {
         // pass preferences values to the data binding fields
         enabled.set(mReminderEnabled.get());
+        forceWakeLock.set(mForceWakeLock.get());
         interval.set(mReminderInterval.get());
         seekInterval.set(interval.get() - minInterval);
         // subscribe preferences to the data binding fields changing events to save the modified
@@ -92,6 +106,12 @@ public class IntervalViewModel extends BaseViewModel {
                         .subscribe(mReminderEnabled.asAction()));
         monitor(
                 RxBindingUtils
+                        .valueChanged(forceWakeLock)
+                        .skip(1)// skip initial value emitted automatically right after the
+                                // subsription
+                        .subscribe(mForceWakeLock.asAction()));
+        monitor(
+                RxBindingUtils
                         .valueChanged(interval)
                         .skip(1)// skip initial value emitted automatically right after the
                                 // subsription
@@ -100,6 +120,16 @@ public class IntervalViewModel extends BaseViewModel {
                                 // debounce function for the timeout
                                 // based processing
                         .subscribe(mReminderInterval.asAction()));
+
+        // set wakelock parameter value to false when the interval value become higher when the maxIntervalForWakeLock
+        monitor(
+                RxBindingUtils
+                        .valueChanged(interval)
+                        .skip(1)// skip initial value emitted automatically right after the
+                                // subsription
+                        .filter(v -> v > maxIntervalForWakeLock)
+                        .map(__ -> false)
+                        .subscribe(forceWakeLock.asAction()));
 
         Observable<Integer> intervalChanged = RxBindingUtils
                 .valueChanged(interval)

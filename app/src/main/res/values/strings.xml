@@ -6,6 +6,7 @@
     <string name="settings_title">Settings</string>
     <string name="settings_subtitle" translatable="false">@string/app_name</string>
     <string name="settings_acess_title">Notifications Service Access</string>
+    <string name="settings_battery_optimization">Battery Optimization</string>
     <string name="settings_acess_enabled">The notification service is currently enabled</string>
     <string name="settings_acess_manage">Manage Access</string>
     <string name="settings_interval">Reminder Interval</string>
@@ -16,10 +17,18 @@
     <string name="settings_applications_select_button">Select Applications</string>
     <string name="menu_advanced_settings_visible">Show advanced settings</string>
 
+    <!-- Battery optimization settings -->
+    <string name="settings_battery_optimization_disabled">The application is already excluded from battery optimization</string>
+    <string name="settings_battery_optimization_enabled">The Android OS optimizes battery usage for the application.
+        If you experience problems with the reminder work please disable battery optimization for the "Missed Notification Reminder" application</string>
+    <string name="settings_manage_battery_optimization">Manage Battery Optimization</string>
+
     <!-- Reminder Interval -->
     <string name="reminder_interval_hint">Reminder Interval (minutes)</string>
     <string name="interval_disabled">Disabled</string>
     <string name="interval_enabled">Enabled</string>
+    <string name="wakelock_disabled">Do not keep device awake (RECOMMENDED)</string>
+    <string name="wakelock_enabled">Keep device awake (WARNING, use this only if you experience issues with the reminder work. This will keep device ON all the time while reminder interval is scheduled)</string>
 
     <!-- Scheduler-->
     <string name="scheduler_begin_hint">Begins at</string>

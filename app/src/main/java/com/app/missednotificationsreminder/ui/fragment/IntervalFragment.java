@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.app.missednotificationsreminder.binding.model.IntervalViewModel;
+import com.app.missednotificationsreminder.binding.model.SettingsViewModel;
 import com.app.missednotificationsreminder.databinding.IntervalViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 import com.app.missednotificationsreminder.ui.view.IntervalView;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 public class IntervalFragment extends CommonFragmentWithViewModel<IntervalViewModel> implements IntervalView {
 
     @Inject IntervalViewModel model;
+    @Inject SettingsViewModel parentModel;
     IntervalViewBinding mBinding;
 
     @Override public IntervalViewModel getModel() {
@@ -42,5 +44,6 @@ public class IntervalFragment extends CommonFragmentWithViewModel<IntervalViewMo
 
     private void init(View view, Bundle savedInstanceState) {
         mBinding.setModel(model);
+        mBinding.setParentModel(parentModel);
     }
 }

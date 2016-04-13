@@ -9,6 +9,7 @@ import android.net.Uri;
 
 import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
+import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IoThreadScheduler;
 import com.app.missednotificationsreminder.di.qualifiers.MainThreadScheduler;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
@@ -120,6 +121,11 @@ public final class DataModule {
     @Provides @Singleton @ReminderInterval Preference<Integer> provideReminderInterval
             (RxSharedPreferences prefs, @ReminderIntervalDefault int reminderIntervalDefault) {
         return prefs.getInteger(REMINDER_INTERVAL_PREF, reminderIntervalDefault);
+    }
+
+    @Provides @Singleton @ForceWakeLock Preference<Boolean> provideForceWakeLock
+            (RxSharedPreferences prefs) {
+        return prefs.getBoolean(ForceWakeLock.class.getSimpleName(), false);
     }
 
     @Provides @Singleton @ReminderRingtone Preference<String> provideReminderRingtone(RxSharedPreferences prefs) {
