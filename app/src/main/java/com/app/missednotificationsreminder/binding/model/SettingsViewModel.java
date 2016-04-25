@@ -1,15 +1,19 @@
 package com.app.missednotificationsreminder.binding.model;
 
+import android.Manifest;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
+import com.app.missednotificationsreminder.binding.util.BindableString;
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService;
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils;
 import com.app.missednotificationsreminder.ui.activity.ApplicationsSelectionActivity;
 import com.app.missednotificationsreminder.ui.view.SettingsView;
 import com.app.missednotificationsreminder.util.BatteryUtils;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,6 +31,14 @@ import timber.log.Timber;
 public class SettingsViewModel extends BaseViewModel {
 
     /**
+     * Permissions required by the application
+     */
+    static String[] REQUIRED_PERMISSIONS = new String[] {
+            Manifest.permission.WAKE_LOCK,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+    };
+
+    /**
      * Data binding field used for the access initialized flag
      */
     public BindableBoolean accessInitialized = new BindableBoolean(false);
@@ -42,6 +54,10 @@ public class SettingsViewModel extends BaseViewModel {
      * Data binding field used for the show advanced settings flag
      */
     public BindableBoolean advancedSettingsVisible = new BindableBoolean(false);
+    /**
+     * Data binding field used to hold information about missing required permissions
+     */
+    public BindableString missingPermissions = new BindableString();
 
     /**
      * The activity context
@@ -80,6 +96,17 @@ public class SettingsViewModel extends BaseViewModel {
         );
     }
 
+    /**
+     * Check whether all required permissions are granted
+     */
+    public void checkPermissions(){
+        monitor(Observable
+                .from(REQUIRED_PERMISSIONS)
+                .filter(permission -> !RxPermissions.getInstance(context).isGranted(permission))
+                .toList()
+                .map(permissions -> TextUtils.join(", ", permissions))
+                .subscribe(missingPermissions.asAction()));
+    }
 
     /**
      * Method which is called when the select applications button is clicked. It launches the
@@ -100,6 +127,23 @@ public class SettingsViewModel extends BaseViewModel {
      */
     public void onManageAccessButtonPressed(View v) {
         context.startActivity(ReminderNotificationListenerServiceUtils.getServiceEnabledManagementIntent());
+    }
+
+    /**
+     * Method which is called when the grant permissions button is clicked. It launches the grant permission dialog
+     *
+     * @param v
+     */
+    public void onGrantPermissionsPressed(View v){
+        Timber.d("onGrantPermissionsPressed");
+        monitor(RxPermissions
+                .getInstance(context)
+                .requestEach(REQUIRED_PERMISSIONS)
+                .filter(permission -> !permission.granted) // skip already granted permissions
+                .map(permission -> permission.name) // collect names of the not yet granted permissions
+                .toList()
+                .map(permissions -> TextUtils.join(", ", permissions))
+                .subscribe(missingPermissions.asAction()));
     }
 
     /**

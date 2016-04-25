@@ -7,6 +7,7 @@
     <string name="settings_subtitle" translatable="false">@string/app_name</string>
     <string name="settings_acess_title">Notifications Service Access</string>
     <string name="settings_battery_optimization">Battery Optimization</string>
+    <string name="settings_permissions">Permissions</string>
     <string name="settings_acess_enabled">The notification service is currently enabled</string>
     <string name="settings_acess_manage">Manage Access</string>
     <string name="settings_interval">Reminder Interval</string>
@@ -16,6 +17,10 @@
         for missed notifications</string>
     <string name="settings_applications_select_button">Select Applications</string>
     <string name="menu_advanced_settings_visible">Show advanced settings</string>
+
+    <!-- Permissions settings -->
+    <string name="settings_permissions_required">The following permissions are required for the app work: \"%1$s\". Please allow them.</string>
+    <string name="settings_permissions_grant">Grant required permissions</string>
 
     <!-- Battery optimization settings -->
     <string name="settings_battery_optimization_disabled">The application is already excluded from battery optimization</string>

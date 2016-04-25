@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".ui.activity.SettingsActivity">
+
+    <data>
+
+        <import type="android.view.View"/>
+        <import type="android.text.TextUtils"/>
+
+        <variable
+            name="model"
+            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
+    </data>
+
+    <android.support.v7.widget.CardView
+        style="@style/SettingsCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{TextUtils.isEmpty(model.missingPermissions.get()) ? View.GONE : View.VISIBLE}">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_permissions"/>
+
+            <View
+                style="@style/CardTitleSeparator"
+                android:layout_width="match_parent"
+                android:layout_height="1dip"/>
+
+            <LinearLayout
+                style="@style/CardContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{@string/settings_permissions_required(model.missingPermissions.get())}"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/design_textinput_error_color"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="@{model.onGrantPermissionsPressed}"
+                        android:text="@string/settings_permissions_grant"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+</layout>

@@ -33,4 +33,7 @@
     <string name="settings_manage_battery_optimization">Управление экономией заряда батареи</string>
     <string name="settings_battery_optimization_enabled">Android OS оптимизиурует расходования батареи для данного приложения. Если у Вас наблюдаются проблемы с работой напоминаний, пожалуйста, отключите экономию заряда для приложения "Missed Notification Reminder".</string>
     <string name="settings_battery_optimization_disabled">Приложение добавлено в белый список экономии заряда батареи</string>
+    <string name="settings_permissions">Разрешения</string>
+    <string name="settings_permissions_grant">Предоставить доступ</string>
+    <string name="settings_permissions_required">Следующие разрешения необходимы для корректной работы приложения: \"%1$s\" Пожалуйста, предоставьте доступ.</string>
 </resources>
