@@ -13,6 +13,7 @@ import com.app.missednotificationsreminder.ui.fragment.IntervalFragment;
 import com.app.missednotificationsreminder.ui.fragment.SchedulerFragment;
 import com.app.missednotificationsreminder.ui.fragment.SettingsFragment;
 import com.app.missednotificationsreminder.ui.fragment.SoundFragment;
+import com.app.missednotificationsreminder.ui.fragment.VibrationFragment;
 
 import dagger.ObjectGraph;
 
@@ -95,6 +96,18 @@ public class SettingsActivity extends CommonFragmentActivity {
                 getSettingsFragment().
                         getChildFragmentManager()
                         .findFragmentById(R.id.sound_fragment);
+    }
+    
+    /**
+     * Get the {@link VibrationFragment} attached to the activity
+     *
+     * @return
+     */
+    public VibrationFragment getVibrationFragment() {
+        return (VibrationFragment)
+                getSettingsFragment().
+                        getChildFragmentManager()
+                        .findFragmentById(R.id.vibration_fragment);
     }
 }
 

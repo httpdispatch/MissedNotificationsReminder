@@ -14,7 +14,10 @@ import com.jakewharton.rxbinding.widget.RxSeekBar;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.squareup.picasso.RequestCreator;
 
+import java.util.concurrent.TimeUnit;
+
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
 /**
@@ -89,6 +92,57 @@ public class BindingAdapterUtils {
                     .filter(v -> v == null)
                     .subscribe(__ -> {
                         view.setText(Integer.toString(observable.get()));
+                        view.selectAll();
+                    });
+        }
+    }
+
+    /**
+     * Bind the {@link EditText} view with the {@link BindableObject} of the {@link Float} type
+     *
+     * @param view       the view to bind observable with
+     * @param observable the observable to bind the view with
+     */
+    @BindingAdapter({"bind:binding"})
+    public static void bindEditTextWithFloat(EditText view,
+                                             final BindableObject<Float> observable) {
+        if(observable == null){
+            // overcome NPE issue at Android 4.3 and below
+            return;
+        }
+        if (view.getTag(R.id.binded) == null) {
+            // if the binding was not done before
+            view.setTag(R.id.binded, true);
+            // subscribe view to the observable value changed event
+            RxBindingUtils
+                    .valueChanged(observable)
+                    .map(value -> Float.toString(value))
+                    .filter(value -> !TextUtils.equals(view.getText(), value)) // filter if value
+                    // doesn't need to be updated
+                    .subscribe(RxTextView.text(view))
+            ;
+            // subscribe observable to the text changes event
+            Observable<Float> textChangesObservable = RxTextView.textChanges(view)
+                    .debounce(1000, TimeUnit.MILLISECONDS)
+                    .concatMap(s -> Observable
+                            .defer(() -> Observable.just(TextUtils.isEmpty(s) ? null : Float.parseFloat(s.toString())))
+                            .onErrorResumeNext(t -> {
+                                        Timber.e(t, "onErrorResumeNext");
+                                        return Observable.just(null);
+                                    }
+                            ))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .share();
+            // if value is not null (no parse error occurred), set it to observable field
+            textChangesObservable
+                    .filter(v -> v != null)
+                    .subscribe(observable.asAction());
+            // if value is null (parse error occurred), set view text to the current observable value and select it so
+            // it may be overwritten
+            textChangesObservable
+                    .filter(v -> v == null)
+                    .subscribe(__ -> {
+                        view.setText(Float.toString(observable.get()));
                         view.selectAll();
                     });
         }

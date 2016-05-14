@@ -12,10 +12,12 @@ import com.app.missednotificationsreminder.ui.fragment.IntervalFragment;
 import com.app.missednotificationsreminder.ui.fragment.SchedulerFragment;
 import com.app.missednotificationsreminder.ui.fragment.SettingsFragment;
 import com.app.missednotificationsreminder.ui.fragment.SoundFragment;
+import com.app.missednotificationsreminder.ui.fragment.VibrationFragment;
 import com.app.missednotificationsreminder.ui.view.IntervalView;
 import com.app.missednotificationsreminder.ui.view.SchedulerView;
 import com.app.missednotificationsreminder.ui.view.SettingsView;
 import com.app.missednotificationsreminder.ui.view.SoundView;
+import com.app.missednotificationsreminder.ui.view.VibrationView;
 
 import javax.inject.Singleton;
 
@@ -36,6 +38,7 @@ import dagger.Provides;
                 SchedulerFragment.class,
                 SoundViewModel.class,
                 SoundFragment.class,
+                VibrationFragment.class,
         }
 )
 public final class SettingsActivityModule {
@@ -52,9 +55,13 @@ public final class SettingsActivityModule {
     @Provides @Singleton SchedulerView provideSchedulerView() {
         return mSettingsActivity.getSchedulerFragment();
     }
-    
+
     @Provides @Singleton SoundView provideSoundView() {
         return mSettingsActivity.getSoundFragment();
+    }
+
+    @Provides @Singleton VibrationView provideVibrationView() {
+        return mSettingsActivity.getVibrationFragment();
     }
 
     @Provides @Singleton SettingsView provideSettingsView() {

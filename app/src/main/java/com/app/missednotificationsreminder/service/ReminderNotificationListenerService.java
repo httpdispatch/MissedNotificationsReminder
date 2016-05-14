@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.text.TextUtils;
 import android.view.Display;
 
@@ -22,12 +23,14 @@ import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
+import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeEnd;
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
+import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.f2prateek.rx.preferences.Preference;
 
@@ -66,6 +69,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     static final int CHECK_WAKING_CONDITIONS_MSG = 0;
 
     @Inject @ReminderEnabled Preference<Boolean> reminderEnabled;
+    @Inject @ReminderIntervalMin int reminderIntervalMinimum;
     @Inject @ReminderInterval Preference<Integer> reminderInterval;
     @Inject @ForceWakeLock Preference<Boolean> forceWakeLock;
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
@@ -74,11 +78,17 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @SchedulerRangeBegin Preference<Integer> schedulerRangeBegin;
     @Inject @SchedulerRangeEnd Preference<Integer> schedulerRangeEnd;
     @Inject @ReminderRingtone Preference<String> reminderRingtone;
+    @Inject @Vibrate Preference<Boolean> vibrate;
 
     /**
      * Alarm manager to schedule/cancel periodical actions
      */
     AlarmManager mAlarmManager;
+
+    /**
+     * Vibrator to perform vibration when the notification is playing
+     */
+    @Inject Vibrator mVibrator;
     /**
      * The pending intent used by alarm manager to wake the service
      */
@@ -129,6 +139,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         // inject dependencies
         ObjectGraph appGraph = Injector.obtain(getApplication());
         appGraph.inject(this);
+        // TODO workaround for updated interval measurements
+        if(reminderInterval.get() < reminderIntervalMinimum){
+            reminderInterval.set(TimeUtils.minutesToSeconds(reminderInterval.get()));
+        }
 
         // initialize broadcast receiver
         mPendingIntentReceiver = new ScheduledSoundNotificationReceiver();
@@ -235,15 +249,15 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         if (schedulerEnabled.get()) {
             // if custom scheduler is enabled
             scheduledTime = TimeUtils.getScheduledTime(
-                    schedulerMode.get()? TimeUtils.SchedulerMode.WORKING_PERIOD: TimeUtils.SchedulerMode.NON_WORKING_PERIOD,
+                    schedulerMode.get() ? TimeUtils.SchedulerMode.WORKING_PERIOD : TimeUtils.SchedulerMode.NON_WORKING_PERIOD,
                     schedulerRangeBegin.get(), schedulerRangeEnd.get(),
-                    System.currentTimeMillis() + reminderInterval.get() * TimeUtils.MILLIS_IN_MINUTE);
+                    System.currentTimeMillis() + reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND);
         }
 
         if (scheduledTime == 0) {
-            Timber.d("scheduleNextWakup: Schedule reminder for %1$d minutes",
+            Timber.d("scheduleNextWakup: Schedule reminder for %1$d seconds",
                     reminderInterval.get());
-            if(forceWakeLock.get() && mWakeLock == null){
+            if (forceWakeLock.get() && mWakeLock == null) {
                 // if wakelock workaround should be used
                 Timber.d("scheduleNextWakup: force wake lock");
                 PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -251,7 +265,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         ReminderNotificationListenerService.class.getSimpleName());
                 mWakeLock.acquire();
             }
-            scheduleNextWakup(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + reminderInterval.get() * TimeUtils.MILLIS_IN_MINUTE);
+            scheduleNextWakup(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND);
         } else {
             Timber.d("scheduleNextWakup: Schedule reminder for time %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",
                     new Date(scheduledTime));
@@ -268,7 +282,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     private void scheduleNextWakup(int alarmType, long time) {
         Timber.d("scheduleNextWakup: called");
-        if(mWakeLock != null){
+        if (mWakeLock != null) {
             // use the manual timer action to trigger pending intent receiver instead instead of alarm manager
             mTimerSubscription = Observable
                     .just(true)
@@ -297,7 +311,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     private void stopWaking() {
         stopWaking(false);
-        if(mTimerSubscription != null){
+        if (mTimerSubscription != null) {
             mTimerSubscription.unsubscribe();
             mTimerSubscription = null;
         }
@@ -308,7 +322,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Release a wakelock if exists
      */
     private void releaseWakeLockIfRequired() {
-        if(mWakeLock != null){
+        if (mWakeLock != null) {
             Timber.d("releaseWakeLockIfRequired: release wake lock");
             mWakeLock.release();
             mWakeLock = null;
@@ -376,8 +390,15 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
             mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
             mMediaPlayer.setOnPreparedListener(__ -> Timber.d("MediaPlayer prepared"));
-            mMediaPlayer.setOnCompletionListener(__ -> Timber.d("MediaPlayer completed playing")
-            );
+            mMediaPlayer.setOnCompletionListener(__ -> {
+                Timber.d("MediaPlayer completed playing");
+                cancelVibration();
+            });
+            mMediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Timber.d("MediaPlayer error %1$d %2$d", what, extra);
+                cancelVibration();
+                return false;
+            });
         }
 
         @Override
@@ -391,6 +412,12 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             if (!isScreenOn(context)) {
                 Timber.d("onReceive: The screen is off, notify");
                 try {
+                    // Start without a delay
+                    // Each element then alternates between vibrate, sleep, vibrate, sleep...
+                    if (vibrate.get()) {
+                        long[] pattern = {0, 100, 50, 100, 50, 100, 200};
+                        mVibrator.vibrate(pattern, 0);
+                    }
                     if (mMediaPlayer.isPlaying()) {
                         Timber.d("onReceive: Media player is playing. Stopping...");
                         mMediaPlayer.stop();
@@ -401,12 +428,14 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                     Timber.d("onReceive: current thread %1$s", Thread.currentThread().getName());
                     Observable.just(mMediaPlayer)
                             .observeOn(Schedulers.io())
+                            .doOnError(__ -> cancelVibration())
                             .subscribe(mp -> {
                                 try {
                                     Timber.d("onReceive subscription: current thread %1$s", Thread.currentThread().getName());
                                     // get the selected notification sound URI
                                     String ringtone = reminderRingtone.get();
-                                    if(TextUtils.isEmpty(ringtone)){
+                                    if (TextUtils.isEmpty(ringtone)) {
+                                        cancelVibration();
                                         Timber.w("The reminder ringtone is not specified. Skip playing");
                                         return;
                                     }
@@ -417,6 +446,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                     mp.start();
                                     mLock.countDown();
                                 } catch (Exception ex) {
+                                    cancelVibration();
                                     throw OnErrorThrowable.from(ex);
                                 }
                             }, ex -> Timber.e(ex, null));
@@ -456,6 +486,13 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 //noinspection deprecation
                 return pm.isScreenOn();
             }
+        }
+
+        /**
+         * Cancel the vibration
+         */
+        private void cancelVibration() {
+            mVibrator.cancel();
         }
     }
 

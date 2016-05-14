@@ -2,6 +2,7 @@ package com.app.missednotificationsreminder.binding.model;
 
 import android.Manifest;
 import android.content.Context;
+import android.os.Vibrator;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -36,6 +37,7 @@ public class SettingsViewModel extends BaseViewModel {
     static String[] REQUIRED_PERMISSIONS = new String[] {
             Manifest.permission.WAKE_LOCK,
             Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.VIBRATE,
     };
 
     /**
@@ -55,6 +57,10 @@ public class SettingsViewModel extends BaseViewModel {
      */
     public BindableBoolean advancedSettingsVisible = new BindableBoolean(false);
     /**
+     * Data binding field used to hold information about whether the vibration is available
+     */
+    public BindableBoolean vibrationSettingsVisible = new BindableBoolean(false);
+    /**
      * Data binding field used to hold information about missing required permissions
      */
     public BindableString missingPermissions = new BindableString();
@@ -67,6 +73,10 @@ public class SettingsViewModel extends BaseViewModel {
      * The related view
      */
     @Inject SettingsView view;
+    /**
+     * The vibrator instance
+     */
+    @Inject Vibrator mVibrator;
 
     /**
      * Run the operation to check whether the notification service is enabled
@@ -106,6 +116,13 @@ public class SettingsViewModel extends BaseViewModel {
                 .toList()
                 .map(permissions -> TextUtils.join(", ", permissions))
                 .subscribe(missingPermissions.asAction()));
+    }
+
+    /**
+     * Check whether the vibration is allowed on device
+     */
+    public void checkVibrationAvailable(){
+        vibrationSettingsVisible.set(mVibrator.hasVibrator());
     }
 
     /**

@@ -2,6 +2,7 @@ package com.app.missednotificationsreminder;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Vibrator;
 
 import com.app.missednotificationsreminder.data.DataModule;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
@@ -52,5 +53,7 @@ public class ApplicationModule {
         return mApp.refWatcher;
     }
 
-
+    @Provides @Singleton Vibrator provideVibrator() {
+        return (Vibrator) mApp.getSystemService(Context.VIBRATOR_SERVICE);
+    }
 }

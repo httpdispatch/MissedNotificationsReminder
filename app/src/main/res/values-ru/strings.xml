@@ -36,4 +36,7 @@
     <string name="settings_permissions">Разрешения</string>
     <string name="settings_permissions_grant">Предоставить доступ</string>
     <string name="settings_permissions_required">Следующие разрешения необходимы для корректной работы приложения: \"%1$s\" Пожалуйста, предоставьте доступ.</string>
+    <string name="settings_vibration">Вибро режим</string>
+    <string name="vibration_disabled">Выключен</string>
+    <string name="vibration_enabled">Включен</string>
 </resources>

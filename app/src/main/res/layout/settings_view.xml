@@ -68,13 +68,21 @@
 
             <include
                 layout="@layout/settings_view_card_sound"
-                tools:model="@{model}"
-                />
+                tools:model="@{model}"/>
 
             <android.support.v4.widget.Space
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/default_widget_interval"
                 android:visibility="@{model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
+
+            <include
+                layout="@layout/settings_view_card_vibration"
+                tools:model="@{model}"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/default_widget_interval"
+                android:visibility="@{model != null &amp;&amp; model.advancedSettingsVisible.get() &amp;&amp; model.vibrationSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
 
             <include
                 layout="@layout/settings_view_card_scheduler"

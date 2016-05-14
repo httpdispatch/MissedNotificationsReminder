@@ -9,13 +9,21 @@ import java.util.Calendar;
  */
 public class TimeUtils {
     /**
+     * Amount of seconds in one minute
+     */
+    public static final int SECONDS_IN_MINUTE = 60;
+    /**
      * Amount of minutes in one hour
      */
     public static final int MINUTES_IN_HOUR = 60;
     /**
+     * Amount of millis on one second
+     */
+    public static final int MILLIS_IN_SECOND = 1000;
+    /**
      * Amount of milliseconds in one minute
      */
-    public static final int MILLIS_IN_MINUTE = MINUTES_IN_HOUR * 1000;
+    public static final int MILLIS_IN_MINUTE = SECONDS_IN_MINUTE * MILLIS_IN_SECOND;
 
     /**
      * Available types used in the getNearestTime method
@@ -166,5 +174,55 @@ public class TimeUtils {
                 break;
         }
         return scheduledTime;
+    }
+
+    /**
+     * Convert seconds to minutes
+     *
+     * @param seconds seconds to convert to minutes
+     * @return
+     */
+    public static float secondsToMinutes(int seconds) {
+        return secondsToMinutes(seconds, RoundType.ROUND);
+    }
+
+    /**
+     * Convert seconds to minutes
+     *
+     * @param seconds   seconds to convert to minutes
+     * @param roundType the round type which should be used for the conversion
+     * @return
+     */
+    public static float secondsToMinutes(int seconds, RoundType roundType) {
+        float result = (float) seconds / SECONDS_IN_MINUTE;
+        switch (roundType) {
+            case FLOOR:
+                return (float) Math.floor(result * 100) / 100;
+            case CEIL:
+                return (float) Math.ceil(result * 100) / 100;
+            case ROUND:
+                return (float) Math.round(result * 100) / 100;
+            default:
+                return result;
+        }
+    }
+
+    /**
+     * Convert minutes to seconds
+     *
+     * @param minutes the minutes to convert to seconds
+     * @return
+     */
+    public static int minutesToSeconds(float minutes) {
+        return Math.round(minutes * SECONDS_IN_MINUTE);
+    }
+
+    /**
+     * Round types available for the time units conversion
+     */
+    public enum RoundType {
+        FLOOR,
+        CEIL,
+        ROUND
     }
 }

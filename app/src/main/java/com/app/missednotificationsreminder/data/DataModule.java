@@ -10,6 +10,7 @@ import android.net.Uri;
 import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
+import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
 import com.app.missednotificationsreminder.di.qualifiers.IoThreadScheduler;
 import com.app.missednotificationsreminder.di.qualifiers.MainThreadScheduler;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
@@ -27,6 +28,7 @@ import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeEnd;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeMax;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeMin;
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
+import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
 import com.f2prateek.rx.preferences.Preference;
 import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.picasso.Picasso;
@@ -133,8 +135,16 @@ public final class DataModule {
         return prefs.getString(REMINDER_RINGTONE_PREF, defaultRingtone == null ? "" : defaultRingtone.toString());
     }
 
+    @Provides @Singleton @Vibrate Preference<Boolean> provideVibrate(RxSharedPreferences prefs) {
+        return prefs.getBoolean(Vibrate.class.getSimpleName(), false);
+    }
+
     @Provides @Singleton @SelectedApplications Preference<Set<String>> provideSelectedApplications(RxSharedPreferences prefs) {
         return prefs.getStringSet(SELECTED_APPLICATIONS_PREF);
+    }
+
+    @Provides @Singleton @IgnorePersistentNotifications Preference<Boolean> provideIgnorePersistentNotifications(RxSharedPreferences prefs) {
+        return prefs.getBoolean(IgnorePersistentNotifications.class.getName(), true);
     }
 
     @Provides @Singleton @ReminderEnabled Preference<Boolean> provideReminderEnabled(RxSharedPreferences prefs) {

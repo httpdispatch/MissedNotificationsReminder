@@ -11,6 +11,7 @@
     <string name="settings_acess_enabled">The notification service is currently enabled</string>
     <string name="settings_acess_manage">Manage Access</string>
     <string name="settings_interval">Reminder Interval</string>
+    <string name="settings_vibration">Vibration</string>
     <string name="settings_scheduler">Custom Scheduler</string>
     <string name="settings_sound">Sound</string>
     <string name="settings_applications_select_title">Applications to monitor
@@ -46,6 +47,10 @@
     <!-- Sound -->
     <string name="sound_reminder_ringtone_button">Reminder Ringtone</string>
     <string name="sound_select_ringtone_dialog_title">Select Ringtone</string>
+
+    <!-- Vibration -->
+    <string name="vibration_disabled">Disabled</string>
+    <string name="vibration_enabled">Enabled</string>
 
     <!-- Applications selection activity -->
     <string name="applications_selection_title">Applications selection</string>

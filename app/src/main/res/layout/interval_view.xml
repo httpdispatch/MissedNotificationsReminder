@@ -50,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="@{model.enabled}"
-            android:max="@{model.maxInterval - model.minInterval}"
+            android:max="@{model.maxSeekBarValue}"
             tools:binding="@{model.seekInterval}"/>
 
 

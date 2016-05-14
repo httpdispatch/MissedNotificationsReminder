@@ -54,6 +54,7 @@ public class SettingsFragment extends CommonFragmentWithViewModel<SettingsViewMo
         model.checkServiceEnabled();
         model.checkBatteryOptimizationDisabled();
         model.checkPermissions();
+        model.checkVibrationAvailable();
     }
 
     @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
