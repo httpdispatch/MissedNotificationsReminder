@@ -1,0 +1,68 @@
+<resources>
+    <!-- General -->
+    <string name="loading_message">読み込み中…</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_subtitle" translatable="false">@string/app_name</string>
+    <string name="settings_acess_title">通知サービスアクセス</string>
+    <string name="settings_battery_optimization">バッテリー最適化</string>
+    <string name="settings_permissions">アクセス許可</string>
+    <string name="settings_acess_enabled">通知サービスは現在有効です</string>
+    <string name="settings_acess_manage">アクセスの管理</string>
+    <string name="settings_interval">リマインダー間隔</string>
+    <string name="settings_vibration">振動</string>
+    <string name="settings_scheduler">カスタム スケジューラー</string>
+    <string name="settings_sound">サウンド</string>
+    <string name="settings_applications_select_title">不在時の通知を監視する
+        アプリケーション</string>
+    <string name="settings_applications_select_button">アプリケーションを選択</string>
+    <string name="menu_advanced_settings_visible">高度な設定を表示</string>
+
+    <!-- Permissions settings -->
+    <string name="settings_permissions_required">アプリの動作に次のアクセス許可が必要です: \"%1$s\"。 許可してください。</string>
+    <string name="settings_permissions_grant">必要なアクセス許可を付与する</string>
+
+    <!-- Battery optimization settings -->
+    <string name="settings_battery_optimization_disabled">バッテリー最適化からアプリケーションはすでに実行されています</string>
+    <string name="settings_battery_optimization_enabled">Android OS はアプリケーションのバッテリー使用状況を最適化します。
+        リマインダーの動作に問題がある場合は、"Missed Notification Reminder" アプリケーションのバッテリー最適化を無効にしてください</string>
+    <string name="settings_manage_battery_optimization">バッテリー最適化を管理</string>
+
+    <!-- Reminder Interval -->
+    <string name="reminder_interval_hint">リマインダー間隔 (分)</string>
+    <string name="interval_disabled">無効</string>
+    <string name="interval_enabled">有効</string>
+    <string name="wakelock_disabled">デバイスをオンのままにしない (推奨)</string>
+    <string name="wakelock_enabled">デバイスをオンのままにする (警告: リマインダーの動作に問題がある場合のみ使用してください。 リマインダー間隔がスケジュールされている間、デバイスをオンのままにします)</string>
+
+    <!-- Scheduler-->
+    <string name="scheduler_begin_hint">開始</string>
+    <string name="scheduler_end_hint">終了</string>
+    <string name="scheduler_disabled">無効</string>
+    <string name="scheduler_enabled">有効</string>
+    <string name="scheduler_working_period">動作期間</string>
+    <string name="scheduler_disabled_period">無効期間</string>
+
+    <!-- Sound -->
+    <string name="sound_reminder_ringtone_button">リマインダー着信音</string>
+    <string name="sound_select_ringtone_dialog_title">着信音を選択</string>
+
+    <!-- Vibration -->
+    <string name="vibration_disabled">無効</string>
+    <string name="vibration_enabled">有効</string>
+
+    <!-- Applications selection activity -->
+    <string name="applications_selection_title">アプリケーション選択</string>
+    <string name="applications_selection_subtitle" translatable="false">@string/app_name</string>
+    <!-- Applications selection list -->
+    <string name="applications_error_title">申し訳ありません!</string>
+    <string name="applications_error_message">
+        アプリケーションデータの読み込み中にエラーが発生しました。\n後でもう一度やり直してください。
+    </string>
+    <string name="applications_empty_title">問題…</string>
+    <string name="applications_empty_message">
+        利用可能なアプリケーションは\nないようです。
+    </string>
+
+</resources>
