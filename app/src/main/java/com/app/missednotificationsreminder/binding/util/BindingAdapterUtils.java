@@ -232,6 +232,10 @@ public class BindingAdapterUtils {
     @BindingAdapter({"bind:binding"})
     public static void bindCompoundButton(CompoundButton view,
                                           final BindableBoolean observable) {
+        if (observable == null) {
+            // overcome NPE issue at Android 4.3 and below
+            return;
+        }
         if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
             view.setTag(R.id.binded, true);

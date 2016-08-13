@@ -52,6 +52,10 @@
     <string name="vibration_disabled">Disabled</string>
     <string name="vibration_enabled">Enabled</string>
 
+    <!-- Application selection-->
+    <string name="ignore_persistent_notifications_disabled">Do not ignore ongoing (persistent) notifications</string>
+    <string name="ignore_persistent_notifications_enabled">Ignore ongoing (persistent) notifications</string>
+
     <!-- Applications selection activity -->
     <string name="applications_selection_title">Applications selection</string>
     <string name="applications_selection_subtitle" translatable="false">@string/app_name</string>

@@ -21,6 +21,7 @@ import android.view.Display;
 
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
+import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
@@ -73,6 +74,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @ReminderInterval Preference<Integer> reminderInterval;
     @Inject @ForceWakeLock Preference<Boolean> forceWakeLock;
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
+    @Inject @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotifications;
     @Inject @SchedulerEnabled Preference<Boolean> schedulerEnabled;
     @Inject @SchedulerMode Preference<Boolean> schedulerMode;
     @Inject @SchedulerRangeBegin Preference<Integer> schedulerRangeBegin;
@@ -180,6 +182,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                 .skip(1) // skip initial value emitted right after the subscription
                                 .doOnEach(__ -> Timber.d("Selected applications changed"))
                                 .map(__ -> true),
+                        ignorePersistentNotifications.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Ignore persistent notifications changed"))
+                                .map(__ -> true),
                         schedulerEnabled.asObservable()
                                 .skip(1) // skip initial value emitted right after the subscription
                                 .doOnEach(__ -> Timber.d("Scheduler enabled changed"))
@@ -226,7 +232,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 Timber.d("checkWakingConditions: disabled, skipping");
                 return;
             }
-            boolean schedule = checkNotificationForAtLeastOnePackageExists(selectedApplications.get());
+            boolean schedule = checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get());
 
             if (schedule) {
                 Timber.d("checkWakingConditions: there are notifications from selected applications. Scheduling reminder");

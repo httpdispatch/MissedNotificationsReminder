@@ -54,7 +54,7 @@ public abstract class AbstractReminderNotificationListenerService extends Access
                     Notification n = (Notification) accessibilityEvent.getParcelableData();
                     String packageName = accessibilityEvent.getPackageName().toString();
                     Timber.d("onAccessibilityEvent: notification posted package: %1$s; notification: %2$s", packageName, n);
-                    mAvailableNotifications.add(new NotificationData(mNotificationParser.getNotificationTitle(n, packageName), packageName));
+                    mAvailableNotifications.add(new NotificationData(mNotificationParser.getNotificationTitle(n, packageName), packageName, n.flags));
                     // fire event
                     onNotificationPosted();
                 }
@@ -174,12 +174,17 @@ public abstract class AbstractReminderNotificationListenerService extends Access
     }
 
     @Override
-    public boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages) {
+    public boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing) {
         boolean result = false;
         for (NotificationData notificationData : mAvailableNotifications) {
             String packageName = notificationData.packageName.toString();
             Timber.d("checkNotificationForAtLeastOnePackageExists: checking package %1$s", packageName);
-            result |= packages.contains(packageName);
+            boolean contains = packages.contains(packageName);
+            if(contains && ignoreOngoing && (notificationData.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT){
+                Timber.d("checkNotificationForAtLeastOnePackageExists: found ongoing match which is requested to be skipped");
+                continue;
+            }
+            result |= contains;
             if (result) {
                 Timber.d("checkNotificationForAtLeastOnePackageExists: found match for package %1$s", packageName);
                 break;
@@ -194,10 +199,15 @@ public abstract class AbstractReminderNotificationListenerService extends Access
     class NotificationData {
         CharSequence title;
         CharSequence packageName;
+        /**
+         * Notification specific flags
+         */
+        int flags;
 
-        public NotificationData(CharSequence title, CharSequence packageName) {
+        public NotificationData(CharSequence title, CharSequence packageName, int flags) {
             this.title = title;
             this.packageName = packageName;
+            this.flags = flags;
         }
     }
 

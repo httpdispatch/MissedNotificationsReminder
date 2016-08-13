@@ -77,6 +77,10 @@ public class SettingsViewModel extends BaseViewModel {
      * The vibrator instance
      */
     @Inject Vibrator mVibrator;
+    /**
+     * The nested applications settings view model
+     */
+    @Inject public ApplicationsSettingsViewModel applicationsSettingsModel;
 
     /**
      * Run the operation to check whether the notification service is enabled
@@ -126,17 +130,6 @@ public class SettingsViewModel extends BaseViewModel {
     }
 
     /**
-     * Method which is called when the select applications button is clicked. It launches the
-     * {@linkplain ApplicationsSelectionActivity applications selection activity}
-     *
-     * @param v
-     */
-    public void onSelectApplicationsButtonClicked(View v) {
-        context.startActivity(ApplicationsSelectionActivity
-                .getCallingIntent(context));
-    }
-
-    /**
      * Method which is called when the manage access button is clicked. It launches the system
      * notification listener settings window
      *
@@ -180,6 +173,11 @@ public class SettingsViewModel extends BaseViewModel {
      */
     public boolean isBatteryOptimizationSettingsVisible() {
         return BatteryUtils.isBatteryOptimizationSettingsAvailable();
+    }
+
+    @Override public void shutdown() {
+        super.shutdown();
+        applicationsSettingsModel.shutdown();
     }
 
     /**

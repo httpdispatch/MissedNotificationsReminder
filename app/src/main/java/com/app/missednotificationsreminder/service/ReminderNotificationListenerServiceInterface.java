@@ -21,8 +21,10 @@ public interface ReminderNotificationListenerServiceInterface {
 
     /**
      * Check whether the at least one notification for specified packages is present in the status bar
-     * @param packages the collection of packages to check
+     *
+     * @param packages      the collection of packages to check
+     * @param ignoreOngoing whether the ongoing notifications should be ignored
      * @return true if notification for at least one package is found, false otherwise
      */
-    boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages);
+    boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing);
 }

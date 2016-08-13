@@ -5,9 +5,15 @@
 
     <data>
 
+        <import type="android.view.View"/>
+
+        <variable
+            name="parentModel"
+            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
+
         <variable
             name="model"
-            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
+            type="com.app.missednotificationsreminder.binding.model.ApplicationsSettingsViewModel"/>
     </data>
 
     <android.support.v7.widget.CardView
@@ -32,17 +38,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dip"/>
 
-            <TextView
+            <LinearLayout
                 style="@style/CardContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
-                android:gravity="center_vertical"
-                android:minHeight="?attr/listPreferredItemHeight"
-                android:onClick="@{model.onSelectApplicationsButtonClicked}"
-                android:text="@string/settings_applications_select_button"
-                android:textAppearance="?android:attr/textAppearanceMedium"/>
+                android:orientation="vertical">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="@{parentModel != null &amp;&amp; parentModel.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}">
+
+                    <TextView
+                        style="@style/Label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{model != null &amp;&amp; model.ignorePersistentNotifications.get() ? @string/ignore_persistent_notifications_enabled : @string/ignore_persistent_notifications_disabled}"/>
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textOff="@string/ignore_persistent_notifications_disabled"
+                        android:textOn="@string/ignore_persistent_notifications_enabled"
+                        tools:binding="@{model.ignorePersistentNotifications}"/>
+                </LinearLayout>
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{model.onSelectApplicationsButtonClicked}"
+                    android:text="@string/settings_applications_select_button"/>
+
+            </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
 

@@ -88,7 +88,8 @@
 
                 <include
                     layout="@layout/settings_view_card_apps"
-                    tools:model="@{model}"/>
+                    tools:parentModel="@{model}"
+                    tools:model="@{model.applicationsSettingsModel}"/>
 
                 <android.support.v4.widget.Space
                     android:layout_width="match_parent"
