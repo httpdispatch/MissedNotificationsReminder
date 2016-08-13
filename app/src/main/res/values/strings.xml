@@ -5,11 +5,11 @@
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_subtitle" translatable="false">@string/app_name</string>
-    <string name="settings_acess_title">Notifications Service Access</string>
+    <string name="settings_access_title">Notifications Service Access</string>
     <string name="settings_battery_optimization">Battery Optimization</string>
     <string name="settings_permissions">Permissions</string>
-    <string name="settings_acess_enabled">The notification service is currently enabled</string>
-    <string name="settings_acess_manage">Manage Access</string>
+    <string name="settings_access_enabled">The notification service is currently enabled</string>
+    <string name="settings_access_manage">Manage Access</string>
     <string name="settings_interval">Reminder Interval</string>
     <string name="settings_vibration">Vibration</string>
     <string name="settings_scheduler">Custom Scheduler</string>
@@ -55,6 +55,8 @@
     <!-- Application selection-->
     <string name="ignore_persistent_notifications_disabled">Do not ignore ongoing (persistent) notifications</string>
     <string name="ignore_persistent_notifications_enabled">Ignore ongoing (persistent) notifications</string>
+    <string name="respect_phone_calls_disabled">Remind while phone call is active</string>
+    <string name="respect_phone_calls_enabled">Do not reminde while phone call is active</string>
 
     <!-- Applications selection activity -->
     <string name="applications_selection_title">Applications selection</string>

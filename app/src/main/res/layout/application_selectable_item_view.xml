@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:onClick="@{model.onItemClicked}"
+        android:onClick="@{model::onItemClicked}"
         android:padding="@dimen/default_widget_interval">
 
         <CheckBox

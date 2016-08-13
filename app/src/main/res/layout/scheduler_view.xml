@@ -61,7 +61,7 @@
                     android:focusableInTouchMode="false"
                     android:hint="@string/scheduler_begin_hint"
                     android:inputType="numberDecimal"
-                    android:onClick="@{model.onBeginClicked}"
+                    android:onClick="@{model::onBeginClicked}"
                     app:binding="@{model.beginTime}"/>
             </android.support.design.widget.TextInputLayout>
 
@@ -80,7 +80,7 @@
                     android:focusableInTouchMode="false"
                     android:hint="@string/scheduler_end_hint"
                     android:inputType="numberDecimal"
-                    android:onClick="@{model.onEndClicked}"
+                    android:onClick="@{model::onEndClicked}"
                     app:binding="@{model.endTime}"/>
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>

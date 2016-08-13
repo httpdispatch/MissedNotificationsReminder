@@ -32,7 +32,7 @@ public class BindingAdapterUtils {
      * @param view       the view to bind observable with
      * @param observable the observable to bind the view with
      */
-    @BindingAdapter({"bind:binding"})
+    @BindingAdapter({"binding"})
     public static void bindEditText(EditText view,
                                     final BindableString observable) {
         if (view.getTag(R.id.binded) == null) {
@@ -58,7 +58,7 @@ public class BindingAdapterUtils {
      * @param view       the view to bind observable with
      * @param observable the observable to bind the view with
      */
-    @BindingAdapter({"bind:binding"})
+    @BindingAdapter({"binding"})
     public static void bindEditText(EditText view,
                                     final BindableObject<Integer> observable) {
         if (view.getTag(R.id.binded) == null) {
@@ -103,7 +103,7 @@ public class BindingAdapterUtils {
      * @param view       the view to bind observable with
      * @param observable the observable to bind the view with
      */
-    @BindingAdapter({"bind:binding"})
+    @BindingAdapter({"binding"})
     public static void bindEditTextWithFloat(EditText view,
                                              final BindableObject<Float> observable) {
         if(observable == null){
@@ -154,7 +154,7 @@ public class BindingAdapterUtils {
      * @param view       the view to bind observable with
      * @param observable the observable to bind the view with
      */
-    @BindingAdapter({"bind:binding"})
+    @BindingAdapter({"binding"})
     public static void bindSeekBar(SeekBar view,
                                    final BindableObject<Integer> observable) {
         if (view.getTag(R.id.binded) == null) {
@@ -178,7 +178,7 @@ public class BindingAdapterUtils {
      * @param leftObservable  the observable to bind the left value of the view with
      * @param rightObservable the observable to bind the right value of the view with
      */
-    @BindingAdapter({"bind:bindingLeft", "bind:bindingRight"})
+    @BindingAdapter({"bindingLeft", "bindingRight"})
     public static void bindRangeBar(RangeBar view,
                                     final BindableObject<Integer> leftObservable,
                                     final BindableObject<Integer> rightObservable) {
@@ -229,7 +229,7 @@ public class BindingAdapterUtils {
      * @param view       the view to bind observable with
      * @param observable the observable to bind the view with
      */
-    @BindingAdapter({"bind:binding"})
+    @BindingAdapter({"binding"})
     public static void bindCompoundButton(CompoundButton view,
                                           final BindableBoolean observable) {
         if (observable == null) {
@@ -257,7 +257,7 @@ public class BindingAdapterUtils {
      * @param view           the view to bind request creator with
      * @param requestCreator the request creator to bind the view with
      */
-    @BindingAdapter({"bind:request"})
+    @BindingAdapter({"request"})
     public static void loadImage(ImageView view, RequestCreator requestCreator) {
         if (requestCreator == null) {
             view.setImageBitmap(null);

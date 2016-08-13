@@ -19,6 +19,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalDefault
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMax;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
+import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
@@ -145,6 +146,10 @@ public final class DataModule {
 
     @Provides @Singleton @IgnorePersistentNotifications Preference<Boolean> provideIgnorePersistentNotifications(RxSharedPreferences prefs) {
         return prefs.getBoolean(IgnorePersistentNotifications.class.getName(), true);
+    }
+
+    @Provides @Singleton @RespectPhoneCalls Preference<Boolean> provideRespectPhoneCalls(RxSharedPreferences prefs) {
+        return prefs.getBoolean(RespectPhoneCalls.class.getName(), true);
     }
 
     @Provides @Singleton @ReminderEnabled Preference<Boolean> provideReminderEnabled(RxSharedPreferences prefs) {

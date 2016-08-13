@@ -18,7 +18,7 @@
             android:layout_height="?attr/listPreferredItemHeight"
             android:background="?selectableItemBackground"
             android:minHeight="?attr/listPreferredItemHeight"
-            android:onClick="@{model.onSoundButtonClicked}"
+            android:onClick="@{model::onSoundButtonClicked}"
             android:orientation="vertical"
             android:paddingLeft="@dimen/default_widget_interval"
             android:paddingRight="@dimen/default_widget_interval"

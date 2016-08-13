@@ -26,7 +26,7 @@
                 style="@style/CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_acess_title"/>
+                android:text="@string/settings_access_title"/>
 
             <View
                 style="@style/CardTitleSeparator"
@@ -42,7 +42,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_acess_enabled"
+                    android:text="@string/settings_access_enabled"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:visibility="@{model != null&amp;&amp;model.accessInitialized.get()&amp;&amp;model.accessEnabled.get() ? View.VISIBLE :View.GONE}"/>
 
@@ -63,8 +63,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:onClick="@{model.onManageAccessButtonPressed}"
-                        android:text="@string/settings_acess_manage"/>
+                        android:onClick="@{model::onManageAccessButtonPressed}"
+                        android:text="@string/settings_access_manage"/>
                 </LinearLayout>
 
             </LinearLayout>

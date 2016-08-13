@@ -26,12 +26,14 @@ import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
+import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeEnd;
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
 import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
+import com.app.missednotificationsreminder.util.PhoneStateUtils;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.f2prateek.rx.preferences.Preference;
 
@@ -75,6 +77,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @ForceWakeLock Preference<Boolean> forceWakeLock;
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
     @Inject @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotifications;
+    @Inject @RespectPhoneCalls Preference<Boolean> respectPhoneCalls;
     @Inject @SchedulerEnabled Preference<Boolean> schedulerEnabled;
     @Inject @SchedulerMode Preference<Boolean> schedulerMode;
     @Inject @SchedulerRangeBegin Preference<Integer> schedulerRangeBegin;
@@ -186,6 +189,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                 .skip(1) // skip initial value emitted right after the subscription
                                 .doOnEach(__ -> Timber.d("Ignore persistent notifications changed"))
                                 .map(__ -> true),
+                        respectPhoneCalls.asObservable()
+                                .skip(1) // skip initial value emitted right after the subscription
+                                .doOnEach(__ -> Timber.d("Respect phone calls changed")),
                         schedulerEnabled.asObservable()
                                 .skip(1) // skip initial value emitted right after the subscription
                                 .doOnEach(__ -> Timber.d("Scheduler enabled changed"))
@@ -415,7 +421,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 stopWaking(true);
                 return;
             }
-            if (!isScreenOn(context)) {
+            if (isScreenOn(context)) {
+                Timber.d("onReceive: The screen is on, skip notification");
+            } else if(PhoneStateUtils.isCallActive(getApplicationContext()) && respectPhoneCalls.get()){
+                Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification");
+            } else {
                 Timber.d("onReceive: The screen is off, notify");
                 try {
                     // Start without a delay
@@ -465,8 +475,6 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                     Timber.e(ex, null);
                     throw new RuntimeException(ex);
                 }
-            } else {
-                Timber.d("onReceive: The screen is on, skip notification");
             }
             scheduleNextWakup();
         }
