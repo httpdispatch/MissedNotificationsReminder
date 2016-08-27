@@ -62,14 +62,6 @@
                         android:textOff="@string/ignore_persistent_notifications_disabled"
                         android:textOn="@string/ignore_persistent_notifications_enabled"
                         tools:binding="@{model.ignorePersistentNotifications}"/>
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="@{parentModel != null &amp;&amp; parentModel.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}">
 
                     <TextView
                         style="@style/Label"
@@ -83,6 +75,19 @@
                         android:textOff="@string/respect_phone_calls_disabled"
                         android:textOn="@string/respect_phone_calls_enabled"
                         tools:binding="@{model.respectPhoneCalls}"/>
+
+                    <TextView
+                        style="@style/Label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{model != null &amp;&amp; model.respectRingerMode.get() ? @string/respect_ringer_mode_enabled : @string/respect_ringer_mode_disabled}"/>
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textOff="@string/respect_ringer_mode_disabled"
+                        android:textOn="@string/respect_ringer_mode_enabled"
+                        tools:binding="@{model.respectRingerMode}"/>
                 </LinearLayout>
 
                 <Button

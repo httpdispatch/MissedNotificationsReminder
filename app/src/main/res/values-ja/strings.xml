@@ -69,4 +69,6 @@
     <string name="respect_phone_calls_enabled">Do not reminde while phone call is active</string>
     <string name="ignore_persistent_notifications_disabled">Do not ignore ongoing (persistent) notifications</string>
     <string name="ignore_persistent_notifications_enabled">Ignore ongoing (persistent) notifications</string>
+    <string name="respect_ringer_mode_disabled">Ignore device audio profile (Keep remind in silent mode)</string>
+    <string name="respect_ringer_mode_enabled">Check device audio profile (Do not remind in silent mode)</string>
 </resources>

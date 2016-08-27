@@ -43,4 +43,6 @@
     <string name="ignore_persistent_notifications_enabled">Игнорировать постоянные (неудаляемые) уведомления</string>
     <string name="respect_phone_calls_disabled">Уведомлять во время телефонного разговора</string>
     <string name="respect_phone_calls_enabled">Не уведомлять во время телефонного разговора</string>
+    <string name="respect_ringer_mode_disabled">Игнорировать аудио профиль устройства (Продолжать уведомлять в тихом режиме)</string>
+    <string name="respect_ringer_mode_enabled">Проверять аудио профиль устройства (Не уведомлять в тихом режиме)</string>
 </resources>

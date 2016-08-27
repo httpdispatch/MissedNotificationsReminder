@@ -19,6 +19,8 @@ import android.os.Vibrator;
 import android.text.TextUtils;
 import android.view.Display;
 
+import com.app.missednotificationsreminder.binding.util.BindableObject;
+import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
@@ -27,6 +29,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
 import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls;
+import com.app.missednotificationsreminder.di.qualifiers.RespectRingerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
@@ -37,6 +40,7 @@ import com.app.missednotificationsreminder.util.PhoneStateUtils;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.f2prateek.rx.preferences.Preference;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -78,6 +82,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
     @Inject @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotifications;
     @Inject @RespectPhoneCalls Preference<Boolean> respectPhoneCalls;
+    @Inject @RespectRingerMode Preference<Boolean> respectRingerMode;
     @Inject @SchedulerEnabled Preference<Boolean> schedulerEnabled;
     @Inject @SchedulerMode Preference<Boolean> schedulerMode;
     @Inject @SchedulerRangeBegin Preference<Integer> schedulerRangeBegin;
@@ -94,6 +99,14 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Vibrator to perform vibration when the notification is playing
      */
     @Inject Vibrator mVibrator;
+    /**
+     * Audio manager to check current ringer mode
+     */
+    @Inject AudioManager mAudioManager;
+    /**
+     * Current ringer mode value holder
+     */
+    BindableObject<Integer> mRingerMode = new BindableObject<>();
     /**
      * The pending intent used by alarm manager to wake the service
      */
@@ -120,6 +133,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     private ScheduledSoundNotificationReceiver mPendingIntentReceiver;
     /**
+     * Receiver used to handle ringer mode changed events
+     */
+    private RingerModeChangedReceiver mRingerModeChangedReceiver;
+
+    /**
      * The handler used to process various service related messages
      */
     private Handler mHandler = new Handler() {
@@ -145,7 +163,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         ObjectGraph appGraph = Injector.obtain(getApplication());
         appGraph.inject(this);
         // TODO workaround for updated interval measurements
-        if(reminderInterval.get() < reminderIntervalMinimum){
+        if (reminderInterval.get() < reminderIntervalMinimum) {
             reminderInterval.set(TimeUtils.minutesToSeconds(reminderInterval.get()));
         }
 
@@ -154,6 +172,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         IntentFilter filter = new IntentFilter();
         filter.addAction(PENDING_INTENT_ACTION);
         registerReceiver(mPendingIntentReceiver, filter);
+
+        mRingerModeChangedReceiver = new RingerModeChangedReceiver();
+        filter = new IntentFilter(
+                AudioManager.RINGER_MODE_CHANGED_ACTION);
+        registerReceiver(mRingerModeChangedReceiver, filter);
 
         // initialize alarm manager and pending intent
         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -173,41 +196,54 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         .subscribe(b -> stopWaking()));
         mSubscriptions.add(
                 Observable.merge(
-                        reminderInterval.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Reminder interval changed"))
-                                .map(__ -> true),
-                        forceWakeLock.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Force WakeLock changed"))
-                                .map(__ -> true),
-                        selectedApplications.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Selected applications changed"))
-                                .map(__ -> true),
-                        ignorePersistentNotifications.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Ignore persistent notifications changed"))
-                                .map(__ -> true),
-                        respectPhoneCalls.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Respect phone calls changed")),
-                        schedulerEnabled.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Scheduler enabled changed"))
-                                .map(__ -> true),
-                        schedulerMode.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Scheduler mode changed"))
-                                .map(__ -> true),
-                        schedulerRangeBegin.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Scheduler range begin changed"))
-                                .map(__ -> true),
-                        schedulerRangeEnd.asObservable()
-                                .skip(1) // skip initial value emitted right after the subscription
-                                .doOnEach(__ -> Timber.d("Scheduler range end changed"))
-                                .map(__ -> true))
+                        Arrays.asList(
+                                reminderInterval.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Reminder interval changed"))
+                                        .map(__ -> true),
+                                forceWakeLock.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Force WakeLock changed"))
+                                        .map(__ -> true),
+                                selectedApplications.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Selected applications changed"))
+                                        .map(__ -> true),
+                                ignorePersistentNotifications.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Ignore persistent notifications changed"))
+                                        .map(__ -> true),
+                                respectPhoneCalls.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Respect phone calls changed")),
+                                respectRingerMode.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Respect ringer mode changed")),
+                                schedulerEnabled.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Scheduler enabled changed"))
+                                        .map(__ -> true),
+                                schedulerMode.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Scheduler mode changed"))
+                                        .map(__ -> true),
+                                schedulerRangeBegin.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Scheduler range begin changed"))
+                                        .map(__ -> true),
+                                schedulerRangeEnd.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Scheduler range end changed"))
+                                        .map(__ -> true),
+                                vibrate.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Vibrate changed")),
+                                RxBindingUtils
+                                        .valueChanged(mRingerMode)
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(v -> Timber.d("Ringer mode changed to %d", v))
+                                        .filter(__ -> respectRingerMode.get())
+                                        .map(__ -> true)))
                         .subscribe(data -> {
                             // restart alarm with new conditions if necessary
                             stopWaking();
@@ -237,6 +273,17 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             if (!reminderEnabled.get()) {
                 Timber.d("checkWakingConditions: disabled, skipping");
                 return;
+            }
+            if (respectRingerMode.get()) {
+                // if ringer mode should be respected
+                if (mRingerMode.get() == AudioManager.RINGER_MODE_SILENT) {
+                    Timber.d("checkWakingConditions: respecting silent mode, skipping");
+                    return;
+                }
+                if (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE && !vibrate.get()) {
+                    Timber.d("checkWakingConditions: respecting vibrate mode while vibration is not enabled, skipping");
+                    return;
+                }
             }
             boolean schedule = checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get());
 
@@ -363,6 +410,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         stopWaking();
         // unregister pending intent receiver
         unregisterReceiver(mPendingIntentReceiver);
+        // unregister ringer mode changed receiver
+        unregisterReceiver(mRingerModeChangedReceiver);
 
         mSubscriptions.unsubscribe();
     }
@@ -379,6 +428,29 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         // stop alarm and check whether it should be launched again
         stopWaking();
         checkWakingConditions();
+    }
+
+    /**
+     * The broadcast receiver for ringer mode changed events
+     */
+    class RingerModeChangedReceiver extends BroadcastReceiver {
+        RingerModeChangedReceiver() {
+            // update to initial value
+            ringerModeUpdated();
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Timber.d("onReceive: %s", intent);
+            ringerModeUpdated();
+        }
+
+        /**
+         * Called when ringer mode is updated
+         */
+        private void ringerModeUpdated() {
+            mRingerMode.set(mAudioManager.getRingerMode());
+        }
     }
 
     /**
@@ -423,14 +495,15 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             }
             if (isScreenOn(context)) {
                 Timber.d("onReceive: The screen is on, skip notification");
-            } else if(PhoneStateUtils.isCallActive(getApplicationContext()) && respectPhoneCalls.get()){
+            } else if (PhoneStateUtils.isCallActive(getApplicationContext()) && respectPhoneCalls.get()) {
                 Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification");
             } else {
                 Timber.d("onReceive: The screen is off, notify");
                 try {
                     // Start without a delay
                     // Each element then alternates between vibrate, sleep, vibrate, sleep...
-                    if (vibrate.get()) {
+                    if (vibrate.get() && (!respectRingerMode.get() || mRingerMode.get() != AudioManager.RINGER_MODE_SILENT)) {
+                        // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
                         long[] pattern = {0, 100, 50, 100, 50, 100, 200};
                         mVibrator.vibrate(pattern, 0);
                     }

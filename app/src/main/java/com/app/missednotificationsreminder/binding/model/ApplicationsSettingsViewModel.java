@@ -8,6 +8,7 @@ import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
 import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls;
+import com.app.missednotificationsreminder.di.qualifiers.RespectRingerMode;
 import com.app.missednotificationsreminder.ui.activity.ApplicationsSelectionActivity;
 import com.f2prateek.rx.preferences.Preference;
 
@@ -26,6 +27,10 @@ public class ApplicationsSettingsViewModel extends BaseViewModel {
      * Data binding field used to handle respect phone calls state
      */
     public BindableBoolean respectPhoneCalls = new BindableBoolean(false);
+    /**
+     * Data binding field used to handle respect ringer mode state
+     */
+    public BindableBoolean respectRingerMode = new BindableBoolean(false);
 
     /**
      * The ignore persistent notifications preference
@@ -35,6 +40,10 @@ public class ApplicationsSettingsViewModel extends BaseViewModel {
      * The respect phone calls preference
      */
     Preference<Boolean> mRespectPhoneCalls;
+    /**
+     * The respect ringer mode preference
+     */
+    Preference<Boolean> mRespectRingerMode;
 
     /**
      * The context instance
@@ -50,9 +59,11 @@ public class ApplicationsSettingsViewModel extends BaseViewModel {
     @Inject public ApplicationsSettingsViewModel(
             @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotificationsPref,
             @RespectPhoneCalls Preference<Boolean> respectPhoneCallsPref,
+            @RespectRingerMode Preference<Boolean> respectRingerModePref,
             @ForActivity Context context) {
         mIgnorePersistentNotifications = ignorePersistentNotificationsPref;
         mRespectPhoneCalls = respectPhoneCallsPref;
+        mRespectRingerMode = respectRingerModePref;
         mContext = context;
         init();
     }
@@ -63,6 +74,7 @@ public class ApplicationsSettingsViewModel extends BaseViewModel {
     void init() {
         monitor(RxBindingUtils.bindWithPreferences(ignorePersistentNotifications, mIgnorePersistentNotifications));
         monitor(RxBindingUtils.bindWithPreferences(respectPhoneCalls, mRespectPhoneCalls));
+        monitor(RxBindingUtils.bindWithPreferences(respectRingerMode, mRespectRingerMode));
     }
 
     /**

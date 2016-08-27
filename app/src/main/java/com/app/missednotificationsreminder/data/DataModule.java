@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 
@@ -20,6 +21,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMax;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
 import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls;
+import com.app.missednotificationsreminder.di.qualifiers.RespectRingerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerMode;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
@@ -150,6 +152,10 @@ public final class DataModule {
 
     @Provides @Singleton @RespectPhoneCalls Preference<Boolean> provideRespectPhoneCalls(RxSharedPreferences prefs) {
         return prefs.getBoolean(RespectPhoneCalls.class.getName(), true);
+    }
+
+    @Provides @Singleton @RespectRingerMode Preference<Boolean> provideRespectRingerMode(RxSharedPreferences prefs) {
+        return prefs.getBoolean(RespectRingerMode.class.getName(), true);
     }
 
     @Provides @Singleton @ReminderEnabled Preference<Boolean> provideReminderEnabled(RxSharedPreferences prefs) {

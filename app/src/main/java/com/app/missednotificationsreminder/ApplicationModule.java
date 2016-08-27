@@ -2,6 +2,7 @@ package com.app.missednotificationsreminder;
 
 import android.app.Application;
 import android.content.Context;
+import android.media.AudioManager;
 import android.os.Vibrator;
 
 import com.app.missednotificationsreminder.data.DataModule;
@@ -55,5 +56,9 @@ public class ApplicationModule {
 
     @Provides @Singleton Vibrator provideVibrator() {
         return (Vibrator) mApp.getSystemService(Context.VIBRATOR_SERVICE);
+    }
+
+    @Provides @Singleton AudioManager provideAudioManager() {
+        return (AudioManager)mApp.getSystemService(Context.AUDIO_SERVICE);
     }
 }
