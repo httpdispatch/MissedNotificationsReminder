@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_acess_disabled">Услугата за известия е изключена. Натиснете на \"Управление на достъпа\" и отметнете приложението \"Missed Notification Reminder\". Иначе известията няма да работят.</string>
+</resources>

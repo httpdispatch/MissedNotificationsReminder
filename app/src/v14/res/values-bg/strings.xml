@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_acess_disabled">Услугата за известия е изключена. Натиснете на \"Управление на достъпа\" и
+        изберете \"Услуга Missed Notification Reminder\". В следващия прозорец изберете включване.
+        Иначе известията няма да работят.</string>
+
+    <string name="accessibility_service_description">Включете, за да разрешите приложението Missed Notifications Reminder
+        Приложението НЕ събира никакви Ваши данни. Забележете, че то няма права за достъп до интернет, съответно
+        не може да прати нищо на никого.</string>
+    <string name="accessibility_service">Услуга Missed Notifications Reminder</string>
+</resources>

@@ -1,5 +1,6 @@
 package com.app.missednotificationsreminder.binding.model;
 
+import android.Manifest;
 import android.content.Context;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -12,6 +13,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
 import com.app.missednotificationsreminder.ui.view.SoundView;
 import com.f2prateek.rx.preferences.Preference;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import javax.inject.Inject;
 
@@ -58,6 +60,7 @@ public class SoundViewModel extends BaseViewModel {
 
     void init() {
         monitor(mRingtone.asObservable()
+                .filter(__ -> RxPermissions.getInstance(mContext).isGranted(Manifest.permission.READ_EXTERNAL_STORAGE))
                 .map(uri -> {
                     if (TextUtils.isEmpty(uri)) {
                         return null;
