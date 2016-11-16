@@ -45,4 +45,6 @@
     <string name="respect_phone_calls_enabled">Не уведомлять во время телефонного разговора</string>
     <string name="respect_ringer_mode_disabled">Игнорировать аудио профиль устройства (Продолжать уведомлять в тихом режиме)</string>
     <string name="respect_ringer_mode_enabled">Проверять аудио профиль устройства (Не уведомлять в тихом режиме)</string>
+    <string name="remind_when_screen_is_on_disabled">Не напоминать пока включен экран</string>
+    <string name="remind_when_screen_is_on_enabled">Напоминать пока включен экран</string>
 </resources>

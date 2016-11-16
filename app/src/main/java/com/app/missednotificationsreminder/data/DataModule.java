@@ -14,6 +14,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
 import com.app.missednotificationsreminder.di.qualifiers.IoThreadScheduler;
 import com.app.missednotificationsreminder.di.qualifiers.MainThreadScheduler;
+import com.app.missednotificationsreminder.di.qualifiers.RemindWhenScreenIsOn;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalDefault;
@@ -156,6 +157,10 @@ public final class DataModule {
 
     @Provides @Singleton @RespectRingerMode Preference<Boolean> provideRespectRingerMode(RxSharedPreferences prefs) {
         return prefs.getBoolean(RespectRingerMode.class.getName(), true);
+    }
+
+    @Provides @Singleton @RemindWhenScreenIsOn Preference<Boolean> provideRemindWhenScreenIsOn(RxSharedPreferences prefs) {
+        return prefs.getBoolean(RemindWhenScreenIsOn.class.getName(), true);
     }
 
     @Provides @Singleton @ReminderEnabled Preference<Boolean> provideReminderEnabled(RxSharedPreferences prefs) {

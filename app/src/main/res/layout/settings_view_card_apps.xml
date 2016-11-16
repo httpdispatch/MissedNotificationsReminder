@@ -67,6 +67,19 @@
                         style="@style/Label"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="@{model != null &amp;&amp; model.remindWhenScreenIsOn.get() ? @string/remind_when_screen_is_on_enabled : @string/remind_when_screen_is_on_disabled}"/>
+
+                    <android.support.v7.widget.SwitchCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textOff="@string/remind_when_screen_is_on_disabled"
+                        android:textOn="@string/remind_when_screen_is_on_enabled"
+                        tools:binding="@{model.remindWhenScreenIsOn}"/>
+
+                    <TextView
+                        style="@style/Label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:text="@{model != null &amp;&amp; model.respectPhoneCalls.get() ? @string/respect_phone_calls_enabled : @string/respect_phone_calls_disabled}"/>
 
                     <android.support.v7.widget.SwitchCompat

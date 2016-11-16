@@ -71,4 +71,6 @@
     <string name="ignore_persistent_notifications_enabled">Ignore ongoing (persistent) notifications</string>
     <string name="respect_ringer_mode_disabled">Ignore device audio profile (Keep remind in silent mode)</string>
     <string name="respect_ringer_mode_enabled">Check device audio profile (Do not remind in silent mode)</string>
+    <string name="remind_when_screen_is_on_disabled">Do not remind while screen is turned on</string>
+    <string name="remind_when_screen_is_on_enabled">Remind while screen is turned on</string>
 </resources>

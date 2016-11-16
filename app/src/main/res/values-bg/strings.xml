@@ -45,4 +45,6 @@
     <string name="respect_phone_calls_enabled">Без уведомяване по време на телефонен разговор</string>
     <string name="respect_ringer_mode_disabled">Пренебрегване на аудио профила на устройството (Продължава да уведомява в тих режим)</string>
     <string name="respect_ringer_mode_enabled">Съобразяване с аудио профила на устройството (Не уведомява в тих режим)</string>
+    <string name="remind_when_screen_is_on_disabled">Do not remind while screen is turned on</string>
+    <string name="remind_when_screen_is_on_enabled">Remind while screen is turned on</string>
 </resources>

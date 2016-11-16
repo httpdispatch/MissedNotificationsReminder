@@ -32,7 +32,7 @@ import static org.threeten.bp.format.DateTimeFormatter.ISO_LOCAL_TIME;
 
 @Singleton
 public final class LumberYard {
-    private static final int BUFFER_SIZE = 200;
+    private static final int BUFFER_SIZE = 2000;
 
     private final Application app;
 

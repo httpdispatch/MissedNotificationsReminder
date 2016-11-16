@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+
+    <!-- Ignore the UnusedResources issue in the given ids -->
+    <issue id="OverrideAbstract" severity="ignore">
+        <ignore regexp="ReminderNotificationListenerService" />
+    </issue>
+</lint>

@@ -24,6 +24,7 @@ import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
+import com.app.missednotificationsreminder.di.qualifiers.RemindWhenScreenIsOn;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
@@ -83,6 +84,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotifications;
     @Inject @RespectPhoneCalls Preference<Boolean> respectPhoneCalls;
     @Inject @RespectRingerMode Preference<Boolean> respectRingerMode;
+    @Inject @RemindWhenScreenIsOn Preference<Boolean> remindWhenScreenIsOn;
     @Inject @SchedulerEnabled Preference<Boolean> schedulerEnabled;
     @Inject @SchedulerMode Preference<Boolean> schedulerMode;
     @Inject @SchedulerRangeBegin Preference<Integer> schedulerRangeBegin;
@@ -219,6 +221,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                 respectRingerMode.asObservable()
                                         .skip(1) // skip initial value emitted right after the subscription
                                         .doOnNext(__ -> Timber.d("Respect ringer mode changed")),
+                                remindWhenScreenIsOn.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Remind when screen is on changed")),
                                 schedulerEnabled.asObservable()
                                         .skip(1) // skip initial value emitted right after the subscription
                                         .doOnNext(__ -> Timber.d("Scheduler enabled changed"))
@@ -425,9 +430,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Override
     public void onNotificationRemoved() {
         Timber.d("onNotificationRemoved");
-        // stop alarm and check whether it should be launched again
-        stopWaking();
-        checkWakingConditions();
+        if(mActive.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
+            // stop alarm if there are no more notifications to update
+            stopWaking();
+        }
     }
 
     /**
@@ -493,8 +499,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 stopWaking(true);
                 return;
             }
-            if (isScreenOn(context)) {
-                Timber.d("onReceive: The screen is on, skip notification");
+            if (!remindWhenScreenIsOn.get() && isScreenOn(context)) {
+                Timber.d("onReceive: The screen is on and remind when screen is on is not specified, skip notification");
             } else if (PhoneStateUtils.isCallActive(getApplicationContext()) && respectPhoneCalls.get()) {
                 Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification");
             } else {

@@ -75,7 +75,7 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
         this.mCheckedStateChangedListener = applicationCheckedStateChangedListener;
         mPackageManager = packageManager;
         mPicasso = picasso;
-        setHasStableIds(true);
+        setHasStableIds(false);
     }
 
 
