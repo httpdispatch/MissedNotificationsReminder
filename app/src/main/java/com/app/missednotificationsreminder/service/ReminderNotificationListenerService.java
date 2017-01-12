@@ -477,7 +477,6 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         ScheduledSoundNotificationReceiver() {
             // initialize media player
             mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
             mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
             mMediaPlayer.setOnPreparedListener(__ -> Timber.d("MediaPlayer prepared"));
             mMediaPlayer.setOnCompletionListener(__ -> {
@@ -518,6 +517,14 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         mMediaPlayer.stop();
                     }
                     mMediaPlayer.reset();
+                    // use alternative stream if respect ringer mode is disabled
+                    mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_MUSIC);
+                    if(respectRingerMode.get() && (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE || mRingerMode.get() == AudioManager.RINGER_MODE_SILENT)){
+                        // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
+                        mMediaPlayer.setVolume(0f, 0f);
+                    } else {
+                        mMediaPlayer.setVolume(1f, 1f);
+                    }
                     // create lock object with timeout
                     mLock = new CountDownLatch(1);
                     Timber.d("onReceive: current thread %1$s", Thread.currentThread().getName());
