@@ -1,6 +1,8 @@
 package com.app.missednotificationsreminder.data.model;
 
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 
 import com.app.missednotificationsreminder.binding.model.ApplicationsSelectionViewModel;
 
@@ -11,17 +13,25 @@ import com.app.missednotificationsreminder.binding.model.ApplicationsSelectionVi
  */
 public class ApplicationItem {
     private boolean mChecked;
-    private PackageInfo mPpackageInfo;
+    private CharSequence mApplicationName;
+    private String mPackageName;
+    private Uri mIconUri;
 
     /**
      * Creates the ApplicationItem object
      *
-     * @param checked      whether the application is already checked by user
-     * @param ppackageInfo the application package information
+     * @param checked        whether the application is already checked by user
+     * @param packageInfo   the application package information
+     * @param packageManager the package manager instance
      */
-    public ApplicationItem(boolean checked, PackageInfo ppackageInfo) {
+    public ApplicationItem(boolean checked, PackageInfo packageInfo, PackageManager packageManager) {
         mChecked = checked;
-        mPpackageInfo = ppackageInfo;
+        mApplicationName = packageInfo.applicationInfo.loadLabel(packageManager);
+        mPackageName = packageInfo.packageName;
+        int icon = packageInfo.applicationInfo.icon;
+        if (icon != 0) {
+            mIconUri = Uri.parse("android.resource://" + packageInfo.packageName + "/" + icon);
+        }
     }
 
     public boolean isChecked() {
@@ -32,11 +42,19 @@ public class ApplicationItem {
         mChecked = checked;
     }
 
-    public PackageInfo getPpackageInfo() {
-        return mPpackageInfo;
+    public CharSequence getApplicationName() {
+        return mApplicationName;
     }
 
-    public void setPpackageInfo(PackageInfo ppackageInfo) {
-        mPpackageInfo = ppackageInfo;
+    public String getPackageName() {
+        return mPackageName;
+    }
+
+    public boolean hasIcon() {
+        return mIconUri != null;
+    }
+
+    public Uri getIconUri() {
+        return mIconUri;
     }
 }

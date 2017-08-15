@@ -45,7 +45,7 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
         }
 
         String getLabel(ApplicationItem item){
-            CharSequence result = item.getPpackageInfo().applicationInfo.loadLabel(mPackageManager);
+            CharSequence result = item.getApplicationName();
             if(result == null){
                 result = "";
             }
@@ -60,7 +60,7 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
 
         @Override
         public boolean areItemsTheSame(ApplicationItem item1, ApplicationItem item2) {
-            return item1.getPpackageInfo() == item2.getPpackageInfo();
+            return item1 == item2;
         }
     });
 
@@ -117,7 +117,7 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
 
         public void bindTo(final ApplicationItem item) {
             binding.setModel(
-                    new ApplicationItemViewModel(item.isChecked(), item.getPpackageInfo(), mPackageManager,
+                    new ApplicationItemViewModel(item,
                             mPicasso,
                             (packageInfo, checked) -> {
                                 Timber.d("Update checked value to %1$b", checked);

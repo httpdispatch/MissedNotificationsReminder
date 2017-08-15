@@ -38,13 +38,14 @@ public class ApplicationsSelectionViewModel extends BaseViewModel {
     private PublishSubject<Set<String>> dataLoadSubject;
 
     /**
-     * @param view the related view
+     * @param view                 the related view
      * @param selectedApplications preference to store/retrieve selected applications
      * @param mainThreadScheduler
      * @param ioThreadScheduler
      * @param packageManager
      */
-    @Inject public ApplicationsSelectionViewModel(ApplicationsSelectionView view, @SelectedApplications Preference<Set<String>> selectedApplications, @MainThreadScheduler Scheduler mainThreadScheduler,
+    @Inject public ApplicationsSelectionViewModel(ApplicationsSelectionView view, @SelectedApplications Preference<Set<String>> selectedApplications,
+                                                  @MainThreadScheduler Scheduler mainThreadScheduler,
                                                   @IoThreadScheduler Scheduler ioThreadScheduler,
                                                   PackageManager packageManager) {
         this.mMainThreadScheduler = mainThreadScheduler;
@@ -62,7 +63,6 @@ public class ApplicationsSelectionViewModel extends BaseViewModel {
 
         Observable<List<ApplicationItem>> result = dataLoadSubject //
                 .flatMap(packagesList) // load data
-                .subscribeOn(mIoThreadScheduler)
                 .observeOn(mMainThreadScheduler) //
                 .share();
         monitor(result //
@@ -82,15 +82,15 @@ public class ApplicationsSelectionViewModel extends BaseViewModel {
      * checked/unchecked state information
      */
     private final Func1<Set<String>, Observable<List<ApplicationItem>>> packagesList =
-            selectedPreferences -> {
+            selectedPreferences -> Observable.fromCallable(() -> {
                 List<ApplicationItem> result = new ArrayList<>();
                 List<PackageInfo> packages = mPackageManager.getInstalledPackages(0);
                 for (PackageInfo packageInfo : packages) {
                     boolean selected = selectedPreferences.contains(packageInfo.packageName);
-                    result.add(new ApplicationItem(selected, packageInfo));
+                    result.add(new ApplicationItem(selected, packageInfo, mPackageManager));
                 }
-                return Observable.just(result);
-            };
+                return result;
+            }).subscribeOn(mIoThreadScheduler);
 
 
     /**

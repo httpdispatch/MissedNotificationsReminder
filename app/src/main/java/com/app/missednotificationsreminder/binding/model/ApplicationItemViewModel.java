@@ -1,12 +1,10 @@
 package com.app.missednotificationsreminder.binding.model;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.view.View;
 
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
+import com.app.missednotificationsreminder.data.model.ApplicationItem;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
@@ -17,16 +15,15 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-public class ApplicationItemViewModel extends BaseViewModel{
+public class ApplicationItemViewModel extends BaseViewModel {
     /**
      * Data binding field to store application checked state
      */
     public BindableBoolean checked = new BindableBoolean();
 
+    ApplicationItem mApplicationItem;
     private ApplicationCheckedStateChangedListener mApplicationCheckedStateChangedListener;
-    private PackageInfo mPackageInfo;
     private Picasso mPicasso;
-    private PackageManager mPackageManager;
 
     /**
      * @param checked                                the current application checked state
@@ -37,15 +34,14 @@ public class ApplicationItemViewModel extends BaseViewModel{
      *                                               state changed event
      */
     public ApplicationItemViewModel(
-            boolean checked, PackageInfo packageInfo,
-            PackageManager packageManager, Picasso picasso,
+            ApplicationItem applicationItem,
+            Picasso picasso,
             ApplicationCheckedStateChangedListener applicationCheckedStateChangedListener) {
         Timber.d("Constructor");
-        mPackageInfo = packageInfo;
-        mPackageManager = packageManager;
+        mApplicationItem = applicationItem;
         mPicasso = picasso;
         mApplicationCheckedStateChangedListener = applicationCheckedStateChangedListener;
-        this.checked.set(checked);
+        this.checked.set(applicationItem.isChecked());
         if (mApplicationCheckedStateChangedListener != null) {
             monitor(RxBindingUtils
                     .valueChanged(this.checked)
@@ -53,7 +49,7 @@ public class ApplicationItemViewModel extends BaseViewModel{
                     .subscribe(value -> {
                         Timber.d("Checked property changed for %1$s", toString());
                         mApplicationCheckedStateChangedListener.onApplicationCheckedStateChanged
-                                (mPackageInfo, value);
+                                (mApplicationItem, value);
                     }));
         }
     }
@@ -65,7 +61,7 @@ public class ApplicationItemViewModel extends BaseViewModel{
      */
     public CharSequence getName() {
         Timber.d("getName for %1$s", toString());
-        return mPackageInfo.applicationInfo.loadLabel(mPackageManager);
+        return mApplicationItem.getApplicationName();
     }
 
     /**
@@ -75,7 +71,7 @@ public class ApplicationItemViewModel extends BaseViewModel{
      */
     public String getDescription() {
         Timber.d("getDescription for %1$s", toString());
-        return mPackageInfo.packageName;
+        return mApplicationItem.getPackageName();
     }
 
     /**
@@ -85,13 +81,8 @@ public class ApplicationItemViewModel extends BaseViewModel{
      */
     public RequestCreator getIcon() {
         Timber.d("getIcon for %1$s", toString());
-        Uri result = null;
-        int icon = mPackageInfo.applicationInfo.icon;
-        if (icon != 0) {
-            result = Uri.parse("android.resource://" + mPackageInfo.packageName + "/" + icon);
-        }
-        return result == null ? null : mPicasso.load(result)
-                .fit();
+        return mApplicationItem.hasIcon() ? mPicasso.load(mApplicationItem.getIconUri())
+                .fit() : null;
     }
 
     /**
@@ -107,13 +98,13 @@ public class ApplicationItemViewModel extends BaseViewModel{
 
     @Override
     public String toString() {
-        return String.format("%1$s(checked=%2$b, package=%3$s)", getClass().getSimpleName(), checked.get(), mPackageInfo.packageName);
+        return String.format("%1$s(checked=%2$b, package=%3$s)", getClass().getSimpleName(), checked.get(), mApplicationItem.getPackageName());
     }
 
     /**
      * The interface subscribers to the onApplicationCheckedStateChanged event should implement
      */
     public static interface ApplicationCheckedStateChangedListener {
-        void onApplicationCheckedStateChanged(PackageInfo packageInfo, boolean checked);
+        void onApplicationCheckedStateChanged(ApplicationItem applicationItem, boolean checked);
     }
 }
