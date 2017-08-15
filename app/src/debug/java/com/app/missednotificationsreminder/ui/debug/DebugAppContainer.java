@@ -30,7 +30,7 @@ import com.mattprecious.telescope.TelescopeLayout;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.subscriptions.CompositeSubscription;
 
@@ -54,11 +54,11 @@ public final class DebugAppContainer implements AppContainer {
   private final Preference<Boolean> scalpelWireframeEnabled;
 
   static class ViewHolder {
-    @Bind(R.id.debug_drawer_layout) DebugDrawerLayout drawerLayout;
-    @Bind(R.id.debug_drawer) ViewGroup debugDrawer;
-    @Bind(R.id.telescope_container) TelescopeLayout telescopeLayout;
-    @Bind(R.id.madge_container) MadgeFrameLayout madgeFrameLayout;
-    @Bind(R.id.debug_content) ScalpelFrameLayout content;
+    @BindView(R.id.debug_drawer_layout) DebugDrawerLayout drawerLayout;
+    @BindView(R.id.debug_drawer) ViewGroup debugDrawer;
+    @BindView(R.id.telescope_container) TelescopeLayout telescopeLayout;
+    @BindView(R.id.madge_container) MadgeFrameLayout madgeFrameLayout;
+    @BindView(R.id.debug_content) ScalpelFrameLayout content;
   }
 
   @Inject public DebugAppContainer(LumberYard lumberYard,

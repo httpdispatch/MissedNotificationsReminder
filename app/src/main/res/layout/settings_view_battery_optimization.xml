@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/settings_battery_optimization_enabled"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/design_textinput_error_color"
+                    android:textColor="@color/error_color_material"
                     android:visibility="@{model != null &amp;&amp; !model.batteryOptimizationDisabled.get() ? View.VISIBLE :View.GONE}"/>
 
                 <LinearLayout

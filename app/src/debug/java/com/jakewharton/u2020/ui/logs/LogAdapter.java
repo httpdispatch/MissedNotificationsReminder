@@ -7,7 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import butterknife.Bind;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import com.app.missednotificationsreminder.R;
@@ -62,10 +63,10 @@ final class LogAdapter extends BindableAdapter<Entry> implements Action1<Entry> 
 
   static final class LogItemViewHolder {
     private final View rootView;
-    @Bind(R.id.debug_log_level) TextView levelView;
-    @Bind(R.id.debug_log_tag) TextView tagView;
-    @Bind(R.id.debug_log_time) TextView timeView;
-    @Bind(R.id.debug_log_message) TextView messageView;
+    @BindView(R.id.debug_log_level) TextView levelView;
+    @BindView(R.id.debug_log_tag) TextView tagView;
+    @BindView(R.id.debug_log_time) TextView timeView;
+    @BindView(R.id.debug_log_message) TextView messageView;
 
     public LogItemViewHolder(View rootView) {
       this.rootView = rootView;

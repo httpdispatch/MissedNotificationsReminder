@@ -11,14 +11,14 @@ import com.app.missednotificationsreminder.R;
 import com.jakewharton.u2020.ui.misc.EmptyTextWatcher;
 import com.jakewharton.u2020.util.Strings;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public final class BugReportView extends LinearLayout {
-  @Bind(R.id.title) EditText titleView;
-  @Bind(R.id.description) EditText descriptionView;
-  @Bind(R.id.screenshot) CheckBox screenshotView;
-  @Bind(R.id.logs) CheckBox logsView;
+  @BindView(R.id.title) EditText titleView;
+  @BindView(R.id.description) EditText descriptionView;
+  @BindView(R.id.screenshot) CheckBox screenshotView;
+  @BindView(R.id.logs) CheckBox logsView;
 
   public interface ReportDetailsListener {
     void onStateChanged(boolean valid);

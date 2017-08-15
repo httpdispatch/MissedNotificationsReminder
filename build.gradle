@@ -9,9 +9,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.7'
-        classpath 'me.tatarka:gradle-retrolambda:3.2.3'
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'me.tatarka:gradle-retrolambda:3.6.0'
         classpath 'me.tatarka.retrolambda.projectlombok:lombok.ast:0.2.3.a2'
     }
     // Exclude the lombok version that the android plugin depends on.
@@ -25,6 +24,9 @@ allprojects {
         //}
         mavenCentral()
         jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
     }
 }
 

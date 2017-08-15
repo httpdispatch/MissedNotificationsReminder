@@ -43,7 +43,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import timber.log.Timber;
@@ -54,37 +54,37 @@ public final class DebugView extends FrameLayout {
   private static final DateTimeFormatter DATE_DISPLAY_FORMAT =
       DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a", Locale.US).withZone(ZoneId.systemDefault());
 
-  @Bind(R.id.debug_contextual_title) View contextualTitleView;
-  @Bind(R.id.debug_contextual_list) LinearLayout contextualListView;
+  @BindView(R.id.debug_contextual_title) View contextualTitleView;
+  @BindView(R.id.debug_contextual_list) LinearLayout contextualListView;
 
-  @Bind(R.id.debug_ui_animation_speed) Spinner uiAnimationSpeedView;
-  @Bind(R.id.debug_ui_pixel_grid) Switch uiPixelGridView;
-  @Bind(R.id.debug_ui_pixel_ratio) Switch uiPixelRatioView;
-  @Bind(R.id.debug_ui_scalpel) Switch uiScalpelView;
-  @Bind(R.id.debug_ui_scalpel_wireframe) Switch uiScalpelWireframeView;
+  @BindView(R.id.debug_ui_animation_speed) Spinner uiAnimationSpeedView;
+  @BindView(R.id.debug_ui_pixel_grid) Switch uiPixelGridView;
+  @BindView(R.id.debug_ui_pixel_ratio) Switch uiPixelRatioView;
+  @BindView(R.id.debug_ui_scalpel) Switch uiScalpelView;
+  @BindView(R.id.debug_ui_scalpel_wireframe) Switch uiScalpelWireframeView;
 
-  @Bind(R.id.debug_build_name) TextView buildNameView;
-  @Bind(R.id.debug_build_code) TextView buildCodeView;
-  @Bind(R.id.debug_build_sha) TextView buildShaView;
-  @Bind(R.id.debug_build_date) TextView buildDateView;
+  @BindView(R.id.debug_build_name) TextView buildNameView;
+  @BindView(R.id.debug_build_code) TextView buildCodeView;
+  @BindView(R.id.debug_build_sha) TextView buildShaView;
+  @BindView(R.id.debug_build_date) TextView buildDateView;
 
-  @Bind(R.id.debug_device_make) TextView deviceMakeView;
-  @Bind(R.id.debug_device_model) TextView deviceModelView;
-  @Bind(R.id.debug_device_resolution) TextView deviceResolutionView;
-  @Bind(R.id.debug_device_density) TextView deviceDensityView;
-  @Bind(R.id.debug_device_release) TextView deviceReleaseView;
-  @Bind(R.id.debug_device_api) TextView deviceApiView;
+  @BindView(R.id.debug_device_make) TextView deviceMakeView;
+  @BindView(R.id.debug_device_model) TextView deviceModelView;
+  @BindView(R.id.debug_device_resolution) TextView deviceResolutionView;
+  @BindView(R.id.debug_device_density) TextView deviceDensityView;
+  @BindView(R.id.debug_device_release) TextView deviceReleaseView;
+  @BindView(R.id.debug_device_api) TextView deviceApiView;
 
-  @Bind(R.id.debug_picasso_indicators) Switch picassoIndicatorView;
-  @Bind(R.id.debug_picasso_cache_size) TextView picassoCacheSizeView;
-  @Bind(R.id.debug_picasso_cache_hit) TextView picassoCacheHitView;
-  @Bind(R.id.debug_picasso_cache_miss) TextView picassoCacheMissView;
-  @Bind(R.id.debug_picasso_decoded) TextView picassoDecodedView;
-  @Bind(R.id.debug_picasso_decoded_total) TextView picassoDecodedTotalView;
-  @Bind(R.id.debug_picasso_decoded_avg) TextView picassoDecodedAvgView;
-  @Bind(R.id.debug_picasso_transformed) TextView picassoTransformedView;
-  @Bind(R.id.debug_picasso_transformed_total) TextView picassoTransformedTotalView;
-  @Bind(R.id.debug_picasso_transformed_avg) TextView picassoTransformedAvgView;
+  @BindView(R.id.debug_picasso_indicators) Switch picassoIndicatorView;
+  @BindView(R.id.debug_picasso_cache_size) TextView picassoCacheSizeView;
+  @BindView(R.id.debug_picasso_cache_hit) TextView picassoCacheHitView;
+  @BindView(R.id.debug_picasso_cache_miss) TextView picassoCacheMissView;
+  @BindView(R.id.debug_picasso_decoded) TextView picassoDecodedView;
+  @BindView(R.id.debug_picasso_decoded_total) TextView picassoDecodedTotalView;
+  @BindView(R.id.debug_picasso_decoded_avg) TextView picassoDecodedAvgView;
+  @BindView(R.id.debug_picasso_transformed) TextView picassoTransformedView;
+  @BindView(R.id.debug_picasso_transformed_total) TextView picassoTransformedTotalView;
+  @BindView(R.id.debug_picasso_transformed_avg) TextView picassoTransformedAvgView;
 
   @Inject Picasso picasso;
   @Inject LumberYard lumberYard;
