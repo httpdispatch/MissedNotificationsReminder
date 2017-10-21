@@ -27,4 +27,9 @@ public interface ReminderNotificationListenerServiceInterface {
      * @return true if notification for at least one package is found, false otherwise
      */
     boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing);
+
+    /**
+     * The method which should be called when a notification listener service is ready
+     */
+    void onReady();
 }

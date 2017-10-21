@@ -27,7 +27,7 @@ import rx.functions.Action1;
  * @author Eugene Popovich
  */
 public class BindableObject<T> extends BaseObservable {
-    T mValue;
+    volatile T mValue;
 
     /**
      * Creates an empty observable object

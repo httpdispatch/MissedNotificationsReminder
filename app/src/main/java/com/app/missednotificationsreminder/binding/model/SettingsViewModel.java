@@ -1,6 +1,7 @@
 package com.app.missednotificationsreminder.binding.model;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.os.Vibrator;
 import android.text.TextUtils;
@@ -11,7 +12,6 @@ import com.app.missednotificationsreminder.binding.util.BindableString;
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService;
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils;
-import com.app.missednotificationsreminder.ui.activity.ApplicationsSelectionActivity;
 import com.app.missednotificationsreminder.ui.view.SettingsView;
 import com.app.missednotificationsreminder.util.BatteryUtils;
 import com.tbruyelle.rxpermissions.RxPermissions;
@@ -34,7 +34,7 @@ public class SettingsViewModel extends BaseViewModel {
     /**
      * Permissions required by the application
      */
-    static String[] REQUIRED_PERMISSIONS = new String[] {
+    static String[] REQUIRED_PERMISSIONS = new String[]{
             Manifest.permission.WAKE_LOCK,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.VIBRATE,
@@ -113,7 +113,7 @@ public class SettingsViewModel extends BaseViewModel {
     /**
      * Check whether all required permissions are granted
      */
-    public void checkPermissions(){
+    public void checkPermissions() {
         monitor(Observable
                 .from(REQUIRED_PERMISSIONS)
                 .filter(permission -> !RxPermissions.getInstance(context).isGranted(permission))
@@ -125,7 +125,7 @@ public class SettingsViewModel extends BaseViewModel {
     /**
      * Check whether the vibration is allowed on device
      */
-    public void checkVibrationAvailable(){
+    public void checkVibrationAvailable() {
         vibrationSettingsVisible.set(mVibrator.hasVibrator());
     }
 
@@ -144,7 +144,7 @@ public class SettingsViewModel extends BaseViewModel {
      *
      * @param v
      */
-    public void onGrantPermissionsPressed(View v){
+    public void onGrantPermissionsPressed(View v) {
         Timber.d("onGrantPermissionsPressed");
         monitor(RxPermissions
                 .getInstance(context)
@@ -163,7 +163,13 @@ public class SettingsViewModel extends BaseViewModel {
      * @param v
      */
     public void onManageBatteryOptimizationPressed(View v) {
-        context.startActivity(BatteryUtils.getBatteryOptimizationIntent(context));
+        try {
+            context.startActivity(BatteryUtils.getBatteryOptimizationIntent(context));
+        } catch (ActivityNotFoundException ex) {
+            // possibly Oppo phone
+            Timber.e(ex);
+            // TODO notify view
+        }
     }
 
     /**

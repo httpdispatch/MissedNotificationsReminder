@@ -19,6 +19,7 @@ import android.os.Vibrator;
 import android.text.TextUtils;
 import android.view.Display;
 
+import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
 import com.app.missednotificationsreminder.di.Injector;
@@ -110,6 +111,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     BindableObject<Integer> mRingerMode = new BindableObject<>();
     /**
+     * Current ready state value holder
+     */
+    BindableBoolean mReady = new BindableBoolean(false);
+    /**
      * The pending intent used by alarm manager to wake the service
      */
     PendingIntent mPendingIntent;
@@ -162,7 +167,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         Timber.d("onCreate");
 
         // inject dependencies
-        ObjectGraph appGraph = Injector.obtain(getApplication());
+        ObjectGraph appGraph = Injector.obtain(getApplicationContext());
         appGraph.inject(this);
         // TODO workaround for updated interval measurements
         if (reminderInterval.get() < reminderIntervalMinimum) {
@@ -190,6 +195,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 reminderEnabled.asObservable()
                         .skip(1) // skip initial value emitted right after the subscription
                         .filter(enabled -> enabled) // if reminder enabled
+                        .filter(__ -> mReady.get())
                         .subscribe(b -> sendCheckWakingConditionsCommand()));
         mSubscriptions.add(
                 reminderEnabled.asObservable()
@@ -249,12 +255,17 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                         .doOnNext(v -> Timber.d("Ringer mode changed to %d", v))
                                         .filter(__ -> respectRingerMode.get())
                                         .map(__ -> true)))
+                        .filter(__ -> mReady.get())
                         .subscribe(data -> {
                             // restart alarm with new conditions if necessary
                             stopWaking();
                             sendCheckWakingConditionsCommand();
                         }));
-        sendCheckWakingConditionsCommand();
+        // await for the service become ready event to send check waking conditions command
+        mSubscriptions.add(RxBindingUtils.valueChanged(mReady)
+                .filter(ready -> ready)
+                .take(1)
+                .subscribe(__ -> sendCheckWakingConditionsCommand()));
     }
 
     /**
@@ -424,16 +435,22 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Override
     public void onNotificationPosted() {
         Timber.d("onNotificationPosted");
-        checkWakingConditions();
+        if (mReady.get()) {
+            checkWakingConditions();
+        }
     }
 
     @Override
     public void onNotificationRemoved() {
         Timber.d("onNotificationRemoved");
-        if(mActive.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
+        if (mActive.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
             // stop alarm if there are no more notifications to update
             stopWaking();
         }
+    }
+
+    @Override public void onReady() {
+        mReady.set(true);
     }
 
     /**
@@ -519,7 +536,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                     mMediaPlayer.reset();
                     // use alternative stream if respect ringer mode is disabled
                     mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_MUSIC);
-                    if(respectRingerMode.get() && (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE || mRingerMode.get() == AudioManager.RINGER_MODE_SILENT)){
+                    if (respectRingerMode.get() && (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE || mRingerMode.get() == AudioManager.RINGER_MODE_SILENT)) {
                         // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
                         mMediaPlayer.setVolume(0f, 0f);
                     } else {

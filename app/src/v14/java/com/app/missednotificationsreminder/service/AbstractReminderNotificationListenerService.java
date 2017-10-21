@@ -41,6 +41,7 @@ public abstract class AbstractReminderNotificationListenerService extends Access
         super.onCreate();
         mNotificationParser = new NotificationParser(getApplicationContext());
         mStatusBarWindowUtils = new StatusBarWindowUtils(getPackageManager());
+        onReady();
     }
 
     @Override
@@ -180,7 +181,7 @@ public abstract class AbstractReminderNotificationListenerService extends Access
             String packageName = notificationData.packageName.toString();
             Timber.d("checkNotificationForAtLeastOnePackageExists: checking package %1$s", packageName);
             boolean contains = packages.contains(packageName);
-            if(contains && ignoreOngoing && (notificationData.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT){
+            if (contains && ignoreOngoing && (notificationData.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT) {
                 Timber.d("checkNotificationForAtLeastOnePackageExists: found ongoing match which is requested to be skipped");
                 continue;
             }

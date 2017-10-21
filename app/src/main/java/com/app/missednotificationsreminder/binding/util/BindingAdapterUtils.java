@@ -263,7 +263,13 @@ public class BindingAdapterUtils {
             view.setImageBitmap(null);
         } else {
             // load
-            requestCreator.into(view);
+            try {
+                // load
+                requestCreator.into(view);
+            } catch (Exception e) {
+                // catch unexpected IllegalArgumentException errors
+                Timber.e(e);
+            }
         }
     }
 }
