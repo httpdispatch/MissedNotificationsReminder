@@ -20,6 +20,11 @@ import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalDefault;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMax;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
+import com.app.missednotificationsreminder.di.qualifiers.LimitReminderRepeats;
+import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeats;
+import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeatsDefault;
+import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeatsMax;
+import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeatsMin;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
 import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls;
 import com.app.missednotificationsreminder.di.qualifiers.RespectRingerMode;
@@ -71,6 +76,14 @@ public final class DataModule {
      * Key used for the reminder interval preference
      */
     static final String REMINDER_INTERVAL_PREF = "REMINDER_INTERVAL";
+    /**
+     * Key used for the limit reminder repetitions preference
+     */
+    static final String LIMIT_REMINDER_REPEATS_PREF = "LIMIT_REMINDER_REPEATS";
+    /**
+     * Key used for the reminder repetitions preference
+     */
+    static final String REMINDER_REPEATS_PREF = "REMINDER_REPEATS";
     /**
      * Key used for the reminder ringtone preference
      */
@@ -124,9 +137,30 @@ public final class DataModule {
         return context.getResources().getInteger(R.integer.reminderIntervalDefault);
     }
 
+    @Provides @Singleton @LimitReminderRepeats Preference<Boolean> provideLimitReminderRepeats(RxSharedPreferences prefs) {
+        return prefs.getBoolean(LIMIT_REMINDER_REPEATS_PREF, false);
+    }
+
     @Provides @Singleton @ReminderInterval Preference<Integer> provideReminderInterval
             (RxSharedPreferences prefs, @ReminderIntervalDefault int reminderIntervalDefault) {
         return prefs.getInteger(REMINDER_INTERVAL_PREF, reminderIntervalDefault);
+    }
+
+    @Provides @Singleton @ReminderRepeats Preference<Integer> provideReminderRepeats
+            (RxSharedPreferences prefs, @ReminderRepeatsDefault int reminderRepeatsDefault) {
+        return prefs.getInteger(REMINDER_REPEATS_PREF, reminderRepeatsDefault);
+    }
+
+    @Provides @Singleton @ReminderRepeatsDefault int provideReminderRepeatsDefault(@ForApplication Context context) {
+        return context.getResources().getInteger(R.integer.reminderRepeatsDefault);
+    }
+
+    @Provides @Singleton @ReminderRepeatsMax int provideReminderRepeatsMaximum(@ForApplication Context context) {
+        return context.getResources().getInteger(R.integer.reminderRepeatsMaximum);
+    }
+
+    @Provides @Singleton @ReminderRepeatsMin int provideReminderRepeatsMinimum(@ForApplication Context context) {
+        return context.getResources().getInteger(R.integer.reminderRepeatsMinimum);
     }
 
     @Provides @Singleton @ForceWakeLock Preference<Boolean> provideForceWakeLock

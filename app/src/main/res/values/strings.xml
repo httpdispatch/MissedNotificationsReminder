@@ -10,7 +10,8 @@
     <string name="settings_permissions">Permissions</string>
     <string name="settings_access_enabled">The notification service is currently enabled</string>
     <string name="settings_access_manage">Manage Access</string>
-    <string name="settings_interval">Reminder Interval</string>
+    <string name="settings_reminder">Reminder Settings</string>
+    <string name="settings_repeats">Reminder Repetitions</string>
     <string name="settings_vibration">Vibration</string>
     <string name="settings_scheduler">Custom Scheduler</string>
     <string name="settings_sound">Sound</string>
@@ -29,10 +30,13 @@
         If you experience problems with the reminder work please disable battery optimization for the "Missed Notification Reminder" application</string>
     <string name="settings_manage_battery_optimization">Manage Battery Optimization</string>
 
-    <!-- Reminder Interval -->
+    <!-- Reminder Settings -->
     <string name="reminder_interval_hint">Reminder Interval (minutes)</string>
-    <string name="interval_disabled">Disabled</string>
-    <string name="interval_enabled">Enabled</string>
+    <string name="reminder_repeats_hint">Reminder Repetitions (max)</string>
+    <string name="reminder_disabled">Disabled</string>
+    <string name="reminder_enabled">Enabled</string>
+    <string name="limit_reminder_repeats_disabled">Reminder will repeat forever</string>
+    <string name="limit_reminder_repeats_enabled">Reminder will repeat limited number of times</string>
     <string name="wakelock_disabled">Do not keep device awake (RECOMMENDED)</string>
     <string name="wakelock_enabled">Keep device awake (WARNING, use this only if you experience issues with the reminder work. This will keep device ON all the time while reminder interval is scheduled)</string>
 

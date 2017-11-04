@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.databinding.SettingsActivityBinding;
 import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity;
-import com.app.missednotificationsreminder.ui.fragment.IntervalFragment;
+import com.app.missednotificationsreminder.ui.fragment.ReminderFragment;
 import com.app.missednotificationsreminder.ui.fragment.SchedulerFragment;
 import com.app.missednotificationsreminder.ui.fragment.SettingsFragment;
 import com.app.missednotificationsreminder.ui.fragment.SoundFragment;
@@ -63,15 +63,15 @@ public class SettingsActivity extends CommonFragmentActivity {
     }
 
     /**
-     * Get the {@link IntervalFragment} attached to the activity
+     * Get the {@link ReminderFragment} attached to the activity
      *
      * @return
      */
-    public IntervalFragment getIntervalFragment() {
-        return (IntervalFragment)
+    public ReminderFragment getIntervalFragment() {
+        return (ReminderFragment)
                 getSettingsFragment().
                         getChildFragmentManager()
-                        .findFragmentById(R.id.interval_fragment);
+                        .findFragmentById(R.id.reminder_fragment);
     }
 
     /**

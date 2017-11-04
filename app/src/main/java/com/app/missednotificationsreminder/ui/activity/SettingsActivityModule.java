@@ -3,17 +3,17 @@ package com.app.missednotificationsreminder.ui.activity;
 import android.content.Context;
 
 import com.app.missednotificationsreminder.ApplicationModule;
-import com.app.missednotificationsreminder.binding.model.IntervalViewModel;
+import com.app.missednotificationsreminder.binding.model.ReminderViewModel;
 import com.app.missednotificationsreminder.binding.model.SchedulerViewModel;
 import com.app.missednotificationsreminder.binding.model.SettingsViewModel;
 import com.app.missednotificationsreminder.binding.model.SoundViewModel;
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
-import com.app.missednotificationsreminder.ui.fragment.IntervalFragment;
+import com.app.missednotificationsreminder.ui.fragment.ReminderFragment;
 import com.app.missednotificationsreminder.ui.fragment.SchedulerFragment;
 import com.app.missednotificationsreminder.ui.fragment.SettingsFragment;
 import com.app.missednotificationsreminder.ui.fragment.SoundFragment;
 import com.app.missednotificationsreminder.ui.fragment.VibrationFragment;
-import com.app.missednotificationsreminder.ui.view.IntervalView;
+import com.app.missednotificationsreminder.ui.view.ReminderView;
 import com.app.missednotificationsreminder.ui.view.SchedulerView;
 import com.app.missednotificationsreminder.ui.view.SettingsView;
 import com.app.missednotificationsreminder.ui.view.SoundView;
@@ -30,8 +30,8 @@ import dagger.Provides;
 @Module(
         addsTo = ApplicationModule.class,
         injects = {
-                IntervalFragment.class,
-                IntervalViewModel.class,
+                ReminderFragment.class,
+                ReminderViewModel.class,
                 SettingsViewModel.class,
                 SettingsFragment.class,
                 SchedulerViewModel.class,
@@ -48,7 +48,8 @@ public final class SettingsActivityModule {
         this.mSettingsActivity = SettingsActivity;
     }
 
-    @Provides @Singleton IntervalView provideIntervalView() {
+    @Provides @Singleton
+    ReminderView provideIntervalView() {
         return mSettingsActivity.getIntervalFragment();
     }
 

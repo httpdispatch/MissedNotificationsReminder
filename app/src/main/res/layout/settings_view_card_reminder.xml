@@ -21,7 +21,7 @@
                 style="@style/CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_interval"/>
+                android:text="@string/settings_reminder"/>
 
             <View
                 style="@style/CardTitleSeparator"
@@ -34,11 +34,11 @@
                 android:layout_height="wrap_content">
 
                 <fragment
-                    android:id="@+id/interval_fragment"
-                    android:name="com.app.missednotificationsreminder.ui.fragment.IntervalFragment"
+                    android:id="@+id/reminder_fragment"
+                    android:name="com.app.missednotificationsreminder.ui.fragment.ReminderFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout="@layout/interval_view"/>
+                    tools:layout="@layout/reminder_view"/>
             </FrameLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>

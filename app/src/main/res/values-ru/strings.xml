@@ -5,8 +5,6 @@
     <string name="applications_error_message">Возникла ошибка, пока загружались данные приложений. Пожалуйста, попробуйте позже</string>
     <string name="applications_error_title">Ой!</string>
     <string name="applications_selection_title">Выбор приложений</string>
-    <string name="interval_disabled">Отключено</string>
-    <string name="interval_enabled">Включено</string>
     <string name="loading_message">загрузка…</string>
     <string name="reminder_interval_hint">Интервал напоминаний (минуты)</string>
     <string name="settings_access_enabled">Служба уведомлений включена</string>
@@ -14,7 +12,6 @@
     <string name="settings_access_title">Доступ к службе уведомлений</string>
     <string name="settings_applications_select_button">Выбрать приложения</string>
     <string name="settings_applications_select_title">Отслеживание пропущенных уведомлений</string>
-    <string name="settings_interval">Интервал напоминаний</string>
     <string name="settings_title">Настройки</string>
     <string name="scheduler_begin_hint">Начинается</string>
     <string name="settings_scheduler">Планировщик</string>
@@ -47,4 +44,11 @@
     <string name="respect_ringer_mode_enabled">Проверять аудио профиль устройства (Не уведомлять в тихом режиме)</string>
     <string name="remind_when_screen_is_on_disabled">Не напоминать пока включен экран</string>
     <string name="remind_when_screen_is_on_enabled">Напоминать пока включен экран</string>
+    <string name="limit_reminder_repeats_disabled">Напоминания будут повторяться бесконечно</string>
+    <string name="limit_reminder_repeats_enabled">Напоминания будут повторяться ограниченное количество раз</string>
+    <string name="reminder_disabled">Отключено</string>
+    <string name="reminder_enabled">Включено</string>
+    <string name="reminder_repeats_hint">Количество повторений напоминания (максимум)</string>
+    <string name="settings_reminder">Настройки напоминания</string>
+    <string name="settings_repeats">Повторения напоминаний</string>
 </resources>
