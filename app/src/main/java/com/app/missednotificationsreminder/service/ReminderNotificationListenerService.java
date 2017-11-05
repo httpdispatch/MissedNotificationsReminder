@@ -1,11 +1,15 @@
 package com.app.missednotificationsreminder.service;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -16,13 +20,16 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.view.Display;
 
+import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
 import com.app.missednotificationsreminder.di.Injector;
+import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
 import com.app.missednotificationsreminder.di.qualifiers.LimitReminderRepeats;
@@ -75,15 +82,27 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     static final String PENDING_INTENT_ACTION = ReminderNotificationListenerService.class.getCanonicalName();
     /**
+     * Action for the pending intent sent when dismiss notification has been cancelled.
+     */
+    static final String STOP_REMINDERS_INTENT_ACTION =
+            ReminderNotificationListenerService.class.getCanonicalName() + ".STOP_REMINDERS_INTENT";
+    /**
      * The constant used to identify handler message to start checking of the service waking conditions
      */
     static final int CHECK_WAKING_CONDITIONS_MSG = 0;
+
+    /**
+     * Notification id for the dismiss notification. It must be unique in an app, but since we only
+     * generate this notification and there could be only one of them, it is a constant.
+     */
+    static final int DISMISS_NOTIFICATION_ID = 42;
 
     @Inject @ReminderEnabled Preference<Boolean> reminderEnabled;
     @Inject @ReminderIntervalMin int reminderIntervalMinimum;
     @Inject @ReminderInterval Preference<Integer> reminderInterval;
     @Inject @ReminderRepeats Preference<Integer> reminderRepeats;
     @Inject @LimitReminderRepeats Preference<Boolean> limitReminderRepeats;
+    @Inject @CreateDismissNotification Preference<Boolean> createDismissNotification;
     @Inject @ForceWakeLock Preference<Boolean> forceWakeLock;
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
     @Inject @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotifications;
@@ -123,6 +142,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     PendingIntent mPendingIntent;
     /**
+     * The pending intent sent when dismiss notification is cancelled.
+     */
+    PendingIntent mStopRemindersIntent;
+    /**
      * Reference to the current device wake lock if exists
      */
     PowerManager.WakeLock mWakeLock;
@@ -130,6 +153,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Number of remaining reminder repetitions.
      */
     private int mRemainingRepeats;
+    /**
+     * Notification manager for creating/removing dismiss notification.
+     */
+    NotificationManager mNotificationManager;
     /**
      * The flag to indicate periodical notification active state
      */
@@ -150,6 +177,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Receiver used to handle ringer mode changed events
      */
     private RingerModeChangedReceiver mRingerModeChangedReceiver;
+    /**
+     * Receiver used to handle cancellation of the dismiss message.
+     */
+    private StopRemindersReceiver mStopRemindersReceiver;
 
     /**
      * The handler used to process various service related messages
@@ -192,6 +223,13 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 AudioManager.RINGER_MODE_CHANGED_ACTION);
         registerReceiver(mRingerModeChangedReceiver, filter);
 
+        // initialize dismiss notification service and receiver
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mStopRemindersReceiver = new StopRemindersReceiver();
+        mStopRemindersIntent = PendingIntent.getBroadcast(
+                this.getApplicationContext(), 0, new Intent(STOP_REMINDERS_INTENT_ACTION), 0);
+        registerReceiver(mStopRemindersReceiver, new IntentFilter(STOP_REMINDERS_INTENT_ACTION));
+
         // initialize alarm manager and pending intent
         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent i = new Intent(PENDING_INTENT_ACTION);
@@ -219,6 +257,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                 limitReminderRepeats.asObservable()
                                         .skip(1) // skip initial value emitted right after the subscription
                                         .doOnNext(__ -> Timber.d("Limit reminder repeats changed"))
+                                        .map(__ -> true),
+                                createDismissNotification.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Create dismiss notification changed"))
                                         .map(__ -> true),
                                 reminderRepeats.asObservable()
                                         .skip(1) // skip initial value emitted right after the subscription
@@ -325,6 +367,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 if (limitReminderRepeats.get()) {
                     mRemainingRepeats = reminderRepeats.get();
                 }
+                if (createDismissNotification.get()) {
+                    createDismissNotification();
+                }
                 scheduleNextWakup();
             } else {
                 Timber.d("checkWakingConditions: there are no notifications from selected applications to periodically remind");
@@ -332,6 +377,29 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         } catch (Throwable t) {
             Timber.e(t, "Unexpected failure");
         }
+    }
+
+    /**
+     * Cancel dismiss notification if one is present.
+     */
+    private void cancelDismissNotification() {
+        // This will not send mStopRemindersIntent. Only user actions do.
+        mNotificationManager.cancel(DISMISS_NOTIFICATION_ID);
+    }
+
+    /**
+     * Create dismiss notification unless one is already present.
+     */
+    private void createDismissNotification() {
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, null)
+                        .setSmallIcon(R.drawable.notification)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                        .setContentTitle(getText(R.string.dismiss_notification_title))
+                        .setContentText(getText(R.string.dismiss_notification_text))
+                        .setColor(Color.argb(255, 23, 158, 144))  // main color of the logo
+                        .setDeleteIntent(mStopRemindersIntent);
+        mNotificationManager.notify(DISMISS_NOTIFICATION_ID, builder.build());
     }
 
     /**
@@ -415,6 +483,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             mTimerSubscription = null;
         }
         releaseWakeLockIfRequired();
+        cancelDismissNotification();
     }
 
     /**
@@ -452,6 +521,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         unregisterReceiver(mPendingIntentReceiver);
         // unregister ringer mode changed receiver
         unregisterReceiver(mRingerModeChangedReceiver);
+        // unregister dismiss notification receiver
+        unregisterReceiver(mStopRemindersReceiver);
 
         mSubscriptions.unsubscribe();
     }
@@ -642,6 +713,19 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
          */
         private void cancelVibration() {
             mVibrator.cancel();
+        }
+    }
+
+    /**
+     * The broadcast receiver for the pending intent fired when the user wants to stop reminders by
+     * cancelling the dismiss notification.
+     */
+    class StopRemindersReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Timber.d("dismiss notification cancelled");
+            ignoreAllCurrentNotifications();
+            stopWaking();
         }
     }
 

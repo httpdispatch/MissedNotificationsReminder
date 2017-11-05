@@ -36,6 +36,8 @@
     <string name="reminder_enabled">Enabled</string>
     <string name="limit_reminder_repeats_disabled">Reminder will repeat forever</string>
     <string name="limit_reminder_repeats_enabled">Reminder will repeat limited number of times</string>
+    <string name="create_dismiss_notification_disabled">Do not create extra notification</string>
+    <string name="create_dismiss_notification_enabled">Create extra notification when reminders are active to allow stopping them without dismissing notification(s) from other apps</string>
     <string name="wakelock_disabled">Do not keep device awake (RECOMMENDED)</string>
     <string name="wakelock_enabled">Keep device awake (WARNING, use this only if you experience issues with the reminder work. This will keep device ON all the time while reminder interval is scheduled)</string>
 
@@ -77,5 +79,9 @@
     <string name="applications_empty_message">
         There doesn\'t seem to be\nany applications available.
     </string>
+
+    <!-- Dismiss notification -->
+    <string name="dismiss_notification_title">Reminder is active</string>
+    <string name="dismiss_notification_text">Dismiss this notification to stop reminders.</string>
 
 </resources>

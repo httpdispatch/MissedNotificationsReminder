@@ -9,6 +9,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 
 import com.app.missednotificationsreminder.R;
+import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
@@ -84,6 +85,10 @@ public final class DataModule {
      * Key used for the reminder repetitions preference
      */
     static final String REMINDER_REPEATS_PREF = "REMINDER_REPEATS";
+    /**
+     * Key used for the create dismiss notification preference
+     */
+    static final String CREATE_DISMISS_NOTIFICATION_PREF = "CREATE_DISMISS_NOTIFICATION";
     /**
      * Key used for the reminder ringtone preference
      */
@@ -161,6 +166,11 @@ public final class DataModule {
 
     @Provides @Singleton @ReminderRepeatsMin int provideReminderRepeatsMinimum(@ForApplication Context context) {
         return context.getResources().getInteger(R.integer.reminderRepeatsMinimum);
+    }
+
+    @Provides @Singleton @CreateDismissNotification
+    Preference<Boolean> provideCreateDismissNotification(RxSharedPreferences prefs) {
+        return prefs.getBoolean(CREATE_DISMISS_NOTIFICATION_PREF, false);
     }
 
     @Provides @Singleton @ForceWakeLock Preference<Boolean> provideForceWakeLock

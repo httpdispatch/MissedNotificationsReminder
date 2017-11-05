@@ -31,6 +31,12 @@ public interface ReminderNotificationListenerServiceInterface {
     boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing);
 
     /**
+     * Ignore all current notifications. The checkNotificationForAtLeastOnePackageExists will return
+     * false unless there are new notifications created after this call.
+     */
+    void ignoreAllCurrentNotifications();
+
+    /**
      * The method which should be called when a notification listener service is ready
      */
     void onReady();

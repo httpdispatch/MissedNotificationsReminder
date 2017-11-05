@@ -62,6 +62,7 @@
         <android.support.v7.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="@{model.enabled}"
             android:textOff="@string/limit_reminder_repeats_disabled"
             android:textOn="@string/limit_reminder_repeats_enabled"
             tools:binding="@{model.limitReminderRepeats}"/>
@@ -88,6 +89,19 @@
             android:max="@{model.maxRepeats - model.minRepeats}"
             tools:binding="@{model.seekRepeats}"/>
 
+        <TextView
+            style="@style/Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{model.createDismissNotification.get() ? @string/create_dismiss_notification_enabled : @string/create_dismiss_notification_disabled }"/>
+
+        <android.support.v7.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="@{model.enabled}"
+            android:textOff="@string/create_dismiss_notification_disabled"
+            android:textOn="@string/create_dismiss_notification_enabled"
+            tools:binding="@{model.createDismissNotification}"/>
 
         <TextView
             style="@style/Label"
