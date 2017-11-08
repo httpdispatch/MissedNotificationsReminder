@@ -57,7 +57,7 @@ public abstract class AbstractReminderNotificationListenerService extends Access
                     Timber.d("onAccessibilityEvent: notification posted package: %1$s; notification: %2$s", packageName, n);
                     mAvailableNotifications.add(new NotificationData(mNotificationParser.getNotificationTitle(n, packageName), packageName, n.flags));
                     // fire event
-                    onNotificationPosted();
+                    onNotificationPosted(packageName);
                 }
                 break;
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:

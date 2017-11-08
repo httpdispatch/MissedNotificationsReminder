@@ -457,9 +457,17 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     }
 
     @Override
-    public void onNotificationPosted() {
-        Timber.d("onNotificationPosted");
-        if (mReady.get()) {
+    public void onNotificationPosted(String packageName) {
+        Timber.d("onNotificationPosted() called with: packageName = %s",
+                packageName);
+        if (mReady.get() && selectedApplications.get().contains(packageName)) {
+            // check waking conditions only if notification has been posted for the monitored application to prevent
+            // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
+            // monitored app
+            if (limitReminderRepeats.get()) {
+                // reset reminder repeats such as new important notification has arrived
+                mRemainingRepeats = reminderRepeats.get();
+            }
             checkWakingConditions();
         }
     }

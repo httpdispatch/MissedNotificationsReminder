@@ -28,7 +28,7 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         Timber.d("onNotificationPosted: for package %1$s", sbn.getPackageName());
-        onNotificationPosted();
+        onNotificationPosted(sbn.getPackageName());
     }
 
     @Override
