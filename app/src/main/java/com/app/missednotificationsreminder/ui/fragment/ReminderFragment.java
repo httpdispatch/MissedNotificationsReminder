@@ -5,11 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.app.missednotificationsreminder.binding.model.IntervalViewModel;
+import com.app.missednotificationsreminder.binding.model.ReminderViewModel;
 import com.app.missednotificationsreminder.binding.model.SettingsViewModel;
-import com.app.missednotificationsreminder.databinding.IntervalViewBinding;
+import com.app.missednotificationsreminder.databinding.ReminderViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
-import com.app.missednotificationsreminder.ui.view.IntervalView;
+import com.app.missednotificationsreminder.ui.view.ReminderView;
 
 import javax.inject.Inject;
 
@@ -18,13 +18,14 @@ import javax.inject.Inject;
  *
  * @author Eugene Popovich
  */
-public class IntervalFragment extends CommonFragmentWithViewModel<IntervalViewModel> implements IntervalView {
+public class ReminderFragment extends CommonFragmentWithViewModel<ReminderViewModel> implements ReminderView {
 
-    @Inject IntervalViewModel model;
+    @Inject
+    ReminderViewModel model;
     @Inject SettingsViewModel parentModel;
-    IntervalViewBinding mBinding;
+    ReminderViewBinding mBinding;
 
-    @Override public IntervalViewModel getModel() {
+    @Override public ReminderViewModel getModel() {
         return model;
     }
 
@@ -32,7 +33,7 @@ public class IntervalFragment extends CommonFragmentWithViewModel<IntervalViewMo
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        mBinding = IntervalViewBinding.inflate(inflater, container, false);
+        mBinding = ReminderViewBinding.inflate(inflater, container, false);
         return mBinding.getRoot();
     }
 

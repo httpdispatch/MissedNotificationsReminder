@@ -3,6 +3,9 @@
     <integer name="reminderIntervalMinimum">5</integer>
     <integer name="reminderIntervalMaximum">3600</integer>
     <integer name="reminderIntervalDefault">60</integer>
+    <integer name="reminderRepeatsDefault">5</integer>
+    <integer name="reminderRepeatsMinimum">1</integer>
+    <integer name="reminderRepeatsMaximum">100</integer>
     <!-- range minimum is 0 minutes or 00:00 O'Clock -->
     <integer name="schedulerRangeMinimum">0</integer>
     <!-- range maximim is 1439 minutes or 23:59 O'Clock -->

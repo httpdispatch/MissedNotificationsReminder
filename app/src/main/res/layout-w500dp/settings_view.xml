@@ -81,7 +81,7 @@
                     android:layout_height="@dimen/default_widget_interval"
                     android:visibility="@{TextUtils.isEmpty(model.missingPermissions.get()) ? View.GONE : View.VISIBLE}"/>
 
-                <include layout="@layout/settings_view_card_interval"/>
+                <include layout="@layout/settings_view_card_reminder"/>
 
                 <android.support.v4.widget.Space
                     android:layout_width="match_parent"

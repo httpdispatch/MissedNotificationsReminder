@@ -25,10 +25,12 @@ import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
+import com.app.missednotificationsreminder.di.qualifiers.LimitReminderRepeats;
 import com.app.missednotificationsreminder.di.qualifiers.RemindWhenScreenIsOn;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
+import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeats;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
 import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls;
 import com.app.missednotificationsreminder.di.qualifiers.RespectRingerMode;
@@ -80,6 +82,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @ReminderEnabled Preference<Boolean> reminderEnabled;
     @Inject @ReminderIntervalMin int reminderIntervalMinimum;
     @Inject @ReminderInterval Preference<Integer> reminderInterval;
+    @Inject @ReminderRepeats Preference<Integer> reminderRepeats;
+    @Inject @LimitReminderRepeats Preference<Boolean> limitReminderRepeats;
     @Inject @ForceWakeLock Preference<Boolean> forceWakeLock;
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
     @Inject @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotifications;
@@ -122,7 +126,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Reference to the current device wake lock if exists
      */
     PowerManager.WakeLock mWakeLock;
-
+    /**
+     * Number of remaining reminder repetitions.
+     */
+    private int mRemainingRepeats;
     /**
      * The flag to indicate periodical notification active state
      */
@@ -208,6 +215,14 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                 reminderInterval.asObservable()
                                         .skip(1) // skip initial value emitted right after the subscription
                                         .doOnNext(__ -> Timber.d("Reminder interval changed"))
+                                        .map(__ -> true),
+                                limitReminderRepeats.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Limit reminder repeats changed"))
+                                        .map(__ -> true),
+                                reminderRepeats.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Reminder repeats changed"))
                                         .map(__ -> true),
                                 forceWakeLock.asObservable()
                                         .skip(1) // skip initial value emitted right after the subscription
@@ -307,6 +322,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 Timber.d("checkWakingConditions: there are notifications from selected applications. Scheduling reminder");
                 // remember active state
                 mActive.set(true);
+                if (limitReminderRepeats.get())
+                    mRemainingRepeats = reminderRepeats.get();
                 scheduleNextWakup();
             } else {
                 Timber.d("checkWakingConditions: there are no notifications from selected applications to periodically remind");
@@ -321,6 +338,12 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     private void scheduleNextWakup() {
         long scheduledTime = 0;
+        if (limitReminderRepeats.get() && mRemainingRepeats-- <= 0) {
+            Timber.d("scheduleNextWakup: ran out of reminder repeats, stopping");
+            stopWaking();
+            return;
+        }
+
         if (schedulerEnabled.get()) {
             // if custom scheduler is enabled
             scheduledTime = TimeUtils.getScheduledTime(

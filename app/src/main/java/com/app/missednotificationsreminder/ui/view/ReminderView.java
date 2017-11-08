@@ -5,5 +5,5 @@ package com.app.missednotificationsreminder.ui.view;
  *
  * @author Eugene Popovich
  */
-public interface IntervalView {
+public interface ReminderView {
 }

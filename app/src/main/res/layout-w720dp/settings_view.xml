@@ -63,7 +63,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <include layout="@layout/settings_view_card_interval"/>
+                <include layout="@layout/settings_view_card_reminder"/>
 
                 <android.support.v4.widget.Space
                     android:layout_width="match_parent"

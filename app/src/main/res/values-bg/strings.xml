@@ -5,8 +5,6 @@
     <string name="applications_error_message">Възникна грешка при зареждането на данните на приложението. Моля, опитайте отново</string>
     <string name="applications_error_title">Ой!</string>
     <string name="applications_selection_title">Избор на приложения</string>
-    <string name="interval_disabled">Изключено</string>
-    <string name="interval_enabled">Включено</string>
     <string name="loading_message">зареждане…</string>
     <string name="reminder_interval_hint">Времетраене между напомнянията (минути)</string>
     <string name="settings_access_enabled">Услугата за известяване е включена</string>
@@ -14,7 +12,6 @@
     <string name="settings_access_title">Достъп до услугата за известяване</string>
     <string name="settings_applications_select_button">Изберете приложение</string>
     <string name="settings_applications_select_title">Приложения следени за пропуснати уведомления</string>
-    <string name="settings_interval">Времетраене между напомнянията</string>
     <string name="settings_title">Настройки</string>
     <string name="scheduler_begin_hint">Започва</string>
     <string name="settings_scheduler">Планировчик</string>
@@ -47,4 +44,6 @@
     <string name="respect_ringer_mode_enabled">Съобразяване с аудио профила на устройството (Не уведомява в тих режим)</string>
     <string name="remind_when_screen_is_on_disabled">Do not remind while screen is turned on</string>
     <string name="remind_when_screen_is_on_enabled">Remind while screen is turned on</string>
+    <string name="reminder_disabled">Изключено</string>
+    <string name="reminder_enabled">Включено</string>
 </resources>

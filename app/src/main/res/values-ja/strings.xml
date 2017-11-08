@@ -9,7 +9,6 @@
     <string name="settings_permissions">アクセス許可</string>
     <string name="settings_access_enabled">通知サービスは現在有効です</string>
     <string name="settings_access_manage">アクセスの管理</string>
-    <string name="settings_interval">リマインダー間隔</string>
     <string name="settings_vibration">振動</string>
     <string name="settings_scheduler">カスタム スケジューラー</string>
     <string name="settings_sound">サウンド</string>
@@ -30,8 +29,6 @@
 
     <!-- Reminder Interval -->
     <string name="reminder_interval_hint">リマインダー間隔 (分)</string>
-    <string name="interval_disabled">無効</string>
-    <string name="interval_enabled">有効</string>
     <string name="wakelock_disabled">デバイスをオンのままにしない (推奨)</string>
     <string name="wakelock_enabled">デバイスをオンのままにする (警告: リマインダーの動作に問題がある場合のみ使用してください。 リマインダー間隔がスケジュールされている間、デバイスをオンのままにします)</string>
 
@@ -73,4 +70,6 @@
     <string name="respect_ringer_mode_enabled">Check device audio profile (Do not remind in silent mode)</string>
     <string name="remind_when_screen_is_on_disabled">Do not remind while screen is turned on</string>
     <string name="remind_when_screen_is_on_enabled">Remind while screen is turned on</string>
+    <string name="reminder_disabled">無効</string>
+    <string name="reminder_enabled">有効</string>
 </resources>
