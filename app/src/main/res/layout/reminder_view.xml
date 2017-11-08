@@ -74,7 +74,7 @@
                 android:id="@+id/repeatsName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="@{model.enabled.get() &amp;&amp; model.limitReminderRepeats.get()}"
+                android:enabled="@{safeUnbox(model.enabled.get()) &amp;&amp; safeUnbox(model.limitReminderRepeats.get())}"
                 android:hint="@string/reminder_repeats_hint"
                 android:inputType="number"
                 tools:binding="@{model.repeats}"/>
@@ -84,7 +84,7 @@
             android:id="@+id/repeatsSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="@{model.enabled.get() &amp;&amp; model.limitReminderRepeats.get()}"
+            android:enabled="@{safeUnbox(model.enabled.get()) &amp;&amp; safeUnbox(model.limitReminderRepeats.get())}"
             android:max="@{model.maxRepeats - model.minRepeats}"
             tools:binding="@{model.seekRepeats}"/>
 

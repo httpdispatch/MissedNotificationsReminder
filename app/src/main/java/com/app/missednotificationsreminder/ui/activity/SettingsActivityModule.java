@@ -49,8 +49,8 @@ public final class SettingsActivityModule {
     }
 
     @Provides @Singleton
-    ReminderView provideIntervalView() {
-        return mSettingsActivity.getIntervalFragment();
+    ReminderView provideReminderView() {
+        return mSettingsActivity.getReminderFragment();
     }
 
     @Provides @Singleton SchedulerView provideSchedulerView() {

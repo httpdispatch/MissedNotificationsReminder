@@ -11,7 +11,6 @@
     <string name="settings_access_enabled">The notification service is currently enabled</string>
     <string name="settings_access_manage">Manage Access</string>
     <string name="settings_reminder">Reminder Settings</string>
-    <string name="settings_repeats">Reminder Repetitions</string>
     <string name="settings_vibration">Vibration</string>
     <string name="settings_scheduler">Custom Scheduler</string>
     <string name="settings_sound">Sound</string>

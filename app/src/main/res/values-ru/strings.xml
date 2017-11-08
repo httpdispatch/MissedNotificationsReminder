@@ -50,5 +50,4 @@
     <string name="reminder_enabled">Включено</string>
     <string name="reminder_repeats_hint">Количество повторений напоминания (максимум)</string>
     <string name="settings_reminder">Настройки напоминания</string>
-    <string name="settings_repeats">Повторения напоминаний</string>
 </resources>

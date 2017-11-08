@@ -74,6 +74,7 @@ public class BindingAdapterUtils {
             ;
             // subscribe observable to the text changes event
             Observable<Integer> textChangesObservable = RxTextView.textChanges(view)
+                    .debounce(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
                     .flatMap(s -> Observable
                             .defer(() -> Observable.just(TextUtils.isEmpty(s) ? null : Integer.parseInt(s.toString())))
                             .onErrorResumeNext(t -> {

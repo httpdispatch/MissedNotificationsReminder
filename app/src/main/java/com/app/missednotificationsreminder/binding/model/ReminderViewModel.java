@@ -210,6 +210,8 @@ public class ReminderViewModel extends BaseViewModel {
                         .map(value -> TimeUtils.secondsToMinutes(value, TimeUtils.RoundType.CEIL))
                         .delay(1, TimeUnit.MILLISECONDS)
                         .observeOn(AndroidSchedulers.mainThread())
+                        // the value could be changed again within that one millisecond delay
+                        .filter(__ -> interval.get() < minInterval)
                         .subscribe(interval.asAction()));
         monitor(
                 intervalChanged
@@ -219,6 +221,8 @@ public class ReminderViewModel extends BaseViewModel {
                         .map(value -> TimeUtils.secondsToMinutes(value, TimeUtils.RoundType.FLOOR))
                         .delay(1, TimeUnit.MILLISECONDS)
                         .observeOn(AndroidSchedulers.mainThread())
+                        // the value could be changed again within that one millisecond delay
+                        .filter(__ -> interval.get() > maxInterval)
                         .subscribe(interval.asAction()));
 
         // link interval and seekInterval data binding fields to automatically adjust each other
@@ -297,6 +301,8 @@ public class ReminderViewModel extends BaseViewModel {
                         .map(value -> minRepeats)
                         .delay(1, TimeUnit.MILLISECONDS)
                         .observeOn(AndroidSchedulers.mainThread())
+                        // the value could be changed again within that one millisecond delay
+                        .filter(__ -> repeats.get() < minRepeats)
                         .subscribe(repeats.asAction()));
         monitor(
                 repeatsChanged
@@ -305,6 +311,8 @@ public class ReminderViewModel extends BaseViewModel {
                         .map(value -> maxRepeats)
                         .delay(1, TimeUnit.MILLISECONDS)
                         .observeOn(AndroidSchedulers.mainThread())
+                        // the value could be changed again within that one millisecond delay
+                        .filter(__ -> repeats.get() > maxRepeats)
                         .subscribe(repeats.asAction()));
 
         // Link any changes in the repeats to the reminderRepeats app preference.

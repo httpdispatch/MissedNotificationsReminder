@@ -67,7 +67,7 @@ public class SettingsActivity extends CommonFragmentActivity {
      *
      * @return
      */
-    public ReminderFragment getIntervalFragment() {
+    public ReminderFragment getReminderFragment() {
         return (ReminderFragment)
                 getSettingsFragment().
                         getChildFragmentManager()

@@ -322,8 +322,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 Timber.d("checkWakingConditions: there are notifications from selected applications. Scheduling reminder");
                 // remember active state
                 mActive.set(true);
-                if (limitReminderRepeats.get())
+                if (limitReminderRepeats.get()) {
                     mRemainingRepeats = reminderRepeats.get();
+                }
                 scheduleNextWakup();
             } else {
                 Timber.d("checkWakingConditions: there are no notifications from selected applications to periodically remind");
