@@ -393,7 +393,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     private void createDismissNotification() {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this, null)
-                        .setSmallIcon(R.drawable.notification)
+                        .setSmallIcon(R.drawable.notification)  // this is custom icon, looks betetr
                         .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                         .setContentTitle(getText(R.string.dismiss_notification_title))
                         .setContentText(getText(R.string.dismiss_notification_text))

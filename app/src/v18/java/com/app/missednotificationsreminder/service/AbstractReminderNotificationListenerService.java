@@ -6,8 +6,12 @@ import android.os.Build;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 import timber.log.Timber;
 
@@ -29,7 +33,8 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        Timber.d("onNotificationPosted: for package %1$s", sbn.getPackageName());
+        Timber.d("onNotificationPosted: for package %1$s, key %2$s", sbn.getPackageName(), notificationKey(sbn));
+        mIgnoredNotificationKeys.removeIf(key -> notificationKey(sbn).equals(key));
         onNotificationPosted(sbn.getPackageName());
     }
 
@@ -46,14 +51,16 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
         // StatusBarNotification.getUserId() that we use below is deprecated, but the replacement
         // StatusBarNotification.getUser() method is only available starting with API level 21.
         return String.valueOf(notification.getUserId()) + "|" + notification.getPackageName() +
-                "|" + notification.getId() + "|" + notification.getTag() + "|";
+                "|" + notification.getId() + "|" + notification.getTag();
     }
 
     @Override
     public void ignoreAllCurrentNotifications() {
         mIgnoredNotificationKeys.clear();
         for (StatusBarNotification notificationData : getActiveNotifications()) {
-            mIgnoredNotificationKeys.add(notificationKey(notificationData));
+            String notificationKey = notificationKey(notificationData);
+            mIgnoredNotificationKeys.add(notificationKey);
+            Timber.d("ignoreAllCurrentNotifications: start ignoring %s", notificationKey);
         }
     }
 
@@ -61,6 +68,7 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
     public boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing) {
         boolean result = false;
         StatusBarNotification[] activeNotifications = getActiveNotifications();
+        List<String> activeNotificationKeys = new ArrayList<>();
         if (activeNotifications != null) {
             for (StatusBarNotification notificationData : getActiveNotifications()) {
                 String packageName = notificationData.getPackageName();
@@ -70,8 +78,10 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
                     Timber.d("checkNotificationForAtLeastOnePackageExists: found ongoing match which is requested to be skipped");
                     continue;
                 }
-                if (mIgnoredNotificationKeys.contains(notificationKey(notificationData))) {
-                    Timber.d("checkNotificationForAtLeastOnePackageExists: notification ignored");
+                String notificationKey = notificationKey(notificationData);
+                activeNotificationKeys.add(notificationKey);
+                if (mIgnoredNotificationKeys.contains(notificationKey)) {
+                    Timber.d("checkNotificationForAtLeastOnePackageExists: notification %s ignored", notificationKey);
                     continue;
                 }
                 result |= contains;
@@ -81,6 +91,8 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
                 }
             }
         }
+        // Remove notifications that were cancelled already to prevent memory leaks.
+        mIgnoredNotificationKeys.removeIf(key -> !activeNotificationKeys.contains(key));
         return result;
     }
 
