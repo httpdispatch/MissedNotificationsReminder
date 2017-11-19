@@ -29,6 +29,11 @@ public abstract class AbstractReminderNotificationListenerService extends Access
      */
     ConcurrentLinkedQueue<NotificationData> mAvailableNotifications = new ConcurrentLinkedQueue<>();
     /**
+     * List of notification data entries that are ignored. This list must contain same objects as
+     * mAvailableNotifications above.
+     */
+    ConcurrentLinkedQueue<NotificationData> mIgnoredNotifications = new ConcurrentLinkedQueue<>();
+    /**
      * Notification parser used to retrieve notification information
      */
     NotificationParser mNotificationParser;
@@ -175,7 +180,15 @@ public abstract class AbstractReminderNotificationListenerService extends Access
     }
 
     @Override
+    public void ignoreAllCurrentNotifications() {
+        mIgnoredNotifications.clear();
+        mIgnoredNotifications.addAll(mAvailableNotifications);
+    }
+
+    @Override
     public boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing) {
+        // Remove notifications that were already cancelled to avoid memory leaks.
+        mIgnoredNotifications.removeIf(nd -> !mAvailableNotifications.contains(nd));
         boolean result = false;
         for (NotificationData notificationData : mAvailableNotifications) {
             String packageName = notificationData.packageName.toString();
@@ -183,6 +196,10 @@ public abstract class AbstractReminderNotificationListenerService extends Access
             boolean contains = packages.contains(packageName);
             if (contains && ignoreOngoing && (notificationData.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT) {
                 Timber.d("checkNotificationForAtLeastOnePackageExists: found ongoing match which is requested to be skipped");
+                continue;
+            }
+            if (mIgnoredNotifications.contains(notificationData)) {
+                Timber.d("checkNotificationForAtLeastOnePackageExists: notification ignored");
                 continue;
             }
             result |= contains;
