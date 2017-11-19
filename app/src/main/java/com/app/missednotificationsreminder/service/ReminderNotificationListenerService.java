@@ -1,15 +1,14 @@
 package com.app.missednotificationsreminder.service;
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -21,6 +20,7 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.view.Display;
 
@@ -181,6 +181,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Receiver used to handle cancellation of the dismiss message.
      */
     private StopRemindersReceiver mStopRemindersReceiver;
+    /**
+     * The notification large icon cache
+     */
+    Bitmap mNotificationLargeIcon;
 
     /**
      * The handler used to process various service related messages
@@ -391,13 +395,17 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Create dismiss notification unless one is already present.
      */
     private void createDismissNotification() {
+        if (mNotificationLargeIcon == null) {
+            mNotificationLargeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        }
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this, null)
-                        .setSmallIcon(R.drawable.notification)  // this is custom icon, looks betetr
-                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                        .setSmallIcon(R.drawable.ic_notification)  // this is custom icon, looks betetr
+                        .setLargeIcon(mNotificationLargeIcon)
                         .setContentTitle(getText(R.string.dismiss_notification_title))
                         .setContentText(getText(R.string.dismiss_notification_text))
-                        .setColor(Color.argb(255, 23, 158, 144))  // main color of the logo
+                        // main color of the logo
+                        .setColor(ResourcesCompat.getColor(getResources(), R.color.logo_color, getTheme()))
                         .setDeleteIntent(mStopRemindersIntent);
         mNotificationManager.notify(DISMISS_NOTIFICATION_ID, builder.build());
     }

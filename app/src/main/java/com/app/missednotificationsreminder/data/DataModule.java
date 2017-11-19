@@ -170,7 +170,7 @@ public final class DataModule {
 
     @Provides @Singleton @CreateDismissNotification
     Preference<Boolean> provideCreateDismissNotification(RxSharedPreferences prefs) {
-        return prefs.getBoolean(CREATE_DISMISS_NOTIFICATION_PREF, false);
+        return prefs.getBoolean(CREATE_DISMISS_NOTIFICATION_PREF, true);
     }
 
     @Provides @Singleton @ForceWakeLock Preference<Boolean> provideForceWakeLock

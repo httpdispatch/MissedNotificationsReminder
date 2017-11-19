@@ -9,10 +9,12 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import com.app.missednotificationsreminder.service.util.NotificationParser;
 import com.app.missednotificationsreminder.service.util.StatusBarWindowUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -188,7 +190,12 @@ public abstract class AbstractReminderNotificationListenerService extends Access
     @Override
     public boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing) {
         // Remove notifications that were already cancelled to avoid memory leaks.
-        mIgnoredNotifications.removeIf(nd -> !mAvailableNotifications.contains(nd));
+        List<NotificationData> copy = new ArrayList<>(mIgnoredNotifications);
+        for (NotificationData ignoredNotification : copy) {
+            if (!mAvailableNotifications.contains(ignoredNotification)) {
+                mIgnoredNotifications.remove(ignoredNotification);
+            }
+        }
         boolean result = false;
         for (NotificationData notificationData : mAvailableNotifications) {
             String packageName = notificationData.packageName.toString();

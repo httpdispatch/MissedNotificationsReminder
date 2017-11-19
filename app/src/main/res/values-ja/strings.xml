@@ -77,4 +77,8 @@
     <string name="reminder_repeats_hint">リマインダの繰り返し回数（最大）</string>
     <string name="limit_reminder_repeats_disabled">リマインダーは永遠に繰り返されます</string>
     <string name="limit_reminder_repeats_enabled">リマインダは制限された回数だけ繰り返します。</string>
+    <string name="create_dismiss_notification_disabled">特別な通知を作成しない</string>
+    <string name="create_dismiss_notification_enabled">リマインダーがアクティブなときに余分な通知を作成して、他のアプリからの通知を無視しないで停止できるようにします。</string>
+    <string name="dismiss_notification_title">リマインダがアクティブです。</string>
+    <string name="dismiss_notification_text">この通知を閉じて、リマインダーを停止します。</string>
 </resources>

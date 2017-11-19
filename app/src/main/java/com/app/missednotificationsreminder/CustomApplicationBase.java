@@ -26,16 +26,19 @@ public abstract class CustomApplicationBase extends Application {
     @Inject ActivityHierarchyServer activityHierarchyServer;
     public RefWatcher refWatcher;
 
+    public CustomApplicationBase() {
+        // Initialize dependency injection graph
+        mObjectGraph = ObjectGraph.create(getModules());
+    }
 
     @Override public void onCreate() {
         super.onCreate();
+
         // leak inspection
         refWatcher = LeakCanary.install(this);
-        // Initialize dependency injection graph
-        mObjectGraph = ObjectGraph.create(getModules());
         mObjectGraph.inject(this);
         // initialize logging
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         } else {
             Timber.plant(new CrashReportingTree());

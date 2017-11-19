@@ -7,11 +7,9 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
 
 import timber.log.Timber;
 
@@ -33,13 +31,21 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+        if (sbn == null) {
+            // fix weird NPE on some devices
+            return;
+        }
         Timber.d("onNotificationPosted: for package %1$s, key %2$s", sbn.getPackageName(), notificationKey(sbn));
-        mIgnoredNotificationKeys.removeIf(key -> notificationKey(sbn).equals(key));
+        mIgnoredNotificationKeys.remove(notificationKey(sbn));
         onNotificationPosted(sbn.getPackageName());
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
+        if (sbn == null) {
+            // fix weird NPE on some devices
+            return;
+        }
         Timber.d("onNotificationRemoved: for package %1$s", sbn.getPackageName());
         // stop alarm and check whether it should be launched again
         onNotificationRemoved();
@@ -50,17 +56,26 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
         // starting with API level 20, but we want to support API level 18+. The method
         // StatusBarNotification.getUserId() that we use below is deprecated, but the replacement
         // StatusBarNotification.getUser() method is only available starting with API level 21.
-        return String.valueOf(notification.getUserId()) + "|" + notification.getPackageName() +
-                "|" + notification.getId() + "|" + notification.getTag();
+        return String.valueOf(
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ?
+                        notification.getUserId()
+                        : notification.getUser())
+                + "|" + notification.getPackageName()
+                + "|" + notification.getId()
+                + "|" + notification.getTag();
     }
 
     @Override
     public void ignoreAllCurrentNotifications() {
         mIgnoredNotificationKeys.clear();
-        for (StatusBarNotification notificationData : getActiveNotifications()) {
-            String notificationKey = notificationKey(notificationData);
-            mIgnoredNotificationKeys.add(notificationKey);
-            Timber.d("ignoreAllCurrentNotifications: start ignoring %s", notificationKey);
+        StatusBarNotification[] activeNotifications = getActiveNotifications();
+        if (activeNotifications != null) {
+            // potential NPE fix check on some devices
+            for (StatusBarNotification notificationData : activeNotifications) {
+                String notificationKey = notificationKey(notificationData);
+                mIgnoredNotificationKeys.add(notificationKey);
+                Timber.d("ignoreAllCurrentNotifications: start ignoring %s", notificationKey);
+            }
         }
     }
 
@@ -70,7 +85,8 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
         StatusBarNotification[] activeNotifications = getActiveNotifications();
         List<String> activeNotificationKeys = new ArrayList<>();
         if (activeNotifications != null) {
-            for (StatusBarNotification notificationData : getActiveNotifications()) {
+            // potential NPE fix check on some devices
+            for (StatusBarNotification notificationData : activeNotifications) {
                 String packageName = notificationData.getPackageName();
                 Timber.d("checkNotificationForAtLeastOnePackageExists: checking package %1$s", packageName);
                 boolean contains = packages.contains(packageName);
@@ -92,7 +108,12 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
             }
         }
         // Remove notifications that were cancelled already to prevent memory leaks.
-        mIgnoredNotificationKeys.removeIf(key -> !activeNotificationKeys.contains(key));
+        List<String> copy = new ArrayList<>(mIgnoredNotificationKeys);
+        for (String ignoredNotificationKey : copy) {
+            if (!activeNotificationKeys.contains(ignoredNotificationKey)) {
+                mIgnoredNotificationKeys.remove(ignoredNotificationKey);
+            }
+        }
         return result;
     }
 
