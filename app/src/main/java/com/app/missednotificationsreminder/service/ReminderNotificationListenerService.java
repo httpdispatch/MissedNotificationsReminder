@@ -90,6 +90,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * The constant used to identify handler message to start checking of the service waking conditions
      */
     static final int CHECK_WAKING_CONDITIONS_MSG = 0;
+    /**
+     * The constant used to identify handler message to stop waking
+     */
+    static final int STOP_WAKING_MSG = 1;
 
     /**
      * Notification id for the dismiss notification. It must be unique in an app, but since we only
@@ -197,6 +201,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                     Timber.d("CHECK_WAKING_CONDITIONS_MSG message received");
                     checkWakingConditions();
                     break;
+                case STOP_WAKING_MSG:
+                    Timber.d("STOP_WAKING_MSG message received");
+                    stopWaking();
+                    break;
                 default:
                     break;
             }
@@ -250,7 +258,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 reminderEnabled.asObservable()
                         .skip(1) // skip initial value emitted right after the subscription
                         .filter(enabled -> !enabled) // if reminder disabled
-                        .subscribe(b -> stopWaking()));
+                        .subscribe(b -> sendStopWakingCommand()));
         mSubscriptions.add(
                 Observable.merge(
                         Arrays.asList(
@@ -319,7 +327,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         .filter(__ -> mReady.get())
                         .subscribe(data -> {
                             // restart alarm with new conditions if necessary
-                            stopWaking();
+                            sendStopWakingCommand();
                             sendCheckWakingConditionsCommand();
                         }));
         // await for the service become ready event to send check waking conditions command
@@ -335,6 +343,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     private void sendCheckWakingConditionsCommand() {
         Timber.d("sendCheckWakingConditionsCommand");
         mHandler.sendMessage(mHandler.obtainMessage(CHECK_WAKING_CONDITIONS_MSG));
+    }
+
+    private void sendStopWakingCommand() {
+        Timber.d("sendStopReminderCommand");
+        mHandler.sendMessage(mHandler.obtainMessage(STOP_WAKING_MSG));
     }
 
     /**
@@ -416,7 +429,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     private void scheduleNextWakup() {
         long scheduledTime = 0;
         if (limitReminderRepeats.get() && mRemainingRepeats-- <= 0) {
-            Timber.d("scheduleNextWakup: ran out of reminder repeats, stopping");
+            Timber.d("scheduleNextWakeup: ran out of reminder repeats, stopping");
             stopWaking();
             return;
         }
@@ -532,32 +545,38 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         // unregister dismiss notification receiver
         unregisterReceiver(mStopRemindersReceiver);
 
+        mHandler.removeCallbacksAndMessages(null);
+
         mSubscriptions.unsubscribe();
     }
 
     @Override
     public void onNotificationPosted(String packageName) {
-        Timber.d("onNotificationPosted() called with: packageName = %s",
-                packageName);
-        if (mReady.get() && selectedApplications.get().contains(packageName)) {
-            // check waking conditions only if notification has been posted for the monitored application to prevent
-            // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
-            // monitored app
-            if (limitReminderRepeats.get()) {
-                // reset reminder repeats such as new important notification has arrived
-                mRemainingRepeats = reminderRepeats.get();
+        mHandler.post(() -> {
+            Timber.d("onNotificationPosted() called with: packageName = %s",
+                    packageName);
+            if (mReady.get() && selectedApplications.get().contains(packageName)) {
+                // check waking conditions only if notification has been posted for the monitored application to prevent
+                // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
+                // monitored app
+                if (limitReminderRepeats.get()) {
+                    // reset reminder repeats such as new important notification has arrived
+                    mRemainingRepeats = reminderRepeats.get();
+                }
+                checkWakingConditions();
             }
-            checkWakingConditions();
-        }
+        });
     }
 
     @Override
     public void onNotificationRemoved() {
-        Timber.d("onNotificationRemoved");
-        if (mActive.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
-            // stop alarm if there are no more notifications to update
-            stopWaking();
-        }
+        mHandler.post(() -> {
+            Timber.d("onNotificationRemoved");
+            if (mActive.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
+                // stop alarm if there are no more notifications to update
+                stopWaking();
+            }
+        });
     }
 
     @Override public void onReady() {
@@ -620,77 +639,79 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Timber.d("onReceive");
-            if (!mActive.get()) {
-                Timber.w("onReceive: Invalid service activity state, stopping reminder");
-                stopWaking(true);
-                return;
-            }
-            if (!remindWhenScreenIsOn.get() && isScreenOn(context)) {
-                Timber.d("onReceive: The screen is on and remind when screen is on is not specified, skip notification");
-            } else if (PhoneStateUtils.isCallActive(getApplicationContext()) && respectPhoneCalls.get()) {
-                Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification");
-            } else {
-                Timber.d("onReceive: The screen is off, notify");
-                try {
-                    // Start without a delay
-                    // Each element then alternates between vibrate, sleep, vibrate, sleep...
-                    if (vibrate.get() && (!respectRingerMode.get() || mRingerMode.get() != AudioManager.RINGER_MODE_SILENT)) {
-                        // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
-                        long[] pattern = {0, 100, 50, 100, 50, 100, 200};
-                        mVibrator.vibrate(pattern, 0);
-                    }
-                    if (mMediaPlayer.isPlaying()) {
-                        Timber.d("onReceive: Media player is playing. Stopping...");
-                        mMediaPlayer.stop();
-                    }
-                    mMediaPlayer.reset();
-                    // use alternative stream if respect ringer mode is disabled
-                    mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_MUSIC);
-                    if (respectRingerMode.get() && (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE || mRingerMode.get() == AudioManager.RINGER_MODE_SILENT)) {
-                        // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
-                        mMediaPlayer.setVolume(0f, 0f);
-                    } else {
-                        mMediaPlayer.setVolume(1f, 1f);
-                    }
-                    // create lock object with timeout
-                    mLock = new CountDownLatch(1);
-                    Timber.d("onReceive: current thread %1$s", Thread.currentThread().getName());
-                    Observable.just(mMediaPlayer)
-                            .observeOn(Schedulers.io())
-                            .doOnError(__ -> cancelVibration())
-                            .subscribe(mp -> {
-                                try {
-                                    Timber.d("onReceive subscription: current thread %1$s", Thread.currentThread().getName());
-                                    // get the selected notification sound URI
-                                    String ringtone = reminderRingtone.get();
-                                    if (TextUtils.isEmpty(ringtone)) {
-                                        cancelVibration();
-                                        Timber.w("The reminder ringtone is not specified. Skip playing");
-                                        return;
-                                    }
-                                    Timber.d("onReceive: ringtone %1$s", ringtone);
-                                    Uri notification = Uri.parse(ringtone);
-                                    mp.setDataSource(getApplicationContext(), notification);
-                                    mp.prepare();
-                                    mp.start();
-                                    mLock.countDown();
-                                } catch (Exception ex) {
-                                    cancelVibration();
-                                    throw OnErrorThrowable.from(ex);
-                                }
-                            }, ex -> Timber.e(ex, null));
-                    // give max 5 seconds to play notification sound
-                    mLock.await(5, TimeUnit.SECONDS);
-                    if (mLock.getCount() > 0) {
-                        Timber.w("onReceive: media player initializes too long, didn't receive onComplete for 5 seconds.");
-                    }
-                } catch (Exception ex) {
-                    Timber.e(ex, null);
-                    throw new RuntimeException(ex);
+            mHandler.post(() -> {
+                Timber.d("onReceive");
+                if (!mActive.get()) {
+                    Timber.w("onReceive: Invalid service activity state, stopping reminder");
+                    stopWaking(true);
+                    return;
                 }
-            }
-            scheduleNextWakup();
+                if (!remindWhenScreenIsOn.get() && isScreenOn(getApplicationContext())) {
+                    Timber.d("onReceive: The screen is on and remind when screen is on is not specified, skip notification");
+                } else if (PhoneStateUtils.isCallActive(getApplicationContext()) && respectPhoneCalls.get()) {
+                    Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification");
+                } else {
+                    Timber.d("onReceive: The screen is off, notify");
+                    try {
+                        // Start without a delay
+                        // Each element then alternates between vibrate, sleep, vibrate, sleep...
+                        if (vibrate.get() && (!respectRingerMode.get() || mRingerMode.get() != AudioManager.RINGER_MODE_SILENT)) {
+                            // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
+                            long[] pattern = {0, 100, 50, 100, 50, 100, 200};
+                            mVibrator.vibrate(pattern, 0);
+                        }
+                        if (mMediaPlayer.isPlaying()) {
+                            Timber.d("onReceive: Media player is playing. Stopping...");
+                            mMediaPlayer.stop();
+                        }
+                        mMediaPlayer.reset();
+                        // use alternative stream if respect ringer mode is disabled
+                        mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_MUSIC);
+                        if (respectRingerMode.get() && (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE || mRingerMode.get() == AudioManager.RINGER_MODE_SILENT)) {
+                            // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
+                            mMediaPlayer.setVolume(0f, 0f);
+                        } else {
+                            mMediaPlayer.setVolume(1f, 1f);
+                        }
+                        // create lock object with timeout
+                        mLock = new CountDownLatch(1);
+                        Timber.d("onReceive: current thread %1$s", Thread.currentThread().getName());
+                        Observable.just(mMediaPlayer)
+                                .observeOn(Schedulers.io())
+                                .doOnError(__ -> cancelVibration())
+                                .subscribe(mp -> {
+                                    try {
+                                        Timber.d("onReceive subscription: current thread %1$s", Thread.currentThread().getName());
+                                        // get the selected notification sound URI
+                                        String ringtone = reminderRingtone.get();
+                                        if (TextUtils.isEmpty(ringtone)) {
+                                            cancelVibration();
+                                            Timber.w("The reminder ringtone is not specified. Skip playing");
+                                            return;
+                                        }
+                                        Timber.d("onReceive: ringtone %1$s", ringtone);
+                                        Uri notification = Uri.parse(ringtone);
+                                        mp.setDataSource(getApplicationContext(), notification);
+                                        mp.prepare();
+                                        mp.start();
+                                        mLock.countDown();
+                                    } catch (Exception ex) {
+                                        cancelVibration();
+                                        throw OnErrorThrowable.from(ex);
+                                    }
+                                }, ex -> Timber.e(ex, null));
+                        // give max 5 seconds to play notification sound
+                        mLock.await(5, TimeUnit.SECONDS);
+                        if (mLock.getCount() > 0) {
+                            Timber.w("onReceive: media player initializes too long, didn't receive onComplete for 5 seconds.");
+                        }
+                    } catch (Exception ex) {
+                        Timber.e(ex, null);
+                        throw new RuntimeException(ex);
+                    }
+                }
+                scheduleNextWakup();
+            });
         }
 
         /**
@@ -731,9 +752,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     class StopRemindersReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Timber.d("dismiss notification cancelled");
-            ignoreAllCurrentNotifications();
-            stopWaking();
+            mHandler.post(() -> {
+                Timber.d("dismiss notification cancelled");
+                ignoreAllCurrentNotifications();
+                stopWaking();
+            });
         }
     }
 
