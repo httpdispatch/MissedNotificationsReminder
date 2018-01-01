@@ -384,10 +384,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 if (limitReminderRepeats.get()) {
                     mRemainingRepeats = reminderRepeats.get();
                 }
-                if (createDismissNotification.get()) {
-                    createDismissNotification();
-                }
-                scheduleNextWakup();
+                scheduleNextWakeup();
             } else {
                 Timber.d("checkWakingConditions: there are no notifications from selected applications to periodically remind");
             }
@@ -424,9 +421,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     }
 
     /**
-     * Schedule wakup alarm for the sound notification pending intent
+     * Schedule wakeup alarm for the sound notification pending intent
      */
-    private void scheduleNextWakup() {
+    private void scheduleNextWakeup() {
         long scheduledTime = 0;
         if (limitReminderRepeats.get() && mRemainingRepeats-- <= 0) {
             Timber.d("scheduleNextWakeup: ran out of reminder repeats, stopping");
@@ -434,6 +431,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             return;
         }
 
+        if (createDismissNotification.get()) {
+            createDismissNotification();
+        }
         if (schedulerEnabled.get()) {
             // if custom scheduler is enabled
             scheduledTime = TimeUtils.getScheduledTime(
@@ -453,12 +453,12 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         ReminderNotificationListenerService.class.getSimpleName());
                 mWakeLock.acquire();
             }
-            scheduleNextWakup(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND);
+            scheduleNextWakeup(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND);
         } else {
             Timber.d("scheduleNextWakup: Schedule reminder for time %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",
                     new Date(scheduledTime));
             releaseWakeLockIfRequired();
-            scheduleNextWakup(AlarmManager.RTC_WAKEUP, scheduledTime);
+            scheduleNextWakeup(AlarmManager.RTC_WAKEUP, scheduledTime);
         }
     }
 
@@ -468,7 +468,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * @alarmType the type of the alarm either @{link AlarmManager#RTC_WAKEUP} or {link AlarmManager#ELAPSED_REALTIME_WAKEUP}
      * @time the next wakeup time
      */
-    private void scheduleNextWakup(int alarmType, long time) {
+    private void scheduleNextWakeup(int alarmType, long time) {
         Timber.d("scheduleNextWakup: called");
         if (mWakeLock != null) {
             // use the manual timer action to trigger pending intent receiver instead instead of alarm manager
@@ -710,7 +710,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         throw new RuntimeException(ex);
                     }
                 }
-                scheduleNextWakup();
+                scheduleNextWakeup();
             });
         }
 
