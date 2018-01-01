@@ -503,6 +503,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             mTimerSubscription.unsubscribe();
             mTimerSubscription = null;
         }
+        mPendingIntentReceiver.interruptReminderIfActive();
         releaseWakeLockIfRequired();
         cancelDismissNotification();
     }
@@ -653,6 +654,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 } else {
                     Timber.d("onReceive: The screen is off, notify");
                     try {
+                        interruptReminderIfActive();
                         // Start without a delay
                         // Each element then alternates between vibrate, sleep, vibrate, sleep...
                         if (vibrate.get() && (!respectRingerMode.get() || mRingerMode.get() != AudioManager.RINGER_MODE_SILENT)) {
@@ -660,10 +662,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                             long[] pattern = {0, 100, 50, 100, 50, 100, 200};
                             mVibrator.vibrate(pattern, 0);
                         }
-                        if (mMediaPlayer.isPlaying()) {
-                            Timber.d("onReceive: Media player is playing. Stopping...");
-                            mMediaPlayer.stop();
-                        }
+
                         mMediaPlayer.reset();
                         // use alternative stream if respect ringer mode is disabled
                         mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_MUSIC);
@@ -742,6 +741,17 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
          */
         private void cancelVibration() {
             mVibrator.cancel();
+        }
+
+        /**
+         * Interrupt previously started reminder if it is active
+         */
+        void interruptReminderIfActive() {
+            if (mMediaPlayer.isPlaying()) {
+                Timber.d("onReceive: Media player is playing. Stopping...");
+                mMediaPlayer.stop();
+            }
+            cancelVibration();
         }
     }
 
