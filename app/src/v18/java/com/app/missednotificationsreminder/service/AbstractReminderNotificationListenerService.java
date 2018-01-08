@@ -35,8 +35,7 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
             // fix weird NPE on some devices
             return;
         }
-        Timber.d("onNotificationPosted: for package %1$s, key %2$s", sbn.getPackageName(), notificationKey(sbn));
-        mIgnoredNotificationKeys.remove(notificationKey(sbn));
+        Timber.d("onNotificationPosted: for package %1$s, key %2$s, when %3$s", sbn.getPackageName(), notificationKey(sbn), sbn.getNotification().when);
         onNotificationPosted(sbn.getPackageName());
     }
 
@@ -62,7 +61,17 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
                         : notification.getUser())
                 + "|" + notification.getPackageName()
                 + "|" + notification.getId()
-                + "|" + notification.getTag();
+                + "|" + notification.getTag()
+                // The following part is not present in the original getKey(),
+                // but needed since some IM apps, e.g. Hangouts, re-post the
+                // same notification when a new message is received. As a
+                // result, ignoring a notification for the first IM message by
+                // deleting the dismiss notificaiton, will cause all further
+                // messages to be ignored too.
+                // TODO: Make this configurable in the settings as not all users
+                // make like this behavior and some may choose later messages to
+                // be ignored too
+                + "|" + String.valueOf(notification.getNotification().when);
     }
 
     @Override
@@ -84,9 +93,12 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
         boolean result = false;
         StatusBarNotification[] activeNotifications = getActiveNotifications();
         List<String> activeNotificationKeys = new ArrayList<>();
+        Timber.d("checkNotificationForAtLeastOnePackageExists: %1$d notifications", activeNotifications.length);
         if (activeNotifications != null) {
             // potential NPE fix check on some devices
             for (StatusBarNotification notificationData : activeNotifications) {
+                String notificationKey = notificationKey(notificationData);
+                activeNotificationKeys.add(notificationKey);
                 String packageName = notificationData.getPackageName();
                 Timber.d("checkNotificationForAtLeastOnePackageExists: checking package %1$s", packageName);
                 boolean contains = packages.contains(packageName);
@@ -94,26 +106,22 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
                     Timber.d("checkNotificationForAtLeastOnePackageExists: found ongoing match which is requested to be skipped");
                     continue;
                 }
-                String notificationKey = notificationKey(notificationData);
-                activeNotificationKeys.add(notificationKey);
                 if (mIgnoredNotificationKeys.contains(notificationKey)) {
                     Timber.d("checkNotificationForAtLeastOnePackageExists: notification %s ignored", notificationKey);
                     continue;
                 }
                 result |= contains;
-                if (result) {
-                    Timber.d("checkNotificationForAtLeastOnePackageExists: found match for package %1$s", packageName);
-                    break;
-                }
             }
         }
         // Remove notifications that were cancelled already to prevent memory leaks.
+        Timber.d("checkNotificationForAtLeastOnePackageExists: %1$d notification keys, %2$d ignored notifications", activeNotificationKeys.size(), mIgnoredNotificationKeys.size());
         List<String> copy = new ArrayList<>(mIgnoredNotificationKeys);
         for (String ignoredNotificationKey : copy) {
             if (!activeNotificationKeys.contains(ignoredNotificationKey)) {
                 mIgnoredNotificationKeys.remove(ignoredNotificationKey);
             }
         }
+        Timber.d("checkNotificationForAtLeastOnePackageExists: after cleanup - %1$d ignored notifications", mIgnoredNotificationKeys.size());
         return result;
     }
 
