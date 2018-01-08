@@ -93,8 +93,8 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
         boolean result = false;
         StatusBarNotification[] activeNotifications = getActiveNotifications();
         List<String> activeNotificationKeys = new ArrayList<>();
-        Timber.d("checkNotificationForAtLeastOnePackageExists: %1$d notifications", activeNotifications.length);
         if (activeNotifications != null) {
+            Timber.d("checkNotificationForAtLeastOnePackageExists: %1$d notifications", activeNotifications.length);
             // potential NPE fix check on some devices
             for (StatusBarNotification notificationData : activeNotifications) {
                 String notificationKey = notificationKey(notificationData);
