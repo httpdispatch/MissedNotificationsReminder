@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.display.DisplayManager;
@@ -19,6 +20,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
@@ -138,6 +140,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     BindableObject<Integer> mRingerMode = new BindableObject<>();
     /**
+     * Current DND mode enabled value holder
+     */
+    BindableBoolean mDndEnabled = new BindableBoolean(false);
+    /**
      * Current ready state value holder
      */
     BindableBoolean mReady = new BindableBoolean(false);
@@ -181,6 +187,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Receiver used to handle ringer mode changed events
      */
     private RingerModeChangedReceiver mRingerModeChangedReceiver;
+    /**
+     * Observer used to handle DND mode changes events
+     */
+    private ZenModeObserver mZenModeObserver;
     /**
      * Receiver used to handle cancellation of the dismiss message.
      */
@@ -234,6 +244,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         filter = new IntentFilter(
                 AudioManager.RINGER_MODE_CHANGED_ACTION);
         registerReceiver(mRingerModeChangedReceiver, filter);
+
+        mZenModeObserver = new ZenModeObserver(mHandler);
+        getApplicationContext().getContentResolver().registerContentObserver(Settings.System.CONTENT_URI, true, mZenModeObserver);
 
         // initialize dismiss notification service and receiver
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -323,7 +336,12 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                         .skip(1) // skip initial value emitted right after the subscription
                                         .doOnNext(v -> Timber.d("Ringer mode changed to %d", v))
                                         .filter(__ -> respectRingerMode.get())
-                                        .map(__ -> true)))
+                                        .map(__ -> true),
+                                RxBindingUtils
+                                        .valueChanged(mDndEnabled)
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(v -> Timber.d("DND mode changed to %b", v))
+                                        .filter(__ -> respectRingerMode.get())))
                         .filter(__ -> mReady.get())
                         .subscribe(data -> {
                             // restart alarm with new conditions if necessary
@@ -368,6 +386,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 // if ringer mode should be respected
                 if (mRingerMode.get() == AudioManager.RINGER_MODE_SILENT) {
                     Timber.d("checkWakingConditions: respecting silent mode, skipping");
+                    return;
+                }
+                if (mDndEnabled.get()) {
+                    Timber.d("checkWakingConditions: respecting DND mode, skipping");
                     return;
                 }
                 if (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE && !vibrate.get()) {
@@ -543,6 +565,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         unregisterReceiver(mPendingIntentReceiver);
         // unregister ringer mode changed receiver
         unregisterReceiver(mRingerModeChangedReceiver);
+        // unregister zen mode changed observer
+        getApplicationContext().getContentResolver().unregisterContentObserver(mZenModeObserver);
         // unregister dismiss notification receiver
         unregisterReceiver(mStopRemindersReceiver);
 
@@ -605,6 +629,39 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         private void ringerModeUpdated() {
             mRingerMode.set(mAudioManager.getRingerMode());
         }
+    }
+
+    /**
+     * The content observer for the DND mode changes
+     */
+    private class ZenModeObserver extends ContentObserver {
+        final int DND_OFF = 0;
+
+        ZenModeObserver(Handler handler) {
+            super(handler);
+            zenModeUpdated();
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return super.deliverSelfNotifications();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            zenModeUpdated();
+        }
+
+        private void zenModeUpdated() {
+            Timber.d("zenModeUpdated() called");
+            try {
+                mDndEnabled.set(Settings.Global.getInt(getContentResolver(), "zen_mode") == DND_OFF);
+            } catch (Settings.SettingNotFoundException e) {
+                Timber.e(e);
+            }
+        }
+
     }
 
     /**
@@ -769,5 +826,4 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             });
         }
     }
-
 }
