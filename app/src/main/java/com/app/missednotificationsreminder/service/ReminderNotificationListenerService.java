@@ -657,7 +657,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             Timber.d("zenModeUpdated() called");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 try {
-                    mDndEnabled.set(Settings.Global.getInt(getContentResolver(), "zen_mode") == DND_OFF);
+                    mDndEnabled.set(Settings.Global.getInt(getContentResolver(), "zen_mode") != DND_OFF);
                 } catch (Settings.SettingNotFoundException e) {
                     Timber.e(e);
                 }
