@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 
@@ -14,6 +13,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
 import com.app.missednotificationsreminder.di.qualifiers.IoThreadScheduler;
+import com.app.missednotificationsreminder.di.qualifiers.LimitReminderRepeats;
 import com.app.missednotificationsreminder.di.qualifiers.MainThreadScheduler;
 import com.app.missednotificationsreminder.di.qualifiers.RemindWhenScreenIsOn;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
@@ -21,7 +21,6 @@ import com.app.missednotificationsreminder.di.qualifiers.ReminderInterval;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalDefault;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMax;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderIntervalMin;
-import com.app.missednotificationsreminder.di.qualifiers.LimitReminderRepeats;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeats;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeatsDefault;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeatsMax;
@@ -39,6 +38,7 @@ import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeMax;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeMin;
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
 import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
+import com.app.missednotificationsreminder.util.event.RxEventBus;
 import com.f2prateek.rx.preferences.Preference;
 import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.picasso.Picasso;
@@ -253,6 +253,10 @@ public final class DataModule {
         return new Picasso.Builder(app)
                 .listener((picasso, uri, e) -> Timber.e(e, "Failed to load image: %s", uri))
                 .build();
+    }
+
+    @Provides @Singleton RxEventBus provideEventBus() {
+        return new RxEventBus();
     }
 
 }

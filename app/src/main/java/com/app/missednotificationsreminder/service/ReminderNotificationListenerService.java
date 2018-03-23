@@ -18,7 +18,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -51,6 +50,9 @@ import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
 import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
 import com.app.missednotificationsreminder.util.PhoneStateUtils;
 import com.app.missednotificationsreminder.util.TimeUtils;
+import com.app.missednotificationsreminder.util.event.RxEventBus;
+import com.evernote.android.job.JobManager;
+import com.evernote.android.job.JobRequest;
 import com.f2prateek.rx.preferences.Preference;
 
 import java.util.Arrays;
@@ -121,6 +123,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @SchedulerRangeEnd Preference<Integer> schedulerRangeEnd;
     @Inject @ReminderRingtone Preference<String> reminderRingtone;
     @Inject @Vibrate Preference<Boolean> vibrate;
+    @Inject RxEventBus mEventBus;
 
     /**
      * Alarm manager to schedule/cancel periodical actions
@@ -353,6 +356,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 .filter(ready -> ready)
                 .take(1)
                 .subscribe(__ -> sendCheckWakingConditionsCommand()));
+        // monitor for the remind events sent via event bus
+        mSubscriptions.add(mEventBus.toObserverable()
+                .filter(event -> event == RemindEvents.REMIND)
+                .subscribe(__ -> mPendingIntentReceiver.onReceive(getApplicationContext(), null)));
     }
 
     /**
@@ -475,44 +482,34 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         ReminderNotificationListenerService.class.getSimpleName());
                 mWakeLock.acquire();
             }
-            scheduleNextWakeup(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND);
+            scheduleNextWakeupForOffset(reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND);
         } else {
             Timber.d("scheduleNextWakup: Schedule reminder for time %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",
                     new Date(scheduledTime));
             releaseWakeLockIfRequired();
-            scheduleNextWakeup(AlarmManager.RTC_WAKEUP, scheduledTime);
+            scheduleNextWakeupForOffset(scheduledTime - System.currentTimeMillis());
         }
     }
 
     /**
-     * Schedule wakup alarm for the sound notification pending intent
+     * Schedule wakeup alarm for the sound notification pending intent
      *
-     * @alarmType the type of the alarm either @{link AlarmManager#RTC_WAKEUP} or {link AlarmManager#ELAPSED_REALTIME_WAKEUP}
-     * @time the next wakeup time
+     * @time the next wakeup time offset
      */
-    private void scheduleNextWakeup(int alarmType, long time) {
+    private void scheduleNextWakeupForOffset(long timeOffset) {
         Timber.d("scheduleNextWakup: called");
         if (mWakeLock != null) {
             // use the manual timer action to trigger pending intent receiver instead instead of alarm manager
             mTimerSubscription = Observable
                     .just(true)
-                    .delay(time - SystemClock.elapsedRealtime(), TimeUnit.MILLISECONDS)
+                    .delay(timeOffset, TimeUnit.MILLISECONDS)
                     .doOnNext(__ -> Timber.d("Wake from subscription"))
                     .subscribe(__ -> mPendingIntentReceiver.onReceive(getApplicationContext(), null));
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                mAlarmManager.setExactAndAllowWhileIdle(alarmType, time, mPendingIntent);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (alarmType == AlarmManager.ELAPSED_REALTIME_WAKEUP) {
-                    // adjust the time to the UTC time instead of elapsed time, such as setAlarmClock uses RTC_WAKUP always
-                    time = time - SystemClock.elapsedRealtime() + System.currentTimeMillis();
-                }
-                mAlarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(time, mPendingIntent), mPendingIntent);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                mAlarmManager.setExact(alarmType, time, mPendingIntent);
-            } else {
-                mAlarmManager.set(alarmType, time, mPendingIntent);
-            }
+            new JobRequest.Builder(RemindJob.TAG)
+                    .setExact(timeOffset)
+                    .build()
+                    .schedule();
         }
     }
 
@@ -525,6 +522,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             mTimerSubscription.unsubscribe();
             mTimerSubscription = null;
         }
+        // cancel any pending remind jobs
+        JobManager.instance().cancelAllForTag(RemindJob.TAG);
         mPendingIntentReceiver.interruptReminderIfActive();
         releaseWakeLockIfRequired();
         cancelDismissNotification();
@@ -770,6 +769,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         throw new RuntimeException(ex);
                     }
                 }
+                // notify listeners abot reminder completion
+                mEventBus.send(RemindEvents.REMINDER_COMPLETED);
                 scheduleNextWakeup();
             });
         }

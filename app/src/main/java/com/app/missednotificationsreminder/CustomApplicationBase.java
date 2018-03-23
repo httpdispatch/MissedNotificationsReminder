@@ -5,7 +5,9 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.app.missednotificationsreminder.di.Injector;
+import com.app.missednotificationsreminder.service.ReminderServiceJobCreator;
 import com.app.missednotificationsreminder.ui.ActivityHierarchyServer;
+import com.evernote.android.job.JobManager;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -45,6 +47,7 @@ public abstract class CustomApplicationBase extends Application {
         }
 
         registerActivityLifecycleCallbacks(activityHierarchyServer);
+        JobManager.create(this).addJobCreator(new ReminderServiceJobCreator());
     }
 
     abstract Object[] getModules();

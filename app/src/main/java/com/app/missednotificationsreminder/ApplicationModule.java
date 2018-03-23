@@ -7,6 +7,7 @@ import android.os.Vibrator;
 
 import com.app.missednotificationsreminder.data.DataModule;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
+import com.app.missednotificationsreminder.service.RemindJob;
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService;
 import com.app.missednotificationsreminder.ui.UiModule;
 import com.squareup.leakcanary.RefWatcher;
@@ -23,6 +24,7 @@ import dagger.Provides;
         injects = {
                 CustomApplication.class,
                 ReminderNotificationListenerService.class,
+                RemindJob.class
         },
         includes = {
                 UiModule.class,
