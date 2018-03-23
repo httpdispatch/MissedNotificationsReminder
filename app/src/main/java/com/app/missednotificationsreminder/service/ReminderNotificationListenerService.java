@@ -657,7 +657,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             Timber.d("zenModeUpdated() called");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 try {
-                    mDndEnabled.set(Settings.Global.getInt(getContentResolver(), "zen_mode") != DND_OFF);
+                    int zen_mode = Settings.Global.getInt(getContentResolver(), "zen_mode");
+                    Timber.d("zenModeUpdated: %d", zen_mode);
+                    mDndEnabled.set(zen_mode != DND_OFF);
                 } catch (Settings.SettingNotFoundException e) {
                     Timber.e(e);
                 }
@@ -724,7 +726,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
 
                         mMediaPlayer.reset();
                         // use alternative stream if respect ringer mode is disabled
-                        mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_MUSIC);
+                        mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_ALARM);
                         if (respectRingerMode.get() && (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE || mRingerMode.get() == AudioManager.RINGER_MODE_SILENT)) {
                             // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
                             mMediaPlayer.setVolume(0f, 0f);
