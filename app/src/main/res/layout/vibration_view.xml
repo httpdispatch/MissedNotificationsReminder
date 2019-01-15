@@ -27,5 +27,20 @@
             android:textOn="@string/vibration_enabled"
             tools:binding="@{model.enabled}"/>
 
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:error="@{model.patternError}">
+
+            <EditText
+                android:id="@+id/patternName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="@{model.enabled}"
+                android:hint="@string/vibration_pattern_hint"
+                android:inputType="text"
+                tools:binding="@{model.pattern}"/>
+        </android.support.design.widget.TextInputLayout>
+
     </LinearLayout>
 </layout>

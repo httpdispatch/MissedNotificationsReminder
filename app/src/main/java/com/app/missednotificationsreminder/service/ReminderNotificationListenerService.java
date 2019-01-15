@@ -48,6 +48,7 @@ import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeEnd;
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
 import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
+import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern;
 import com.app.missednotificationsreminder.util.PhoneStateUtils;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.app.missednotificationsreminder.util.event.RxEventBus;
@@ -123,6 +124,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @SchedulerRangeEnd Preference<Integer> schedulerRangeEnd;
     @Inject @ReminderRingtone Preference<String> reminderRingtone;
     @Inject @Vibrate Preference<Boolean> vibrate;
+    @Inject @VibrationPattern Preference<String> vibrationPattern;
     @Inject RxEventBus mEventBus;
 
     /**
@@ -334,6 +336,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                 vibrate.asObservable()
                                         .skip(1) // skip initial value emitted right after the subscription
                                         .doOnNext(__ -> Timber.d("Vibrate changed")),
+                                vibrationPattern.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Vibration pattern changed")),
                                 RxBindingUtils
                                         .valueChanged(mRingerMode)
                                         .skip(1) // skip initial value emitted right after the subscription
@@ -719,7 +724,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         // Each element then alternates between vibrate, sleep, vibrate, sleep...
                         if (vibrate.get() && (!respectRingerMode.get() || mRingerMode.get() != AudioManager.RINGER_MODE_SILENT)) {
                             // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
-                            long[] pattern = {0, 100, 50, 100, 50, 100, 200};
+                            long[] pattern = parseVibrationPattern(vibrationPattern.get());
                             mVibrator.vibrate(pattern, 0);
                         }
 
@@ -773,6 +778,16 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 mEventBus.send(RemindEvents.REMINDER_COMPLETED);
                 scheduleNextWakeup();
             });
+        }
+
+        private long[] parseVibrationPattern(String rawPattern) {
+            // This code assumes the pattern string matches regexp \d+(\s*,\s*\d+)*
+            String[] components = rawPattern.split("\\s*,\\s*");
+            long[] parsedPattern = new long[components.length];
+            for (int i = 0; i < components.length; i++) {
+                parsedPattern[i] = Long.parseLong(components[i]);
+            }
+            return parsedPattern;
         }
 
         /**

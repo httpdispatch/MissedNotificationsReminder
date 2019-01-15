@@ -38,6 +38,8 @@ import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeMax;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeMin;
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
 import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
+import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern;
+import com.app.missednotificationsreminder.di.qualifiers.VibrationPatternDefault;
 import com.app.missednotificationsreminder.util.event.RxEventBus;
 import com.f2prateek.rx.preferences.Preference;
 import com.f2prateek.rx.preferences.RxSharedPreferences;
@@ -109,6 +111,10 @@ public final class DataModule {
      * Key used for the scheduler range end preference
      */
     static final String SCHEDULER_RANGE_END_PREF = "SCHEDULER_RANGE_END";
+    /**
+     * Key used for vibration pattern preference
+     */
+    static final String VIBRATION_PATTERN_PREF = "VIBRATION_PATTERN";
     /**
      * The shared preferences name
      */
@@ -185,6 +191,15 @@ public final class DataModule {
 
     @Provides @Singleton @Vibrate Preference<Boolean> provideVibrate(RxSharedPreferences prefs) {
         return prefs.getBoolean(Vibrate.class.getSimpleName(), false);
+    }
+
+    @Provides @Singleton @VibrationPatternDefault String provideVibrationPatternDefault(@ForApplication Context context) {
+        return context.getResources().getString(R.string.vibrationPatternDefault);
+    }
+
+    @Provides @Singleton @VibrationPattern Preference<String> provideVibrationPattern
+            (RxSharedPreferences prefs, @VibrationPatternDefault String vibrationPatternDefault) {
+        return prefs.getString(VIBRATION_PATTERN_PREF, vibrationPatternDefault);
     }
 
     @Provides @Singleton @SelectedApplications Preference<Set<String>> provideSelectedApplications(RxSharedPreferences prefs) {
