@@ -124,7 +124,7 @@ public class ReminderViewModel extends BaseViewModel {
 
     /**
      * @param view             the related view
-     * @param reminderEnabled  preference to store/retrieve reminder interval enabled information
+     * @param reminderEnabled  preference to store/retrieve enabled information
      * @param reminderInterval preference to store/retrieve reminder interval value
      * @param reminderRepeats  preference to store/retrieve number of reminder repetitions
      * @param maxInterval      the maximum allowed reminder interval value

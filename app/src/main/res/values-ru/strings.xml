@@ -36,6 +36,8 @@
     <string name="settings_vibration">Вибро режим</string>
     <string name="vibration_disabled">Выключен</string>
     <string name="vibration_enabled">Включен</string>
+    <string name="vibration_pattern_hint">Шаблон вибрации</string>
+    <string name="vibration_pattern_error">Шаблон вибрации должен быть введен как список целых чисел разделенных запятыми. Первое значение определяет количество миллисекунд ожидания перед тем как включить вибратор. Следующее значение определяет количество миллисекунд в течении которого вибратор должен оставаться включенным перед тем как его выключить. Последующие значения попеременно определяют количество миллисекунд задержки перед тем как выключать или включать вибратор. Пример: 0, 100, 50, 100, 200</string>
     <string name="ignore_persistent_notifications_disabled">Не игнорировать постоянные (неудаляемые) уведомления</string>
     <string name="ignore_persistent_notifications_enabled">Игнорировать постоянные (неудаляемые) уведомления</string>
     <string name="respect_phone_calls_disabled">Уведомлять во время телефонного разговора</string>

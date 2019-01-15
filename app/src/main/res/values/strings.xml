@@ -56,6 +56,8 @@
     <!-- Vibration -->
     <string name="vibration_disabled">Disabled</string>
     <string name="vibration_enabled">Enabled</string>
+    <string name="vibration_pattern_hint">Vibration Pattern</string>
+    <string name="vibration_pattern_error">Pattern must be specified as a list of integers separated by commas. The first value indicates the number of milliseconds to wait before turning the vibrator on. The next value indicates the number of milliseconds for which to keep the vibrator on before turning it off. Subsequent values alternate between durations in milliseconds to turn the vibrator off or to turn the vibrator on. Example: 0, 100, 50, 100, 200</string>
 
     <!-- Application selection-->
     <string name="ignore_persistent_notifications_disabled">Do not ignore ongoing (persistent) notifications</string>

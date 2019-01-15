@@ -47,6 +47,9 @@
     <!-- Vibration -->
     <string name="vibration_disabled">無効</string>
     <string name="vibration_enabled">有効</string>
+    <string name="vibration_pattern_hint">振動パターン</string>
+    <string name="vibration_pattern_error">パターンは、コンマで区切った整数のリストとして指定する必要があります。 最初の値は、バイブレータをオンにする前に待機するミリ秒数を示します。 次の値は、バイブレータをオフにする前にオンにしておく時間をミリ秒単位で示します。 それ以降の値は、バイブレータをオフにするか、またはバイブレータをオンにするために、ミリ秒単位の期間で交互に切り替わります。 例：0、100、50、100、200</string>
+
 
     <!-- Applications selection activity -->
     <string name="applications_selection_title">アプリケーション選択</string>
