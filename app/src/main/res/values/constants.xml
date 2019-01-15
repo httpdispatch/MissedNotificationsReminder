@@ -6,7 +6,7 @@
     <integer name="reminderRepeatsDefault">5</integer>
     <integer name="reminderRepeatsMinimum">1</integer>
     <integer name="reminderRepeatsMaximum">100</integer>
-    <string name="vibrationPatternDefault">0, 100, 50, 100, 50, 100, 200</string>
+    <string name="vibrationPatternDefault" translatable="false">0, 100, 50, 100, 50, 100, 200</string>
     <!-- range minimum is 0 minutes or 00:00 O'Clock -->
     <integer name="schedulerRangeMinimum">0</integer>
     <!-- range maximim is 1439 minutes or 23:59 O'Clock -->
