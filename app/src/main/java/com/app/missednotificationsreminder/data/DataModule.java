@@ -8,6 +8,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 
 import com.app.missednotificationsreminder.R;
+import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandler;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
@@ -264,8 +265,9 @@ public final class DataModule {
         return app.getPackageManager();
     }
 
-    @Provides @Singleton Picasso providePicasso(Application app) {
+    @Provides @Singleton Picasso providePicasso(Application app, PackageManager packageManager) {
         return new Picasso.Builder(app)
+                .addRequestHandler(new ApplicationIconHandler(packageManager))
                 .listener((picasso, uri, e) -> Timber.e(e, "Failed to load image: %s", uri))
                 .build();
     }

@@ -35,7 +35,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewGroupCompat;
@@ -1469,7 +1468,7 @@ public class DebugDrawerLayout extends ViewGroup implements DrawerLayoutImpl {
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
     if (keyCode == KeyEvent.KEYCODE_BACK && hasVisibleDrawer()) {
-      KeyEventCompat.startTracking(event);
+      event.startTracking();
       return true;
     }
     return super.onKeyDown(keyCode, event);

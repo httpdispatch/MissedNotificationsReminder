@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 
 import com.app.missednotificationsreminder.binding.model.ApplicationsSelectionViewModel;
+import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandler;
 
 /**
  * The class to store application item information used in the {@link ApplicationsSelectionViewModel}
@@ -28,10 +29,10 @@ public class ApplicationItem {
         mChecked = checked;
         mApplicationName = packageInfo.applicationInfo.loadLabel(packageManager);
         mPackageName = packageInfo.packageName;
-        int icon = packageInfo.applicationInfo.icon;
-        if (icon != 0) {
-            mIconUri = Uri.parse("android.resource://" + packageInfo.packageName + "/" + icon);
-        }
+        mIconUri = new Uri.Builder()
+                .scheme(ApplicationIconHandler.SCHEME)
+                .authority(mPackageName)
+                .build();
     }
 
     public boolean isChecked() {
