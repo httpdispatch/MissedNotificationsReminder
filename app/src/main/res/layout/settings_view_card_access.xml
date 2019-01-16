@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/settings_acess_disabled"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/error_color_material"
+                    android:textColor="?colorError"
                     android:visibility="@{model != null&amp;&amp;model.accessInitialized.get()&amp;&amp;!model.accessEnabled.get() ? View.VISIBLE :View.GONE}"/>
 
                 <LinearLayout
