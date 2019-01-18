@@ -60,17 +60,18 @@ import com.f2prateek.rx.preferences.Preference;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
 import dagger.ObjectGraph;
+import rx.Completable;
+import rx.Emitter;
 import rx.Observable;
+import rx.Single;
 import rx.Subscription;
-import rx.exceptions.OnErrorThrowable;
-import rx.schedulers.Schedulers;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
@@ -693,32 +694,20 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
          */
         MediaPlayer mMediaPlayer = null;
         /**
-         * The lock used during media player preparation and notification sound play
-         * to make sure onReceive method will be running for some time keeping the device
-         * awake
+         * The reminder subscription
          */
-        CountDownLatch mLock;
+        CompositeSubscription mReminderSubscription = new CompositeSubscription();
 
         ScheduledSoundNotificationReceiver() {
             // initialize media player
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-            mMediaPlayer.setOnPreparedListener(__ -> Timber.d("MediaPlayer prepared"));
-            mMediaPlayer.setOnCompletionListener(__ -> {
-                Timber.d("MediaPlayer completed playing");
-                cancelVibration();
-            });
-            mMediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                Timber.d("MediaPlayer error %1$d %2$d", what, extra);
-                cancelVibration();
-                return false;
-            });
         }
 
         @Override
         public void onReceive(Context context, Intent intent) {
             mHandler.post(() -> {
-                Timber.d("onReceive");
+                Timber.d("onReceive: current thread %1$s", Thread.currentThread().getName());
                 if (!mActive.get()) {
                     Timber.w("onReceive: Invalid service activity state, stopping reminder");
                     stopWaking(true);
@@ -730,66 +719,104 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                     Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification");
                 } else {
                     Timber.d("onReceive: The screen is off, notify");
-                    try {
-                        interruptReminderIfActive();
-                        // Start without a delay
-                        // Each element then alternates between vibrate, sleep, vibrate, sleep...
-                        if (vibrate.get() && (!respectRingerMode.get() || mRingerMode.get() != AudioManager.RINGER_MODE_SILENT)) {
-                            // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
-                            long[] pattern = parseVibrationPattern(vibrationPattern.get());
+                    interruptReminderIfActive();
+                    Completable playbackCompleted = playReminderCompletable();
+                    Completable vibrationCompletedAtLeastOnce;
+                    // Start without a delay
+                    // Each element then alternates between vibrate, sleep, vibrate, sleep...
+                    if (vibrate.get() && (!respectRingerMode.get() || mRingerMode.get() != AudioManager.RINGER_MODE_SILENT)) {
+                        // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
+                        long[] pattern = parseVibrationPattern(vibrationPattern.get());
+                        vibrationCompletedAtLeastOnce = Single.fromCallable(() -> {
                             mVibrator.vibrate(pattern, 0);
-                        }
-
-                        mMediaPlayer.reset();
-                        // use alternative stream if respect ringer mode is disabled
-                        mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_ALARM);
-                        if (respectRingerMode.get() && (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE || mRingerMode.get() == AudioManager.RINGER_MODE_SILENT)) {
-                            // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
-                            mMediaPlayer.setVolume(0f, 0f);
-                        } else {
-                            mMediaPlayer.setVolume(1f, 1f);
-                        }
-                        // create lock object with timeout
-                        mLock = new CountDownLatch(1);
-                        Timber.d("onReceive: current thread %1$s", Thread.currentThread().getName());
-                        Observable.just(mMediaPlayer)
-                                .observeOn(Schedulers.io())
-                                .doOnError(__ -> cancelVibration())
-                                .subscribe(mp -> {
-                                    try {
-                                        Timber.d("onReceive subscription: current thread %1$s", Thread.currentThread().getName());
-                                        // get the selected notification sound URI
-                                        String ringtone = reminderRingtone.get();
-                                        if (TextUtils.isEmpty(ringtone)) {
-                                            cancelVibration();
-                                            Timber.w("The reminder ringtone is not specified. Skip playing");
-                                            return;
-                                        }
-                                        Timber.d("onReceive: ringtone %1$s", ringtone);
-                                        Uri notification = Uri.parse(ringtone);
-                                        mp.setDataSource(getApplicationContext(), notification);
-                                        mp.prepare();
-                                        mp.start();
-                                        mLock.countDown();
-                                    } catch (Exception ex) {
-                                        cancelVibration();
-                                        throw OnErrorThrowable.from(ex);
-                                    }
-                                }, ex -> Timber.e(ex, null));
-                        // give max 5 seconds to play notification sound
-                        mLock.await(5, TimeUnit.SECONDS);
-                        if (mLock.getCount() > 0) {
-                            Timber.w("onReceive: media player initializes too long, didn't receive onComplete for 5 seconds.");
-                        }
-                    } catch (Exception ex) {
-                        Timber.e(ex, null);
-                        throw new RuntimeException(ex);
+                            long vibrationDuration = 0;
+                            for (long step : pattern) {
+                                vibrationDuration += step;
+                            }
+                            Timber.d("Minimum vibration duration: %d", vibrationDuration);
+                            return vibrationDuration;
+                        })
+                                .flatMapCompletable(vibrationDuration -> Completable.timer(vibrationDuration, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()))
+                                .doOnError(t -> Timber.e(t))
+                                .onErrorComplete()
+                                .doOnCompleted(() -> Timber.d("Minimum vibration completed"))
+                                .doOnUnsubscribe(() -> mVibrator.cancel());
+                    } else {
+                        vibrationCompletedAtLeastOnce = Completable.complete();
                     }
+                    // await for both playback and minimum vibration duration to complete
+                    mReminderSubscription.add(Completable.merge(
+                            playbackCompleted,
+                            vibrationCompletedAtLeastOnce)
+                            .doOnCompleted(() -> mVibrator.cancel())
+                            .subscribe(() -> Timber.d("Reminder completed")));
                 }
+
                 // notify listeners abot reminder completion
                 mEventBus.send(RemindEvents.REMINDER_COMPLETED);
                 scheduleNextWakeup();
             });
+        }
+
+        private Completable playReminderCompletable() {
+            return Observable.amb(
+                    Completable.timer(5, TimeUnit.SECONDS)
+                            .andThen(Observable.error(new Error("onReceive: media player initializes too long, didn't receive onComplete for 5 seconds."))),
+                    Observable.create(emitter -> {
+                        try {
+                            mMediaPlayer.reset();
+                            // use alternative stream if respect ringer mode is disabled
+                            mMediaPlayer.setAudioStreamType(respectRingerMode.get() ? AudioManager.STREAM_NOTIFICATION : AudioManager.STREAM_ALARM);
+                            if (respectRingerMode.get() && (mRingerMode.get() == AudioManager.RINGER_MODE_VIBRATE || mRingerMode.get() == AudioManager.RINGER_MODE_SILENT)) {
+                                // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
+                                mMediaPlayer.setVolume(0f, 0f);
+                            } else {
+                                mMediaPlayer.setVolume(1f, 1f);
+                            }
+                            mMediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                                Timber.e("MediaPlayer error %1$d %2$d", what, extra);
+                                emitter.onError(new Error(String.format("MediaPlayer error %1$d %2$d", what, extra)));
+                                return false;
+                            });
+                            mMediaPlayer.setOnCompletionListener(__ -> {
+                                Timber.d("completion");
+                                emitter.onCompleted();
+                            });
+                            emitter.setCancellation(() -> {
+                                Timber.d("cancellation 1");
+                                if (mMediaPlayer.isPlaying()) {
+                                    mMediaPlayer.stop();
+                                }
+                                mMediaPlayer.setOnCompletionListener(null);
+                                mMediaPlayer.setOnErrorListener(null);
+                                mMediaPlayer.setOnPreparedListener(null);
+                            });
+                            // get the selected notification sound URI
+                            String ringtone = reminderRingtone.get();
+                            if (TextUtils.isEmpty(ringtone)) {
+                                Timber.w("The reminder ringtone is not specified. Skip playing");
+                                emitter.onCompleted();
+                            } else {
+                                Timber.d("onReceive: ringtone %1$s", ringtone);
+                                Uri notification = Uri.parse(ringtone);
+                                mMediaPlayer.setOnPreparedListener(__ -> {
+                                    Timber.d("MediaPlayer prepared");
+                                    mMediaPlayer.start();
+                                    emitter.onNext(notification);
+                                });
+                                mMediaPlayer.setDataSource(getApplicationContext(), notification);
+                                mMediaPlayer.prepareAsync();
+                            }
+                        } catch (Exception ex) {
+                            Timber.e(ex);
+                            emitter.onError(ex);
+                        }
+                    }, Emitter.BackpressureMode.NONE))
+                    .share()
+                    .toCompletable()
+                    .doOnError(t -> Timber.e(t))
+                    .onErrorComplete()
+                    .doOnCompleted(() -> Timber.d("Playback completed"));
         }
 
         private long[] parseVibrationPattern(String rawPattern) {
@@ -826,21 +853,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         }
 
         /**
-         * Cancel the vibration
-         */
-        private void cancelVibration() {
-            mVibrator.cancel();
-        }
-
-        /**
          * Interrupt previously started reminder if it is active
          */
         void interruptReminderIfActive() {
-            if (mMediaPlayer.isPlaying()) {
-                Timber.d("onReceive: Media player is playing. Stopping...");
-                mMediaPlayer.stop();
-            }
-            cancelVibration();
+            mReminderSubscription.clear();
         }
     }
 

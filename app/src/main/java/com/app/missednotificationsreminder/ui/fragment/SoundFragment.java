@@ -57,7 +57,7 @@ public class SoundFragment extends CommonFragmentWithViewModel<SoundViewModel> i
     @Override public void selectRingtone(String currentRingtoneUri) {
         Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(R.string.sound_select_ringtone_dialog_title));
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
                 TextUtils.isEmpty(currentRingtoneUri) ? (Uri) null : Uri.parse(currentRingtoneUri));
