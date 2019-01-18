@@ -12,6 +12,8 @@ import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern;
 import com.app.missednotificationsreminder.ui.view.VibrationView;
 import com.f2prateek.rx.preferences.Preference;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -96,6 +98,7 @@ public class VibrationViewModel extends BaseViewModel {
         monitor(RxBindingUtils
                 .valueChanged(pattern)
                 .skip(1)// skip initial value emitted automatically right after the subscription
+                .debounce(500, TimeUnit.MILLISECONDS)
                 .filter(pattern -> validateVibrationPattern(pattern)) // validate pattern
                 .map(pattern -> pattern.replaceFirst("^\\s+", "").replaceFirst("\\s+$", "")) // trim
                 .subscribe(mVibrationPattern.asAction()));
