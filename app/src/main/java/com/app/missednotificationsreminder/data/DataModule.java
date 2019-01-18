@@ -191,7 +191,7 @@ public final class DataModule {
     }
 
     @Provides @Singleton @Vibrate Preference<Boolean> provideVibrate(RxSharedPreferences prefs) {
-        return prefs.getBoolean(Vibrate.class.getSimpleName(), false);
+        return prefs.getBoolean(Vibrate.class.getSimpleName(), true);
     }
 
     @Provides @Singleton @VibrationPatternDefault String provideVibrationPatternDefault(@ForApplication Context context) {
