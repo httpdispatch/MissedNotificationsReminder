@@ -1,6 +1,7 @@
 package com.app.missednotificationsreminder.service;
 
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -431,6 +432,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Cancel dismiss notification if one is present.
      */
     private void cancelDismissNotification() {
+        Timber.d("cancelDismissNotification() called");
         // This will not send mStopRemindersIntent. Only user actions do.
         mNotificationManager.cancel(DISMISS_NOTIFICATION_ID);
     }
@@ -439,11 +441,13 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Create dismiss notification unless one is already present.
      */
     private void createDismissNotification() {
+        Timber.d("createDismissNotification() called");
         if (mNotificationLargeIcon == null) {
             mNotificationLargeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         }
+        String channelId = "MNR dismiss notification";
         NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this, null)
+                new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.drawable.ic_notification)  // this is custom icon, looks betetr
                         .setLargeIcon(mNotificationLargeIcon)
                         .setContentTitle(getText(R.string.dismiss_notification_title))
@@ -451,6 +455,14 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         // main color of the logo
                         .setColor(ResourcesCompat.getColor(getResources(), R.color.logo_color, getTheme()))
                         .setDeleteIntent(mStopRemindersIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    getText(R.string.dismiss_notification_title),
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setSound(null, null);
+            channel.enableVibration(false);
+            mNotificationManager.createNotificationChannel(channel);
+        }
         mNotificationManager.notify(DISMISS_NOTIFICATION_ID, builder.build());
     }
 
