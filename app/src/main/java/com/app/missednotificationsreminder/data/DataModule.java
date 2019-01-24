@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Vibrator;
 
 import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandler;
@@ -190,8 +191,8 @@ public final class DataModule {
         return prefs.getString(REMINDER_RINGTONE_PREF, defaultRingtone == null ? "" : defaultRingtone.toString());
     }
 
-    @Provides @Singleton @Vibrate Preference<Boolean> provideVibrate(RxSharedPreferences prefs) {
-        return prefs.getBoolean(Vibrate.class.getSimpleName(), true);
+    @Provides @Singleton @Vibrate Preference<Boolean> provideVibrate(RxSharedPreferences prefs, Vibrator vibrator) {
+        return prefs.getBoolean(Vibrate.class.getSimpleName(), vibrator.hasVibrator());
     }
 
     @Provides @Singleton @VibrationPatternDefault String provideVibrationPatternDefault(@ForApplication Context context) {
