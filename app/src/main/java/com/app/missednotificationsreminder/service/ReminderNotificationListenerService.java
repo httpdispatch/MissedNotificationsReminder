@@ -133,6 +133,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Alarm manager to schedule/cancel periodical actions
      */
     AlarmManager mAlarmManager;
+    /**
+     * The power manager to acquire wake locks for the reminder
+     */
+    PowerManager mPowerManager;
 
     /**
      * Vibrator to perform vibration when the notification is playing
@@ -262,8 +266,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 this.getApplicationContext(), 0, new Intent(STOP_REMINDERS_INTENT_ACTION), 0);
         registerReceiver(mStopRemindersReceiver, new IntentFilter(STOP_REMINDERS_INTENT_ACTION));
 
-        // initialize alarm manager and pending intent
+        // initialize alarm, power managers and pending intent
         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
         Intent i = new Intent(PENDING_INTENT_ACTION);
         mPendingIntent = PendingIntent.getBroadcast(this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -495,8 +500,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             if (forceWakeLock.get() && mWakeLock == null) {
                 // if wakelock workaround should be used
                 Timber.d("scheduleNextWakup: force wake lock");
-                PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-                mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                         ReminderNotificationListenerService.class.getSimpleName());
                 mWakeLock.acquire();
             }
@@ -697,6 +701,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
          * The reminder subscription
          */
         CompositeSubscription mReminderSubscription = new CompositeSubscription();
+        /**
+         * Reference to the current device wake lock used while vibrator is active
+         */
+        PowerManager.WakeLock mVibrationWakeLock;
 
         ScheduledSoundNotificationReceiver() {
             // initialize media player
@@ -728,6 +736,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
                         long[] pattern = parseVibrationPattern(vibrationPattern.get());
                         vibrationCompletedAtLeastOnce = Single.fromCallable(() -> {
+                            mVibrationWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                                    "MissedNotificationsReminder:VIBRATOR_LOCK");
+                            mVibrationWakeLock.acquire();
                             mVibrator.vibrate(pattern, 0);
                             long vibrationDuration = 0;
                             for (long step : pattern) {
@@ -740,7 +751,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                 .doOnError(t -> Timber.e(t))
                                 .onErrorComplete()
                                 .doOnCompleted(() -> Timber.d("Minimum vibration completed"))
-                                .doOnUnsubscribe(() -> mVibrator.cancel());
+                                .doOnUnsubscribe(() -> cancelVibrator());
                     } else {
                         vibrationCompletedAtLeastOnce = Completable.complete();
                     }
@@ -748,7 +759,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                     mReminderSubscription.add(Completable.merge(
                             playbackCompleted,
                             vibrationCompletedAtLeastOnce)
-                            .doOnCompleted(() -> mVibrator.cancel())
+                            .doOnCompleted(() -> cancelVibrator())
                             .subscribe(() -> Timber.d("Reminder completed")));
                 }
 
@@ -756,6 +767,14 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 mEventBus.send(RemindEvents.REMINDER_COMPLETED);
                 scheduleNextWakeup();
             });
+        }
+
+        private void cancelVibrator() {
+            mVibrator.cancel();
+            if (mVibrationWakeLock != null) {
+                mVibrationWakeLock.release();
+                mWakeLock = null;
+            }
         }
 
         private Completable playReminderCompletable() {
@@ -846,9 +865,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 }
                 return screenOn;
             } else {
-                PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
                 //noinspection deprecation
-                return pm.isScreenOn();
+                return mPowerManager.isScreenOn();
             }
         }
 
