@@ -42,9 +42,7 @@ public class ApplicationIconHandler extends RequestHandler {
         try {
             Drawable drawable = mPackageManager.getApplicationIcon(packageName);
 
-            if (drawable instanceof BitmapDrawable) {
-                return ((BitmapDrawable) drawable).getBitmap();
-            } else if (drawable != null) {
+            if (drawable != null) {
                 final Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                 final Canvas canvas = new Canvas(bitmap);
                 drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -53,7 +51,7 @@ public class ApplicationIconHandler extends RequestHandler {
             } else {
                 return null;
             }
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (Throwable e) {
             Timber.e(e);
         }
 
