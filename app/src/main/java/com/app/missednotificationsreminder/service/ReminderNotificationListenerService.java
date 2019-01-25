@@ -557,7 +557,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     private void releaseWakeLockIfRequired() {
         if (mWakeLock != null) {
             Timber.d("releaseWakeLockIfRequired: release wake lock");
-            mWakeLock.release();
+            try {
+                mWakeLock.release();
+            } catch (Exception ex) {
+                Timber.e(ex);
+            }
             mWakeLock = null;
         }
     }
@@ -772,7 +776,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         private void cancelVibrator() {
             mVibrator.cancel();
             if (mVibrationWakeLock != null) {
-                mVibrationWakeLock.release();
+                try {
+                    mVibrationWakeLock.release();
+                } catch (Exception ex) {
+                    Timber.e(ex);
+                }
                 mWakeLock = null;
             }
         }
