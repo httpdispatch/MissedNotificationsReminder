@@ -1,0 +1,89 @@
+<resources>
+    <!-- General -->
+    <string name="loading_message">Bezig met laden…</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Instellingen</string>
+    <string name="settings_subtitle" translatable="false">@string/app_name</string>
+    <string name="settings_access_title">Toegang tot meldingsdienst</string>
+    <string name="settings_battery_optimization">Accu-optimalisatie</string>
+    <string name="settings_permissions">Machtigingen</string>
+    <string name="settings_access_enabled">De meldingsdienst is momenteel ingeschakeld</string>
+    <string name="settings_access_manage">Toegang beheren</string>
+    <string name="settings_reminder">Herinneringsinstellingen</string>
+    <string name="settings_vibration">Trillen</string>
+    <string name="settings_scheduler">Aangepaste schema\'s</string>
+    <string name="settings_sound">Geluid</string>
+    <string name="settings_applications_select_title">Apps die moeten worden gemonitord
+        op gemiste meldingen</string>
+    <string name="settings_applications_select_button">Kies apps</string>
+    <string name="menu_advanced_settings_visible">Geavanceerde instellingen tonen</string>
+
+    <!-- Permissions settings -->
+    <string name="settings_permissions_required">De volgende machtigingen zijn benodigd om de app te laten werken: \"%1$s\". Verleen deze machtigingen.</string>
+    <string name="settings_permissions_grant">Vereiste machtigingen verlenen</string>
+
+    <!-- Battery optimization settings -->
+    <string name="settings_battery_optimization_disabled">De app is al uitgesloten van accu-optimalisatie</string>
+    <string name="settings_battery_optimization_enabled">Android optimaliseert het accugebruik van deze app.
+        Als je problemen ervaart met het ontvangen van herinneringen, schakel accu-optimalisatie dan uit voor de "Missed Notification Reminder"-app.</string>
+    <string name="settings_manage_battery_optimization">Accu-optimalisatie beheren</string>
+
+    <!-- Reminder Settings -->
+    <string name="reminder_interval_hint">Herinneringstijd (in minuten)</string>
+    <string name="reminder_repeats_hint">Aantal herhalingen (max)</string>
+    <string name="reminder_disabled">Uitgeschakeld</string>
+    <string name="reminder_enabled">Ingeschakeld</string>
+    <string name="limit_reminder_repeats_disabled">De herinnering wordt oneindig herhaald</string>
+    <string name="limit_reminder_repeats_enabled">De herinnering wordt een aantal keer herhaald</string>
+    <string name="create_dismiss_notification_disabled">Geen extra melding creëren</string>
+    <string name="create_dismiss_notification_enabled">Creëer een extra melding als herinneringen zijn ingeschakeld om ze te kunnen stoppen zonder de melding(en) van andere apps te verwerpen.</string>
+    <string name="wakelock_disabled">Apparaat niet ingeschakeld houden (AANBEVOLEN)</string>
+    <string name="wakelock_enabled">Apparaat ingeschakeld houden (WAARSCHUWING: gebruik dit alleen als je problemen ervaart met het ontvangen van herinneringen. Dit houdt het apparaat ALTIJD ingeschakeld tijdens de ingeplande herinneringsperioden.</string>
+
+    <!-- Scheduler-->
+    <string name="scheduler_begin_hint">Begint om</string>
+    <string name="scheduler_end_hint">Eindigt om</string>
+    <string name="scheduler_disabled">Uitgeschakeld</string>
+    <string name="scheduler_enabled">Ingeschakeld</string>
+    <string name="scheduler_working_period">Werkperiode</string>
+    <string name="scheduler_disabled_period">Periode uitschakelen</string>
+
+    <!-- Sound -->
+    <string name="sound_reminder_ringtone_button">Herinneringsgeluid</string>
+    <string name="sound_select_ringtone_dialog_title">Kies een geluid</string>
+
+    <!-- Vibration -->
+    <string name="vibration_disabled">Uitgeschakeld</string>
+    <string name="vibration_enabled">Ingeschakeld</string>
+    <string name="vibration_pattern_hint">Trilpatroon</string>
+    <string name="vibration_pattern_error">Het patroon moet worden ingesteld als een kommagescheiden lijst van gehele getallen. De eerste waarde staat voor het aantal millisceonden dat moet worden gewacht voordat trillen wordt ingeschakeld. De daaropvolgende waarde staat voor het aantal milliseconden dat het trillen moet aanhouden. De daaropvolgende waarden zijn, achtereenvolgens, gelijk aan de hiervoor genoemde. Voorbeeld: 0, 100, 50, 100, 200</string>
+
+    <!-- Application selection-->
+    <string name="ignore_persistent_notifications_disabled">Aanhoudende (permanente) meldingen niet negeren</string>
+    <string name="ignore_persistent_notifications_enabled">Aanhoudende (permanente) meldingen negeren</string>
+    <string name="remind_when_screen_is_on_disabled">Niet herinneren als scherm is ingeschakeld</string>
+    <string name="remind_when_screen_is_on_enabled">Herinneren als scherm is ingeschakeld</string>
+    <string name="respect_phone_calls_disabled">Herinneren tijdens oproepen</string>
+    <string name="respect_phone_calls_enabled">Niet herinneren tijdens oproepen</string>
+    <string name="respect_ringer_mode_disabled">Audioprofiel van apparaat negeren (óók herinneren in stille modus)</string>
+    <string name="respect_ringer_mode_enabled">Audioprofiel van apparaat aanhouden (geen herinneringen in stille modus)</string>
+
+    <!-- Applications selection activity -->
+    <string name="applications_selection_title">Apps kiezen</string>
+    <string name="applications_selection_subtitle" translatable="false">@string/app_name</string>
+    <!-- Applications selection list -->
+    <string name="applications_error_title">Oeps!</string>
+    <string name="applications_error_message">
+        Er is een fout opgetreden tijdens het laden van de appgegevens.\nProbeer het later opnieuw.
+    </string>
+    <string name="applications_empty_title">Vreemd…</string>
+    <string name="applications_empty_message">
+        Het lijkt erop dat er\ngeen apps beschikbaar zijn.
+    </string>
+
+    <!-- Dismiss notification -->
+    <string name="dismiss_notification_title">Herinneringen zijn ingeschakeld</string>
+    <string name="dismiss_notification_text">Verwerp deze melding om herinneringen uit te schakelen.</string>
+
+</resources>

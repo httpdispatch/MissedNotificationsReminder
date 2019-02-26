@@ -1,0 +1,7 @@
+<resources>
+    <!-- Settings -->
+    <string name="settings_acess_disabled">De meldingsdienst is momenteel uitgeschakeld.
+        Druk op de knop \"Toegang beheren\" button en schakel \"Missed Notification Reminder\" in.
+        Zonder dit werkt de app niet.</string>
+
+</resources>

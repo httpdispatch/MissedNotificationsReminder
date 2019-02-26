@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings -->
+    <string name="settings_acess_disabled">De meldingsdienst is momenteel uitgeschakeld.
+        Druk op de knop \"Toegang beheren\", kies \"Missed Notification Reminder-dienst\" en
+        schakel dit in. Zonder dit werkt de dienst niet.</string>
+
+    <string name="accessibility_service_description">Schakel in om Missed Notifications Reminder
+        toegang te geven tot inkomende meldingen.
+        Deze app verzamelt GEEN gegevens. Sterker nog: de app heeft geen internettoegang,
+        dus gegevens kunnen sowieso niet worden verstuurd.</string>
+    <string name="accessibility_service">Missed Notification Reminder-dienst</string>
+</resources>
