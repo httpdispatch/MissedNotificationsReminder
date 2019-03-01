@@ -456,6 +456,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.drawable.ic_notification)  // this is custom icon, looks betetr
                         .setLargeIcon(mNotificationLargeIcon)
+                        .setPriority(NotificationCompat.PRIORITY_MIN)
                         .setContentTitle(getText(R.string.dismiss_notification_title))
                         .setContentText(getText(R.string.dismiss_notification_text))
                         // main color of the logo
@@ -558,7 +559,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         if (mWakeLock != null) {
             Timber.d("releaseWakeLockIfRequired: release wake lock");
             try {
-                mWakeLock.release();
+                if (mWakeLock.isHeld()) {
+                    mWakeLock.release();
+                }
             } catch (Exception ex) {
                 Timber.e(ex);
             }
@@ -777,7 +780,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             mVibrator.cancel();
             if (mVibrationWakeLock != null) {
                 try {
-                    mVibrationWakeLock.release();
+                    if (mVibrationWakeLock.isHeld()) {
+                        mVibrationWakeLock.release();
+                    }
                 } catch (Exception ex) {
                     Timber.e(ex);
                 }
