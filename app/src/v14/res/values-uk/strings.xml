@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_acess_disabled">Служба првідомлень відключена. Натисніть кнопку \"Керування доступом\",
+        оберіть пункт \"Missed Notification Reminder Служба\". В наступному вікні оберіть увімкнути.
+        Инакше нагадування не будуть працювати.</string>
+
+    <string name="accessibility_service_description">Увімкніть, щоб дозволити додаток Missed Notifications Reminder
+        Цей додаток НЕ збирає ніяких ваших даних. Зауважте, що у нього нема прав доступу до інтернету, а це означає що він
+        навіть не може нікуди і нічого послати.</string>
+    <string name="accessibility_service">Missed Notifications Reminder Служба</string>
+</resources>
