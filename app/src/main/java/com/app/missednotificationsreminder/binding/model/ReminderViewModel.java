@@ -293,8 +293,6 @@ public class ReminderViewModel extends BaseViewModel {
 
         monitor(
                 repeatsChanged
-                        // Skip initial value emitted automatically right after the subsription.
-                        .skip(1)
                         .doOnNext(value -> Timber.d("repeats changed to %d", value))
                         // Make sure that the value set in the text field is within allowed
                         // boundaries.
