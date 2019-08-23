@@ -3,7 +3,7 @@ package com.jakewharton.u2020.ui.bugreport;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.ShareCompat;
+import androidx.core.app.ShareCompat;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
 

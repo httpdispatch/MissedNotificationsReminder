@@ -1,8 +1,8 @@
 package com.app.missednotificationsreminder.binding.util;
 
-import android.databinding.ObservableField;
-import android.support.annotation.CheckResult;
-import android.support.annotation.NonNull;
+import androidx.databinding.ObservableField;
+import androidx.annotation.CheckResult;
+import androidx.annotation.NonNull;
 
 import rx.functions.Action1;
 
@@ -19,7 +19,7 @@ import rx.functions.Action1;
  * <p>
  * For a now it extends {@link BaseObservable} instead of {@link ObservableField} because of
  * issue when whe have conversion and adapter binding for the same observable type and the
- * observable extends {@link android.databinding.BaseObservable}. Looks like conversion has
+ * observable extends {@link androidx.databinding.BaseObservable}. Looks like conversion has
  * higher priority in such case. Hope this will be fixed in future releases of the Android Data
  * Binding framework
  *

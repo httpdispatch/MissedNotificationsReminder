@@ -1,6 +1,6 @@
 package com.app.missednotificationsreminder.service;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.evernote.android.job.Job;
 import com.evernote.android.job.JobCreator;

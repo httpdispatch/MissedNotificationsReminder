@@ -21,8 +21,8 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.provider.Settings;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.view.Display;
 

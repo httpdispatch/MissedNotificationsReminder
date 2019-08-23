@@ -25,8 +25,8 @@ public class BindableObjectValueChangedOnSubscribe<T> implements Observable.OnSu
     @Override public void call(final Subscriber<? super T> subscriber) {
         // create the property changed callback for the BindableObject which emits property value
         // to the subscriber when it is changed
-        android.databinding.Observable.OnPropertyChangedCallback callback = new android.databinding.Observable.OnPropertyChangedCallback() {
-            @Override public void onPropertyChanged(android.databinding.Observable sender, int propertyId) {
+        androidx.databinding.Observable.OnPropertyChangedCallback callback = new androidx.databinding.Observable.OnPropertyChangedCallback() {
+            @Override public void onPropertyChanged(androidx.databinding.Observable sender, int propertyId) {
                 if (!subscriber.isUnsubscribed()) {
                     subscriber.onNext(mObject.get());
                 }

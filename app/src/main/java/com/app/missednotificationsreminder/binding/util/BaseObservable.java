@@ -16,16 +16,16 @@
 
 package com.app.missednotificationsreminder.binding.util;
 
-import android.databinding.Observable;
-import android.databinding.PropertyChangeRegistry;
+import androidx.databinding.Observable;
+import androidx.databinding.PropertyChangeRegistry;
 
 /**
- * A convenience class that implements {@link android.databinding.Observable} interface and provides
+ * A convenience class that implements {@link androidx.databinding.Observable} interface and provides
  * {@link #notifyPropertyChanged(int)} and {@link #notifyChange} methods.
  * <p>
- * This is a copy of the {@link android.databinding.BaseObservable} class. The copy is necessary
+ * This is a copy of the {@link androidx.databinding.BaseObservable} class. The copy is necessary
  * because of weird custom conversion and adapter binding work. In case we have custom attribute
- * binding and conversion for the same type and the observable extends {@link android.databinding.BaseObservable}
+ * binding and conversion for the same type and the observable extends {@link androidx.databinding.BaseObservable}
  * adapter binding won't work because field gets converted first. Hope this will be fixed in
  * future releases of the Android Data Binding framework
  */

@@ -13,13 +13,13 @@
         android:focusableInTouchMode="true"
         android:orientation="vertical">
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/toolbarWrapper"
             style="@style/ToolbarCardWrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 style="@style/Toolbar"
                 android:layout_width="match_parent"
@@ -43,8 +43,8 @@
                         android:layout_height="wrap_content"
                         android:text="@string/settings_subtitle"/>
                 </LinearLayout>
-            </android.support.v7.widget.Toolbar>
-        </android.support.v7.widget.CardView>
+            </androidx.appcompat.widget.Toolbar>
+        </androidx.cardview.widget.CardView>
 
         <fragment
             android:id="@+id/settings_fragment"

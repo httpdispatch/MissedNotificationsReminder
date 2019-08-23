@@ -1,6 +1,6 @@
 package com.app.missednotificationsreminder.binding.util;
 
-import android.databinding.BindingConversion;
+import androidx.databinding.BindingConversion;
 import android.view.View;
 
 /**

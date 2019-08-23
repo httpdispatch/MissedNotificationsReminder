@@ -3,7 +3,7 @@ package com.jakewharton.u2020.ui.bugreport;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import com.app.missednotificationsreminder.R;
 

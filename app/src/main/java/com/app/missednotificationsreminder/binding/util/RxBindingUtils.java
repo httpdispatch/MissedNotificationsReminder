@@ -1,7 +1,7 @@
 package com.app.missednotificationsreminder.binding.util;
 
-import android.support.annotation.CheckResult;
-import android.support.annotation.NonNull;
+import androidx.annotation.CheckResult;
+import androidx.annotation.NonNull;
 
 import com.f2prateek.rx.preferences.Preference;
 

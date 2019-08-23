@@ -1,6 +1,6 @@
 package com.app.missednotificationsreminder.binding.util;
 
-import android.databinding.BindingAdapter;
+import androidx.databinding.BindingAdapter;
 import android.text.TextUtils;
 import android.widget.CompoundButton;
 import android.widget.EditText;

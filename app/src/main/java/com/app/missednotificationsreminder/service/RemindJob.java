@@ -1,6 +1,6 @@
 package com.app.missednotificationsreminder.service;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.util.event.RxEventBus;

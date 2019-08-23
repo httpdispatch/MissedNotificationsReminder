@@ -20,14 +20,14 @@
             android:layout_height="wrap_content"
             android:text="@{model.enabled.get() ? @string/vibration_enabled : @string/vibration_disabled}"/>
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textOff="@string/vibration_disabled"
             android:textOn="@string/vibration_enabled"
             tools:binding="@{model.enabled}"/>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:error="@{model.patternError}">
@@ -40,7 +40,7 @@
                 android:hint="@string/vibration_pattern_hint"
                 android:inputType="text"
                 tools:binding="@{model.pattern}"/>
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 </layout>

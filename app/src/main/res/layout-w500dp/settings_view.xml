@@ -12,7 +12,7 @@
             type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
     </data>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -33,7 +33,7 @@
                     layout="@layout/settings_view_card_access"
                     tools:model="@{model}"/>
 
-                <android.support.v4.widget.Space
+                <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_widget_interval"/>
 
@@ -42,7 +42,7 @@
                     tools:parentModel="@{model}"
                     tools:model="@{model.applicationsSettingsModel}"/>
 
-                <android.support.v4.widget.Space
+                <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_widget_interval"
                     android:visibility="@{model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
@@ -53,7 +53,7 @@
 
             </LinearLayout>
 
-            <android.support.v4.widget.Space
+            <androidx.legacy.widget.Space
                 android:layout_width="@dimen/default_widget_interval"
                 android:layout_height="0dip"/>
 
@@ -67,7 +67,7 @@
                     layout="@layout/settings_view_permissions"
                     tools:model="@{model}"/>
 
-                <android.support.v4.widget.Space
+                <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_widget_interval"
                     android:visibility="@{model.isBatteryOptimizationSettingsVisible ? View.VISIBLE : View.GONE}"/>
@@ -76,14 +76,14 @@
                     layout="@layout/settings_view_battery_optimization"
                     tools:model="@{model}"/>
 
-                <android.support.v4.widget.Space
+                <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_widget_interval"
                     android:visibility="@{TextUtils.isEmpty(model.missingPermissions.get()) ? View.GONE : View.VISIBLE}"/>
 
                 <include layout="@layout/settings_view_card_reminder"/>
 
-                <android.support.v4.widget.Space
+                <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_widget_interval"
                     android:visibility="@{model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
@@ -92,7 +92,7 @@
                     layout="@layout/settings_view_card_sound"
                     tools:model="@{model}"/>
 
-                <android.support.v4.widget.Space
+                <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/default_widget_interval"
                     android:visibility="@{model != null &amp;&amp; model.advancedSettingsVisible.get() &amp;&amp; model.vibrationSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
@@ -104,5 +104,5 @@
             </LinearLayout>
 
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </layout>
