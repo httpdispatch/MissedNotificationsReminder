@@ -210,6 +210,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * The notification large icon cache
      */
     Bitmap mNotificationLargeIcon;
+    /**
+     * Whether the application is initializing
+     */
+    volatile boolean mInitializing = true;
 
     /**
      * The handler used to process various service related messages
@@ -236,9 +240,18 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     public void onCreate() {
         super.onCreate();
         Timber.d("onCreate");
+        initialize();
 
+    }
+
+    private void initialize() {
         // inject dependencies
         ObjectGraph appGraph = Injector.obtain(getApplicationContext());
+        if (appGraph == null) {
+            Log.e("ReminderService", "application is not available");
+            mHandler.postDelayed(() -> initialize(), 1000);
+            return;
+        }
         appGraph.inject(this);
         // TODO workaround for updated interval measurements
         if (reminderInterval.get() < reminderIntervalMinimum) {
@@ -372,6 +385,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         mSubscriptions.add(mEventBus.toObserverable()
                 .filter(event -> event == RemindEvents.REMIND)
                 .subscribe(__ -> mPendingIntentReceiver.onReceive(getApplicationContext(), null)));
+        mInitializing = false;
     }
 
     /**
@@ -616,7 +630,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                     // reset reminder repeats such as new important notification has arrived
                     mRemainingRepeats = reminderRepeats.get();
                 }
-                checkWakingConditions();
+                if (!mInitializing) {
+                    checkWakingConditions();
+                }
             }
         });
     }
