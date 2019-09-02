@@ -1,14 +1,17 @@
 package com.app.missednotificationsreminder.service;
 
 import android.annotation.TargetApi;
-import android.app.Notification;
 import android.os.Build;
+import android.os.SystemClock;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.text.TextUtils;
 
-import java.util.ArrayList;
+import com.app.missednotificationsreminder.data.model.NotificationData;
+
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import timber.log.Timber;
@@ -24,8 +27,28 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
     @Override public void onCreate() {
         super.onCreate();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            // such as onListenerConnected is not called on anroid prior L call onReady method explicitly
+            // such as onListenerConnected is not called on android prior L call onReady method explicitly
             onReady();
+        }
+    }
+
+    @Override public void actualizeNotificationData() {
+        StatusBarNotification[] activeNotifications = getActiveNotifications();
+        Set<NotificationData> snapshotNotifications = new HashSet<>(getNotificationsData());
+        if (activeNotifications != null) {
+            for (StatusBarNotification sbn : activeNotifications) {
+                NotificationData notificationData = findNotificationData(sbn, snapshotNotifications);
+                if (notificationData != null) {
+                    snapshotNotifications.remove(notificationData);
+                } else {
+                    Timber.d("actualizeNotificationData() found new %s", sbn);
+                    onNotificationPosted(sbn);
+                }
+            }
+        }
+        for (NotificationData notificationData : snapshotNotifications) {
+            Timber.w("actualizeNotificationData() found already removed %s", notificationData);
+            onNotificationRemoved(notificationData);
         }
     }
 
@@ -36,7 +59,11 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
             return;
         }
         Timber.d("onNotificationPosted: for package %1$s, key %2$s, when %3$s", sbn.getPackageName(), notificationKey(sbn), sbn.getNotification().when);
-        onNotificationPosted(sbn.getPackageName());
+        NotificationData notificationData = findNotificationData(sbn);
+        if (notificationData == null) {
+            notificationData = new ExtendedNotificationData(sbn);
+        }
+        onNotificationPosted(notificationData);
     }
 
     @Override
@@ -45,9 +72,30 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
             // fix weird NPE on some devices
             return;
         }
-        Timber.d("onNotificationRemoved: for package %1$s", sbn.getPackageName());
-        // stop alarm and check whether it should be launched again
-        onNotificationRemoved();
+        NotificationData notificationData = findNotificationData(sbn);
+        if (notificationData == null) {
+            Timber.w("onNotificationRemoved: can't find internal notification data for the status bar notification %d:%d:%s",
+                    sbn.getId(), sbn.getPostTime(), sbn.getPackageName());
+        } else {
+            // stop alarm and check whether it should be launched again
+            onNotificationRemoved(notificationData);
+        }
+    }
+
+    ExtendedNotificationData findNotificationData(StatusBarNotification sbn) {
+        return findNotificationData(sbn, getNotificationsData());
+    }
+
+    ExtendedNotificationData findNotificationData(StatusBarNotification sbn, Collection<NotificationData> snapshotNotifications) {
+        ExtendedNotificationData result = null;
+        for (NotificationData notificationData : snapshotNotifications) {
+            ExtendedNotificationData extendedNotificationData = (ExtendedNotificationData) notificationData;
+            if (extendedNotificationData.notificationKey.equals(notificationKey(sbn))) {
+                result = extendedNotificationData;
+                break;
+            }
+        }
+        return result;
     }
 
     private String notificationKey(StatusBarNotification notification) {
@@ -74,60 +122,44 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
                 + "|" + String.valueOf(notification.getNotification().when);
     }
 
-    @Override
-    public void ignoreAllCurrentNotifications() {
-        mIgnoredNotificationKeys.clear();
-        StatusBarNotification[] activeNotifications = getActiveNotifications();
-        if (activeNotifications != null) {
-            // potential NPE fix check on some devices
-            for (StatusBarNotification notificationData : activeNotifications) {
-                String notificationKey = notificationKey(notificationData);
-                mIgnoredNotificationKeys.add(notificationKey);
-                Timber.d("ignoreAllCurrentNotifications: start ignoring %s", notificationKey);
-            }
-        }
-    }
-
-    @Override
-    public boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing) {
-        boolean result = false;
-        StatusBarNotification[] activeNotifications = getActiveNotifications();
-        List<String> activeNotificationKeys = new ArrayList<>();
-        if (activeNotifications != null) {
-            Timber.d("checkNotificationForAtLeastOnePackageExists: %1$d notifications", activeNotifications.length);
-            // potential NPE fix check on some devices
-            for (StatusBarNotification notificationData : activeNotifications) {
-                String notificationKey = notificationKey(notificationData);
-                activeNotificationKeys.add(notificationKey);
-                String packageName = notificationData.getPackageName();
-                Timber.d("checkNotificationForAtLeastOnePackageExists: checking package %1$s", packageName);
-                boolean contains = packages.contains(packageName);
-                if (contains && ignoreOngoing && (notificationData.getNotification().flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT) {
-                    Timber.d("checkNotificationForAtLeastOnePackageExists: found ongoing match which is requested to be skipped");
-                    continue;
-                }
-                if (mIgnoredNotificationKeys.contains(notificationKey)) {
-                    Timber.d("checkNotificationForAtLeastOnePackageExists: notification %s ignored", notificationKey);
-                    continue;
-                }
-                result |= contains;
-            }
-        }
-        // Remove notifications that were cancelled already to prevent memory leaks.
-        Timber.d("checkNotificationForAtLeastOnePackageExists: %1$d notification keys, %2$d ignored notifications", activeNotificationKeys.size(), mIgnoredNotificationKeys.size());
-        List<String> copy = new ArrayList<>(mIgnoredNotificationKeys);
-        for (String ignoredNotificationKey : copy) {
-            if (!activeNotificationKeys.contains(ignoredNotificationKey)) {
-                mIgnoredNotificationKeys.remove(ignoredNotificationKey);
-            }
-        }
-        Timber.d("checkNotificationForAtLeastOnePackageExists: after cleanup - %1$d ignored notifications", mIgnoredNotificationKeys.size());
-        return result;
-    }
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override public void onListenerConnected() {
         super.onListenerConnected();
         onReady();
+    }
+
+    class ExtendedNotificationData extends NotificationData {
+        final String notificationKey;
+
+        public ExtendedNotificationData(StatusBarNotification sbn) {
+            this(sbn.getPackageName(),
+                    SystemClock.elapsedRealtime(),
+                    sbn.getNotification().flags,
+                    notificationKey(sbn));
+        }
+
+        public ExtendedNotificationData(String packageName, long foundAtTime, int flags, String notificationKey) {
+            super(packageName, foundAtTime, flags);
+            this.notificationKey = notificationKey;
+        }
+
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            ExtendedNotificationData that = (ExtendedNotificationData) o;
+            return TextUtils.equals(notificationKey, that.notificationKey);
+        }
+
+        @Override protected String fieldsAsString() {
+            return new StringBuilder()
+                    .append("notificationKey='").append(notificationKey).append('\'')
+                    .append(", " + super.fieldsAsString())
+                    .toString();
+        }
+
+        @Override protected String getClassName() {
+            return "ExtendedNotificationData";
+        }
     }
 }

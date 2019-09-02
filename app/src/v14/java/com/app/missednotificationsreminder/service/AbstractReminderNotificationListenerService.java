@@ -2,22 +2,20 @@ package com.app.missednotificationsreminder.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.app.Notification;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.app.missednotificationsreminder.data.model.NotificationData;
 import com.app.missednotificationsreminder.service.util.NotificationParser;
 import com.app.missednotificationsreminder.service.util.StatusBarWindowUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
+import androidx.core.util.ObjectsCompat;
 import timber.log.Timber;
 
 /**
@@ -26,15 +24,6 @@ import timber.log.Timber;
  * @author Eugene Popovich
  */
 public abstract class AbstractReminderNotificationListenerService extends AccessibilityService implements ReminderNotificationListenerServiceInterface {
-    /**
-     * List to store currently active notifications data
-     */
-    ConcurrentLinkedQueue<NotificationData> mAvailableNotifications = new ConcurrentLinkedQueue<>();
-    /**
-     * List of notification data entries that are ignored. This list must contain same objects as
-     * mAvailableNotifications above.
-     */
-    ConcurrentLinkedQueue<NotificationData> mIgnoredNotifications = new ConcurrentLinkedQueue<>();
     /**
      * Notification parser used to retrieve notification information
      */
@@ -51,6 +40,10 @@ public abstract class AbstractReminderNotificationListenerService extends Access
         onReady();
     }
 
+    @Override public void actualizeNotificationData() {
+        // do nothing
+    }
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         Timber.d("onAccessibilityEvent: received, windowid: %1$d; type: %2$s", accessibilityEvent.getWindowId(), AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType()));
@@ -62,9 +55,12 @@ public abstract class AbstractReminderNotificationListenerService extends Access
                     Notification n = (Notification) accessibilityEvent.getParcelableData();
                     String packageName = accessibilityEvent.getPackageName().toString();
                     Timber.d("onAccessibilityEvent: notification posted package: %1$s; notification: %2$s", packageName, n);
-                    mAvailableNotifications.add(new NotificationData(mNotificationParser.getNotificationTitle(n, packageName), packageName, n.flags));
                     // fire event
-                    onNotificationPosted(packageName);
+                    onNotificationPosted(new ExtendedNotificationData(
+                            mNotificationParser.getNotificationTitle(n, packageName),
+                            packageName,
+                            SystemClock.elapsedRealtime(),
+                            n.flags));
                 }
                 break;
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
@@ -95,9 +91,9 @@ public abstract class AbstractReminderNotificationListenerService extends Access
                     if (mStatusBarWindowUtils.isClearNotificationsButtonEvent(accessibilityEvent)) {
                         // if clicked image view element with the clear button name content description
                         Timber.d("onAccessibilityEvent: clear notifications button clicked");
-                        mAvailableNotifications.clear();
-                        // fire event
-                        onNotificationRemoved();
+                        for (NotificationData data : getNotificationsData()) {
+                            onNotificationRemoved(data);
+                        }
                     } else {
                         // update notifications if another view is clicked
                         updateNotifications(accessibilityEvent);
@@ -122,20 +118,13 @@ public abstract class AbstractReminderNotificationListenerService extends Access
     private void updateNotifications(AccessibilityEvent accessibilityEvent) {
         AccessibilityNodeInfo node = accessibilityEvent.getSource();
         node = mStatusBarWindowUtils.getRootNode(node);
-        boolean removed = false;
         Set<String> titles = node == null ? Collections.emptySet() : recursiveGetStrings(node);
-        for (Iterator<NotificationData> iter = mAvailableNotifications.iterator(); iter.hasNext(); ) {
-            NotificationData data = iter.next();
-            if (!titles.contains(data.title.toString())) {
+        for (NotificationData data : getNotificationsData()) {
+            if (!titles.contains(((ExtendedNotificationData) data).title)) {
+                Timber.d("updateNotifications: removed %s", data);
                 // if the title is absent in the view hierarchy remove notification from available notifications
-                iter.remove();
-                removed = true;
+                onNotificationRemoved(data);
             }
-        }
-        if (removed) {
-            Timber.d("updateNotifications: removed");
-            // fire event if at least one notification was removed
-            onNotificationRemoved();
         }
     }
 
@@ -145,21 +134,13 @@ public abstract class AbstractReminderNotificationListenerService extends Access
      * @param packageName
      */
     private void removeNotificationsFor(String packageName) {
-        boolean removed = false;
         Timber.d("removeNotificationsFor: %1$s", packageName);
-        for (Iterator<NotificationData> iter = mAvailableNotifications.iterator(); iter.hasNext(); ) {
-            NotificationData data = iter.next();
+        for (NotificationData data : getNotificationsData()) {
             if (TextUtils.equals(packageName, data.packageName)) {
-                iter.remove();
-                removed = true;
+                onNotificationRemoved(data);
             }
         }
-        if (removed) {
-            Timber.d("removeNotificationsFor: removed for %1$s", packageName);
-            onNotificationRemoved();
-        }
     }
-
 
     /**
      * Get all the text information from the node view hierarchy
@@ -181,58 +162,30 @@ public abstract class AbstractReminderNotificationListenerService extends Access
         return strings;
     }
 
-    @Override
-    public void ignoreAllCurrentNotifications() {
-        mIgnoredNotifications.clear();
-        mIgnoredNotifications.addAll(mAvailableNotifications);
-    }
-
-    @Override
-    public boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing) {
-        // Remove notifications that were already cancelled to avoid memory leaks.
-        List<NotificationData> copy = new ArrayList<>(mIgnoredNotifications);
-        for (NotificationData ignoredNotification : copy) {
-            if (!mAvailableNotifications.contains(ignoredNotification)) {
-                mIgnoredNotifications.remove(ignoredNotification);
-            }
-        }
-        boolean result = false;
-        for (NotificationData notificationData : mAvailableNotifications) {
-            String packageName = notificationData.packageName.toString();
-            Timber.d("checkNotificationForAtLeastOnePackageExists: checking package %1$s", packageName);
-            boolean contains = packages.contains(packageName);
-            if (contains && ignoreOngoing && (notificationData.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT) {
-                Timber.d("checkNotificationForAtLeastOnePackageExists: found ongoing match which is requested to be skipped");
-                continue;
-            }
-            if (mIgnoredNotifications.contains(notificationData)) {
-                Timber.d("checkNotificationForAtLeastOnePackageExists: notification ignored");
-                continue;
-            }
-            result |= contains;
-            if (result) {
-                Timber.d("checkNotificationForAtLeastOnePackageExists: found match for package %1$s", packageName);
-                break;
-            }
-        }
-        return result;
-    }
-
     /**
      * Simple notification information holder
      */
-    class NotificationData {
-        CharSequence title;
-        CharSequence packageName;
-        /**
-         * Notification specific flags
-         */
-        int flags;
+    class ExtendedNotificationData extends NotificationData {
+        final String title;
 
-        public NotificationData(CharSequence title, CharSequence packageName, int flags) {
+        public ExtendedNotificationData(CharSequence title, CharSequence packageName, long foundAtTime, int flags) {
+            this(title == null ? null : title.toString(),
+                    packageName == null ? null : packageName.toString(),
+                    foundAtTime,
+                    flags);
+        }
+
+        public ExtendedNotificationData(String title, String packageName, long foundAtTime, int flags) {
+            super(packageName, foundAtTime, flags);
             this.title = title;
-            this.packageName = packageName;
-            this.flags = flags;
+        }
+
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            ExtendedNotificationData that = (ExtendedNotificationData) o;
+            return ObjectsCompat.equals(title, that.title);
         }
     }
 

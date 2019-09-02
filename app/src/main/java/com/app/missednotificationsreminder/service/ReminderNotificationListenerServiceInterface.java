@@ -1,6 +1,9 @@
 package com.app.missednotificationsreminder.service;
 
+import com.app.missednotificationsreminder.data.model.NotificationData;
+
 import java.util.Collection;
+import java.util.List;
 
 /**
  * The reminder service interface for basic notification handling functionality
@@ -12,32 +15,31 @@ public interface ReminderNotificationListenerServiceInterface {
     /**
      * The method which should be called when any new notification is posted
      *
-     * @param packageName the package name of the application which posted notification
+     * @param notificationData the posted notification data
      */
-    void onNotificationPosted(String packageName);
+    void onNotificationPosted(NotificationData notificationData);
 
     /**
      * The method which should be called when any notification is removed
-     */
-    void onNotificationRemoved();
-
-    /**
-     * Check whether the at least one notification for specified packages is present in the status bar
      *
-     * @param packages      the collection of packages to check
-     * @param ignoreOngoing whether the ongoing notifications should be ignored
-     * @return true if notification for at least one package is found, false otherwise
+     * @param notificationData the removed notification data
      */
-    boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing);
-
-    /**
-     * Ignore all current notifications. The checkNotificationForAtLeastOnePackageExists will return
-     * false unless there are new notifications created after this call.
-     */
-    void ignoreAllCurrentNotifications();
+    void onNotificationRemoved(NotificationData notificationData);
 
     /**
      * The method which should be called when a notification listener service is ready
      */
     void onReady();
+
+    /**
+     * Get the currently showing notification data
+     *
+     * @return
+     */
+    List<NotificationData> getNotificationsData();
+
+    /**
+     * Actualize the notification date
+     */
+    void actualizeNotificationData();
 }

@@ -1,6 +1,7 @@
 package com.app.missednotificationsreminder.service;
 
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -21,15 +22,15 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.provider.Settings;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.res.ResourcesCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 
 import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
+import com.app.missednotificationsreminder.data.model.NotificationData;
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
@@ -57,14 +58,21 @@ import com.evernote.android.job.JobManager;
 import com.evernote.android.job.JobRequest;
 import com.f2prateek.rx.preferences.Preference;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.res.ResourcesCompat;
 import dagger.ObjectGraph;
 import rx.Completable;
 import rx.Emitter;
@@ -122,6 +130,15 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @VibrationPattern Preference<String> vibrationPattern;
     @Inject RxEventBus mEventBus;
 
+    /**
+     * List to store currently active notifications data
+     */
+    ConcurrentLinkedQueue<NotificationData> mAvailableNotifications = new ConcurrentLinkedQueue<>();
+    /**
+     * List of notification data entries that are ignored. This list must contain same objects as
+     * mAvailableNotifications above.
+     */
+    ConcurrentLinkedQueue<NotificationData> mIgnoredNotifications = new ConcurrentLinkedQueue<>();
     /**
      * Alarm manager to schedule/cancel periodical actions
      */
@@ -230,7 +247,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         ObjectGraph appGraph = Injector.obtain(getApplicationContext());
         if (appGraph == null) {
             Log.e("ReminderService", "application is not available");
-            mHandler.postDelayed(() -> initialize(), 1000);
+            mHandler.postDelayed(() -> {
+                Log.w("ReminderService", "Initialize: one more try");
+                initialize();
+            }, 1000);
             return;
         }
         appGraph.inject(this);
@@ -365,7 +385,8 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 .filter(ready -> ready)
                 .take(1)
                 .observeOn(mScheduler)
-                .subscribe(__ -> checkWakingConditions()));
+                .doOnNext(__ -> checkWakingConditions())
+                .subscribe(__ -> actualizeNotificationData()));
         // monitor for the remind events sent via event bus
         mSubscriptions.add(mEventBus.toObserverable()
                 .filter(event -> event == RemindEvents.REMIND)
@@ -374,24 +395,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     }
 
     /**
-     * Send the check waing condition message to the service handler
-     */
-    private void sendCheckWakingConditionsCommand() {
-        Timber.d("sendCheckWakingConditionsCommand");
-        mHandler.sendMessage(mHandler.obtainMessage(CHECK_WAKING_CONDITIONS_MSG));
-    }
-
-    private void sendStopWakingCommand() {
-        Timber.d("sendStopReminderCommand");
-        mHandler.sendMessage(mHandler.obtainMessage(STOP_WAKING_MSG));
-    }
-
-    /**
      * Check whether the waking alarm should be scheduled or no
      */
     private void checkWakingConditions() {
+        Timber.d("checkWakingConditions() called");
         try {
-            Timber.d("checkWakingConditions");
             if (mActive.get()) {
                 Timber.d("checkWakingConditions: already active, skipping");
                 return;
@@ -539,6 +547,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      * Stop scheduled wakeup alarm for the periodical sound notification
      */
     private void stopWaking() {
+        Timber.d("stopWaking() called");
         stopWaking(false);
         if (mTimerSubscription != null) {
             mTimerSubscription.unsubscribe();
@@ -603,11 +612,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     }
 
     @Override
-    public void onNotificationPosted(String packageName) {
+    public void onNotificationPosted(NotificationData notificationData) {
         mHandler.post(() -> {
-            Timber.d("onNotificationPosted() called with: packageName = %s",
-                    packageName);
-            if (mReady.get() && selectedApplications.get().contains(packageName)) {
+            Timber.d("onNotificationPosted: %s", notificationData);
+            mAvailableNotifications.add(notificationData);
+            if (mReady.get() && selectedApplications.get().contains(notificationData.packageName)) {
                 // check waking conditions only if notification has been posted for the monitored application to prevent
                 // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
                 // monitored app
@@ -623,9 +632,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     }
 
     @Override
-    public void onNotificationRemoved() {
+    public void onNotificationRemoved(NotificationData notificationData) {
         mHandler.post(() -> {
-            Timber.d("onNotificationRemoved");
+            Timber.d("onNotificationRemoved: %s", notificationData);
+            mAvailableNotifications.remove(notificationData);
             if (mActive.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
                 // stop alarm if there are no more notifications to update
                 stopWaking();
@@ -635,6 +645,57 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
 
     @Override public void onReady() {
         mReady.set(true);
+    }
+
+
+    /**
+     * Ignore all current notifications. The checkNotificationForAtLeastOnePackageExists will return
+     * false unless there are new notifications created after this call.
+     */
+    public void ignoreAllCurrentNotifications() {
+        mIgnoredNotifications.clear();
+        mIgnoredNotifications.addAll(mAvailableNotifications);
+    }
+
+    /**
+     * Check whether the at least one notification for specified packages is present in the status bar
+     *
+     * @param packages      the collection of packages to check
+     * @param ignoreOngoing whether the ongoing notifications should be ignored
+     * @return true if notification for at least one package is found, false otherwise
+     */
+    public boolean checkNotificationForAtLeastOnePackageExists(Collection<String> packages, boolean ignoreOngoing) {
+        // Remove notifications that were already cancelled to avoid memory leaks.
+        List<NotificationData> copy = new ArrayList<>(mIgnoredNotifications);
+        for (NotificationData ignoredNotification : copy) {
+            if (!getNotificationsData().contains(ignoredNotification)) {
+                mIgnoredNotifications.remove(ignoredNotification);
+            }
+        }
+        boolean result = false;
+        for (NotificationData notificationData : getNotificationsData()) {
+            String packageName = notificationData.packageName;
+            Timber.d("checkNotificationForAtLeastOnePackageExists: checking package %1$s", packageName);
+            boolean contains = packages.contains(packageName);
+            if (contains && ignoreOngoing && (notificationData.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT) {
+                Timber.d("checkNotificationForAtLeastOnePackageExists: found ongoing match which is requested to be skipped");
+                continue;
+            }
+            if (mIgnoredNotifications.contains(notificationData)) {
+                Timber.d("checkNotificationForAtLeastOnePackageExists: notification ignored");
+                continue;
+            }
+            result |= contains;
+            if (result) {
+                Timber.d("checkNotificationForAtLeastOnePackageExists: found match for package %1$s", packageName);
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override public List<NotificationData> getNotificationsData() {
+        return Collections.unmodifiableList(new ArrayList<>(mAvailableNotifications));
     }
 
     /**
@@ -771,9 +832,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                             .subscribe(() -> Timber.d("Reminder completed")));
                 }
 
-                // notify listeners abot reminder completion
+                // notify listeners about reminder completion
                 mEventBus.send(RemindEvents.REMINDER_COMPLETED);
                 scheduleNextWakeup();
+                actualizeNotificationData();
             });
         }
 
