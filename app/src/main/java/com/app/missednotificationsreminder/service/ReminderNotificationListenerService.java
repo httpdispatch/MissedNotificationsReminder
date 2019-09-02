@@ -463,7 +463,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.drawable.ic_notification)  // this is custom icon, looks betetr
                         .setLargeIcon(mNotificationLargeIcon)
-                        .setPriority(NotificationCompat.PRIORITY_MIN)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setContentTitle(getText(R.string.dismiss_notification_title))
                         .setContentText(getText(R.string.dismiss_notification_text))
                         // main color of the logo
