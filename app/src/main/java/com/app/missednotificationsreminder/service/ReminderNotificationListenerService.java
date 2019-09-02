@@ -17,7 +17,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Message;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.provider.Settings;
@@ -69,6 +69,7 @@ import dagger.ObjectGraph;
 import rx.Completable;
 import rx.Emitter;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -93,14 +94,6 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
      */
     static final String STOP_REMINDERS_INTENT_ACTION =
             ReminderNotificationListenerService.class.getCanonicalName() + ".STOP_REMINDERS_INTENT";
-    /**
-     * The constant used to identify handler message to start checking of the service waking conditions
-     */
-    static final int CHECK_WAKING_CONDITIONS_MSG = 0;
-    /**
-     * The constant used to identify handler message to stop waking
-     */
-    static final int STOP_WAKING_MSG = 1;
 
     /**
      * Notification id for the dismiss notification. It must be unique in an app, but since we only
@@ -218,23 +211,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     /**
      * The handler used to process various service related messages
      */
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case CHECK_WAKING_CONDITIONS_MSG:
-                    Timber.d("CHECK_WAKING_CONDITIONS_MSG message received");
-                    checkWakingConditions();
-                    break;
-                case STOP_WAKING_MSG:
-                    Timber.d("STOP_WAKING_MSG message received");
-                    stopWaking();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+    /**
+     * The scheduler which runs jobs in the <code>mHandler</code>
+     */
+    private Scheduler mScheduler = AndroidSchedulers.from(mHandler.getLooper());
 
     @Override
     public void onCreate() {
@@ -291,12 +272,14 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                         .skip(1) // skip initial value emitted right after the subscription
                         .filter(enabled -> enabled) // if reminder enabled
                         .filter(__ -> mReady.get())
-                        .subscribe(b -> sendCheckWakingConditionsCommand()));
+                        .observeOn(mScheduler)
+                        .subscribe(b -> checkWakingConditions()));
         mSubscriptions.add(
                 reminderEnabled.asObservable()
                         .skip(1) // skip initial value emitted right after the subscription
                         .filter(enabled -> !enabled) // if reminder disabled
-                        .subscribe(b -> sendStopWakingCommand()));
+                        .observeOn(mScheduler)
+                        .subscribe(b -> stopWaking()));
         mSubscriptions.add(
                 Observable.merge(
                         Arrays.asList(
@@ -371,16 +354,18 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                         .doOnNext(v -> Timber.d("DND mode changed to %b", v))
                                         .filter(__ -> respectRingerMode.get())))
                         .filter(__ -> mReady.get())
+                        .observeOn(mScheduler)
                         .subscribe(data -> {
                             // restart alarm with new conditions if necessary
-                            sendStopWakingCommand();
-                            sendCheckWakingConditionsCommand();
+                            stopWaking();
+                            checkWakingConditions();
                         }));
         // await for the service become ready event to send check waking conditions command
         mSubscriptions.add(RxBindingUtils.valueChanged(mReady)
                 .filter(ready -> ready)
                 .take(1)
-                .subscribe(__ -> sendCheckWakingConditionsCommand()));
+                .observeOn(mScheduler)
+                .subscribe(__ -> checkWakingConditions()));
         // monitor for the remind events sent via event bus
         mSubscriptions.add(mEventBus.toObserverable()
                 .filter(event -> event == RemindEvents.REMIND)
