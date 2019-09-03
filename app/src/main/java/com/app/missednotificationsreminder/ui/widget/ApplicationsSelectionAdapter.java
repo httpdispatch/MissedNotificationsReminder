@@ -1,23 +1,32 @@
 package com.app.missednotificationsreminder.ui.widget;
 
 import android.content.pm.PackageManager;
-import androidx.recyclerview.widget.SortedList;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SortedListAdapterCallback;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.app.missednotificationsreminder.binding.model.ApplicationItemViewModel;
 import com.app.missednotificationsreminder.data.model.ApplicationItem;
+import com.app.missednotificationsreminder.data.model.NotificationData;
 import com.app.missednotificationsreminder.databinding.ApplicationSelectableItemViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.ApplicationsSelectionFragment;
 import com.squareup.picasso.Picasso;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
-import rx.functions.Action1;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SortedList;
+import androidx.recyclerview.widget.SortedListAdapterCallback;
+import rx.Completable;
+import rx.Emitter;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 /**
@@ -26,8 +35,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<ApplicationsSelectionAdapter.ViewHolder>
-        implements Action1<List<ApplicationItem>> {
+public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<ApplicationsSelectionAdapter.ViewHolder> {
 
     private final ApplicationItemViewModel.ApplicationCheckedStateChangedListener mCheckedStateChangedListener;
 
@@ -35,18 +43,23 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
 
     private Picasso mPicasso;
 
-    private SortedList<ApplicationItem> mData =  new SortedList<ApplicationItem>(ApplicationItem.class, new SortedListAdapterCallback<ApplicationItem>(this) {
+    private CompositeSubscription mSubscription = new CompositeSubscription();
+
+    private SortedList<ApplicationItem> mData = new SortedList<>(ApplicationItem.class, new SortedListAdapterCallback<ApplicationItem>(this) {
         @Override
         public int compare(ApplicationItem t0, ApplicationItem t1) {
-            if (t0.isChecked() != t1.isChecked()) {
-                return t0.isChecked() ? -1 : 1;
+            if (t0.activeNotifications != t1.activeNotifications) {
+                return t1.activeNotifications - t0.activeNotifications;
+            }
+            if (t0.checked != t1.checked) {
+                return t0.checked ? -1 : 1;
             }
             return getLabel(t0).compareToIgnoreCase(getLabel(t1));
         }
 
-        String getLabel(ApplicationItem item){
-            CharSequence result = item.getApplicationName();
-            if(result == null){
+        String getLabel(ApplicationItem item) {
+            CharSequence result = item.applicationName;
+            if (result == null) {
                 result = "";
             }
             return result.toString();
@@ -71,15 +84,54 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
      */
     @Inject public ApplicationsSelectionAdapter(
             ApplicationItemViewModel.ApplicationCheckedStateChangedListener applicationCheckedStateChangedListener,
+            Observable<List<NotificationData>> notificationDataObservable,
             PackageManager packageManager, Picasso picasso) {
         this.mCheckedStateChangedListener = applicationCheckedStateChangedListener;
         mPackageManager = packageManager;
         mPicasso = picasso;
         setHasStableIds(false);
+        mSubscription.add(notificationDataObservable
+                .onBackpressureLatest()
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(ApplicationsSelectionAdapter::getNotificationCountData)
+                .flatMapCompletable(notificationsCountInfo -> Completable.fromAction(() -> {
+                    while (true) {
+                        boolean found = false;
+                        for (int i = 0; i < mData.size(); i++) {
+                            ApplicationItem item = mData.get(i);
+                            Integer count = notificationsCountInfo.get(item.packageName);
+                            if (count == null) {
+                                count = 0;
+                            }
+                            if (item.activeNotifications != count.intValue()) {
+                                mData.updateItemAt(i, new ApplicationItem.Builder(item).activeNotifications(count).build());
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            break;
+                        }
+                    }
+                }))
+                .subscribe());
+    }
+
+    @NotNull public static Map<String, Integer> getNotificationCountData(List<NotificationData> notificationData) {
+        Map<String, Integer> result = new HashMap<>();
+        for (NotificationData notification : notificationData) {
+            Integer count = result.get(notification.packageName);
+            if (count == null) {
+                count = 0;
+            }
+            count = count + 1;
+            result.put(notification.packageName, count);
+        }
+        return result;
     }
 
 
-    @Override public void call(List<ApplicationItem> data) {
+    public void setData(List<ApplicationItem> data) {
         mData.clear();
         mData.addAll(data);
         notifyDataSetChanged();
@@ -104,6 +156,10 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
         return mData.size();
     }
 
+    public void shutdown() {
+        mSubscription.clear();
+    }
+
     /**
      * View holder implementation for this adapter
      */
@@ -121,12 +177,7 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
                             mPicasso,
                             (packageInfo, checked) -> {
                                 Timber.d("Update checked value to %1$b", checked);
-                                item.setChecked(checked);
-                                // change item position in view
-                                int adapterPosition = getAdapterPosition();
-                                if (adapterPosition != RecyclerView.NO_POSITION) {
-                                    mData.recalculatePositionOfItemAt(adapterPosition);
-                                }
+                                mData.updateItemAt(getAdapterPosition(), new ApplicationItem.Builder(item).checked(checked).build());
                                 // notify global listener if exists
                                 if (mCheckedStateChangedListener != null) {
                                     mCheckedStateChangedListener.onApplicationCheckedStateChanged(packageInfo, checked);

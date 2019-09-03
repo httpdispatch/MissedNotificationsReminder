@@ -8,6 +8,10 @@ import androidx.core.util.ObjectsCompat;
 
 public class NotificationData {
     /**
+     * The notification id
+     */
+    public final String id;
+    /**
      * The notification related application package name
      */
     public final String packageName;
@@ -20,7 +24,8 @@ public class NotificationData {
      */
     public final int flags;
 
-    public NotificationData(String packageName, long foundAtTime, int flags) {
+    public NotificationData(String id, String packageName, long foundAtTime, int flags) {
+        this.id = id;
         this.packageName = packageName;
         this.foundAtTime = foundAtTime;
         this.flags = flags;
@@ -32,6 +37,7 @@ public class NotificationData {
         NotificationData that = (NotificationData) o;
         return foundAtTime == that.foundAtTime &&
                 flags == that.flags &&
+                ObjectsCompat.equals(id, that.id) &&
                 ObjectsCompat.equals(packageName, that.packageName);
     }
 
@@ -49,7 +55,8 @@ public class NotificationData {
 
     protected String fieldsAsString() {
         return new StringBuilder()
-                .append("packageName='").append(packageName).append('\'')
+                .append("id=").append(id)
+                .append(", packageName='").append(packageName).append('\'')
                 .append(", foundAtTime=").append(foundAtTime)
                 .append(", flags=").append(flags)
                 .toString();

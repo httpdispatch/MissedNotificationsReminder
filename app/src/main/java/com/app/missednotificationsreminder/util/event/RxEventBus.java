@@ -4,6 +4,7 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.SerializedSubject;
 import rx.subjects.Subject;
+import timber.log.Timber;
 
 /**
  * Implementation of the event bus based on the RsJava technology.
@@ -21,6 +22,8 @@ public class RxEventBus {
      * @param event the event to send
      */
     public void send(Event event) {
+        Timber.d("send() called with: event = %s",
+                event);
         _bus.onNext(event);
     }
 

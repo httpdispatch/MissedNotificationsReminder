@@ -26,9 +26,7 @@ public class ApplicationItemViewModel extends BaseViewModel {
     private Picasso mPicasso;
 
     /**
-     * @param checked                                the current application checked state
-     * @param packageInfo                            the application package info
-     * @param packageManager
+     * @param applicationItem                        the current application item
      * @param picasso
      * @param applicationCheckedStateChangedListener the listener to subscribe to the on checked
      *                                               state changed event
@@ -41,7 +39,7 @@ public class ApplicationItemViewModel extends BaseViewModel {
         mApplicationItem = applicationItem;
         mPicasso = picasso;
         mApplicationCheckedStateChangedListener = applicationCheckedStateChangedListener;
-        this.checked.set(applicationItem.isChecked());
+        this.checked.set(applicationItem.checked);
         if (mApplicationCheckedStateChangedListener != null) {
             monitor(RxBindingUtils
                     .valueChanged(this.checked)
@@ -61,7 +59,7 @@ public class ApplicationItemViewModel extends BaseViewModel {
      */
     public CharSequence getName() {
         Timber.d("getName for %1$s", toString());
-        return mApplicationItem.getApplicationName();
+        return mApplicationItem.applicationName;
     }
 
     /**
@@ -71,7 +69,7 @@ public class ApplicationItemViewModel extends BaseViewModel {
      */
     public String getDescription() {
         Timber.d("getDescription for %1$s", toString());
-        return mApplicationItem.getPackageName();
+        return mApplicationItem.packageName;
     }
 
     /**
@@ -81,8 +79,16 @@ public class ApplicationItemViewModel extends BaseViewModel {
      */
     public RequestCreator getIcon() {
         Timber.d("getIcon for %1$s", toString());
-        return mApplicationItem.hasIcon() ? mPicasso.load(mApplicationItem.getIconUri())
-                .fit() : null;
+        return mPicasso.load(mApplicationItem.iconUri)
+                .fit();
+    }
+
+    public boolean hasActiveNotifications() {
+        return mApplicationItem.activeNotifications > 0;
+    }
+
+    public String activeNotifications() {
+        return String.valueOf(mApplicationItem.activeNotifications);
     }
 
     /**
@@ -98,7 +104,7 @@ public class ApplicationItemViewModel extends BaseViewModel {
 
     @Override
     public String toString() {
-        return String.format("%1$s(checked=%2$b, package=%3$s)", getClass().getSimpleName(), checked.get(), mApplicationItem.getPackageName());
+        return String.format("%1$s(checked=%2$b, package=%3$s)", getClass().getSimpleName(), checked.get(), mApplicationItem.packageName);
     }
 
     /**

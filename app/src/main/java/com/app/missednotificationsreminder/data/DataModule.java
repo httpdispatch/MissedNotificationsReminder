@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Vibrator;
 
 import com.app.missednotificationsreminder.R;
+import com.app.missednotificationsreminder.data.model.NotificationData;
 import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandler;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
@@ -42,17 +43,22 @@ import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
 import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
 import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern;
 import com.app.missednotificationsreminder.di.qualifiers.VibrationPatternDefault;
+import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEvent;
+import com.app.missednotificationsreminder.service.event.RemindEvents;
 import com.app.missednotificationsreminder.util.event.RxEventBus;
 import com.f2prateek.rx.preferences.Preference;
 import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import rx.Completable;
+import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -275,6 +281,15 @@ public final class DataModule {
 
     @Provides @Singleton RxEventBus provideEventBus() {
         return new RxEventBus();
+    }
+
+    @Provides @Singleton Observable<List<NotificationData>> provideNotificationDataObservable(RxEventBus eventBus) {
+        return eventBus.toObserverable()
+                .filter(event -> event instanceof NotificationsUpdatedEvent)
+                .map(event -> ((NotificationsUpdatedEvent) event).notifications)
+                .mergeWith(Completable.fromAction(() -> eventBus.send(RemindEvents.GET_CURRENT_NOTIFICATIONS_DATA)).toObservable())
+                .replay(1)
+                .refCount();
     }
 
 }

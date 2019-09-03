@@ -1,4 +1,4 @@
-package com.app.missednotificationsreminder.service;
+package com.app.missednotificationsreminder.service.event;
 
 import com.app.missednotificationsreminder.util.event.Event;
 
@@ -14,5 +14,9 @@ public enum RemindEvents implements Event {
     /**
      * The reminder completed notification event
      */
-    REMINDER_COMPLETED
+    REMINDER_COMPLETED,
+    /**
+     * Request current notification data information via {@link NotificationsUpdatedEvent}
+     */
+    GET_CURRENT_NOTIFICATIONS_DATA
 }

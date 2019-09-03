@@ -72,10 +72,11 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
             // fix weird NPE on some devices
             return;
         }
+        Timber.d("onNotificationRemoved: for package %1$s, key %2$s, when %3$s", sbn.getPackageName(), notificationKey(sbn), sbn.getNotification().when);
         NotificationData notificationData = findNotificationData(sbn);
         if (notificationData == null) {
-            Timber.w("onNotificationRemoved: can't find internal notification data for the status bar notification %d:%d:%s",
-                    sbn.getId(), sbn.getPostTime(), sbn.getPackageName());
+            Timber.w("onNotificationRemoved: can't find internal notification data for the status bar notification %s",
+                    notificationKey(sbn));
         } else {
             // stop alarm and check whether it should be launched again
             onNotificationRemoved(notificationData);
@@ -132,14 +133,15 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
         final String notificationKey;
 
         public ExtendedNotificationData(StatusBarNotification sbn) {
-            this(sbn.getPackageName(),
+            this(sbn.getId(),
+                    sbn.getPackageName(),
                     SystemClock.elapsedRealtime(),
                     sbn.getNotification().flags,
                     notificationKey(sbn));
         }
 
-        public ExtendedNotificationData(String packageName, long foundAtTime, int flags, String notificationKey) {
-            super(packageName, foundAtTime, flags);
+        public ExtendedNotificationData(int id, String packageName, long foundAtTime, int flags, String notificationKey) {
+            super(Integer.toString(id), packageName, foundAtTime, flags);
             this.notificationKey = notificationKey;
         }
 

@@ -3,6 +3,7 @@ package com.app.missednotificationsreminder.service;
 import androidx.annotation.NonNull;
 
 import com.app.missednotificationsreminder.di.Injector;
+import com.app.missednotificationsreminder.service.event.RemindEvents;
 import com.app.missednotificationsreminder.util.event.RxEventBus;
 import com.evernote.android.job.Job;
 

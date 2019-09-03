@@ -1,8 +1,10 @@
 package com.app.missednotificationsreminder.ui.fragment;
 
 import android.os.Bundle;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,12 +81,17 @@ public class ApplicationsSelectionFragment extends CommonFragmentWithViewModel<A
     }
 
     @Override public Action1<List<ApplicationItem>> getListLoadedAction() {
-        return adapter;
+        return adapter::setData;
     }
 
     @Override public void setLoadingState() {
         if (mBinding.animator.getDisplayedChildId() != mBinding.list.getId()) {
             mBinding.animator.setDisplayedChild(mBinding.loading);
         }
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        adapter.shutdown();
     }
 }

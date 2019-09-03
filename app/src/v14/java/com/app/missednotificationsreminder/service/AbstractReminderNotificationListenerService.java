@@ -120,7 +120,7 @@ public abstract class AbstractReminderNotificationListenerService extends Access
         node = mStatusBarWindowUtils.getRootNode(node);
         Set<String> titles = node == null ? Collections.emptySet() : recursiveGetStrings(node);
         for (NotificationData data : getNotificationsData()) {
-            if (!titles.contains(((ExtendedNotificationData) data).title)) {
+            if (!titles.contains(((ExtendedNotificationData) data).id)) {
                 Timber.d("updateNotifications: removed %s", data);
                 // if the title is absent in the view hierarchy remove notification from available notifications
                 onNotificationRemoved(data);
@@ -166,7 +166,6 @@ public abstract class AbstractReminderNotificationListenerService extends Access
      * Simple notification information holder
      */
     class ExtendedNotificationData extends NotificationData {
-        final String title;
 
         public ExtendedNotificationData(CharSequence title, CharSequence packageName, long foundAtTime, int flags) {
             this(title == null ? null : title.toString(),
@@ -176,16 +175,7 @@ public abstract class AbstractReminderNotificationListenerService extends Access
         }
 
         public ExtendedNotificationData(String title, String packageName, long foundAtTime, int flags) {
-            super(packageName, foundAtTime, flags);
-            this.title = title;
-        }
-
-        @Override public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
-            ExtendedNotificationData that = (ExtendedNotificationData) o;
-            return ObjectsCompat.equals(title, that.title);
+            super(title, packageName, foundAtTime, flags);
         }
     }
 

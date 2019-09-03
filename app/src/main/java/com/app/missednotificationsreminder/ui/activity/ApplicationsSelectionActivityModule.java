@@ -47,9 +47,9 @@ public final class ApplicationsSelectionActivityModule {
     @Provides
     @Singleton ApplicationItemViewModel.ApplicationCheckedStateChangedListener provideApplicationsCheckedStateChangeListener(@SelectedApplications Preference<Set<String>> selectedApplications) {
         return (applicationItem, checked) -> {
-            Timber.d("Update selected application value %1$s to %2$b", applicationItem.getPackageName(), checked);
+            Timber.d("Update selected application value %1$s to %2$b", applicationItem.packageName, checked);
             Observable<Pair<String, Set<String>>> selection = Observable
-                    .just(new Pair<>(applicationItem.getPackageName(), selectedApplications.get()))
+                    .just(new Pair<>(applicationItem.packageName, selectedApplications.get()))
                     .share();
             // for sure we may use if condition here instead of concatenation of 2 observables. Just wanted to achieve
             // same result with RxJava usage.

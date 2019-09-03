@@ -1,61 +1,99 @@
 package com.app.missednotificationsreminder.data.model;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 
 import com.app.missednotificationsreminder.binding.model.ApplicationsSelectionViewModel;
-import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandler;
 
 /**
  * The class to store application item information used in the {@link ApplicationsSelectionViewModel}
- *
- * @author Eugene Popovich
  */
 public class ApplicationItem {
-    private boolean mChecked;
-    private CharSequence mApplicationName;
-    private String mPackageName;
-    private Uri mIconUri;
-
     /**
-     * Creates the ApplicationItem object
-     *
-     * @param checked        whether the application is already checked by user
-     * @param packageInfo   the application package information
-     * @param packageManager the package manager instance
+     * Whether the application is already checked by user
      */
-    public ApplicationItem(boolean checked, PackageInfo packageInfo, PackageManager packageManager) {
-        mChecked = checked;
-        mApplicationName = packageInfo.applicationInfo.loadLabel(packageManager);
-        mPackageName = packageInfo.packageName;
-        mIconUri = new Uri.Builder()
-                .scheme(ApplicationIconHandler.SCHEME)
-                .authority(mPackageName)
-                .build();
+    public final boolean checked;
+    /**
+     * The application name
+     */
+    public final CharSequence applicationName;
+    /**
+     * The application package name
+     */
+    public final String packageName;
+    /**
+     * The application icon URI
+     */
+    public final Uri iconUri;
+    /**
+     * The number of active notifications
+     */
+    public final int activeNotifications;
+
+    private ApplicationItem(Builder builder) {
+        checked = builder.checked;
+        applicationName = builder.applicationName;
+        packageName = builder.packageName;
+        iconUri = builder.iconUri;
+        activeNotifications = builder.activeNotifications;
     }
 
-    public boolean isChecked() {
-        return mChecked;
+    @Override public String toString() {
+        return new StringBuilder()
+                .append("ApplicationItem{")
+                .append("checked=").append(checked)
+                .append(", applicationName=").append(applicationName)
+                .append(", packageName='").append(packageName).append('\'')
+                .append(", iconUri=").append(iconUri)
+                .append(", activeNotifications=").append(activeNotifications)
+                .append("}")
+                .toString();
     }
 
-    public void setChecked(boolean checked) {
-        mChecked = checked;
-    }
+    public static final class Builder {
+        private boolean checked;
+        private CharSequence applicationName;
+        private String packageName;
+        private Uri iconUri;
+        private int activeNotifications;
 
-    public CharSequence getApplicationName() {
-        return mApplicationName;
-    }
+        public Builder() {
+        }
 
-    public String getPackageName() {
-        return mPackageName;
-    }
+        public Builder(ApplicationItem copy) {
+            this.checked = copy.checked;
+            this.applicationName = copy.applicationName;
+            this.packageName = copy.packageName;
+            this.iconUri = copy.iconUri;
+            this.activeNotifications = copy.activeNotifications;
+        }
 
-    public boolean hasIcon() {
-        return mIconUri != null;
-    }
+        public Builder checked(boolean checked) {
+            this.checked = checked;
+            return this;
+        }
 
-    public Uri getIconUri() {
-        return mIconUri;
+        public Builder applicationName(CharSequence applicationName) {
+            this.applicationName = applicationName;
+            return this;
+        }
+
+        public Builder packageName(String packageName) {
+            this.packageName = packageName;
+            return this;
+        }
+
+        public Builder iconUri(Uri iconUri) {
+            this.iconUri = iconUri;
+            return this;
+        }
+
+        public Builder activeNotifications(int activeNotifications) {
+            this.activeNotifications = activeNotifications;
+            return this;
+        }
+
+        public ApplicationItem build() {
+            return new ApplicationItem(this);
+        }
     }
 }

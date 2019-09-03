@@ -51,6 +51,8 @@ import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeEnd;
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications;
 import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
 import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern;
+import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEvent;
+import com.app.missednotificationsreminder.service.event.RemindEvents;
 import com.app.missednotificationsreminder.util.PhoneStateUtils;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.app.missednotificationsreminder.util.event.RxEventBus;
@@ -391,6 +393,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         mSubscriptions.add(mEventBus.toObserverable()
                 .filter(event -> event == RemindEvents.REMIND)
                 .subscribe(__ -> mPendingIntentReceiver.onReceive(getApplicationContext(), null)));
+        mSubscriptions.add(mEventBus.toObserverable()
+                .filter(event -> event == RemindEvents.GET_CURRENT_NOTIFICATIONS_DATA)
+                .observeOn(mScheduler)
+                .subscribe(__ -> mEventBus.send(new NotificationsUpdatedEvent(getNotificationsData()))));
         mInitializing = false;
     }
 
@@ -616,6 +622,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         mHandler.post(() -> {
             Timber.d("onNotificationPosted: %s", notificationData);
             mAvailableNotifications.add(notificationData);
+            mEventBus.send(new NotificationsUpdatedEvent(getNotificationsData()));
             if (mReady.get() && selectedApplications.get().contains(notificationData.packageName)) {
                 // check waking conditions only if notification has been posted for the monitored application to prevent
                 // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
@@ -635,7 +642,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     public void onNotificationRemoved(NotificationData notificationData) {
         mHandler.post(() -> {
             Timber.d("onNotificationRemoved: %s", notificationData);
-            mAvailableNotifications.remove(notificationData);
+            if (!mAvailableNotifications.remove(notificationData)) {
+                Timber.w("onNotificationRemoved: removal failed");
+            }
+            mEventBus.send(new NotificationsUpdatedEvent(getNotificationsData()));
             if (mActive.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
                 // stop alarm if there are no more notifications to update
                 stopWaking();
