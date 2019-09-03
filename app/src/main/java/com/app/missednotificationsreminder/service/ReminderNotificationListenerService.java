@@ -621,6 +621,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     public void onNotificationPosted(NotificationData notificationData) {
         mHandler.post(() -> {
             Timber.d("onNotificationPosted: %s", notificationData);
+            NotificationData existingElement = existingElement(notificationData);
+            if (existingElement != null) {
+                Timber.d("onNotificationPosted: removing previous %s", existingElement);
+                mAvailableNotifications.remove(existingElement);
+            }
             mAvailableNotifications.add(notificationData);
             mEventBus.send(new NotificationsUpdatedEvent(getNotificationsData()));
             if (mReady.get() && selectedApplications.get().contains(notificationData.packageName)) {
@@ -636,6 +641,18 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 }
             }
         });
+    }
+
+    NotificationData existingElement(NotificationData notificationData) {
+        NotificationData result = null;
+        for (NotificationData item : getNotificationsData()) {
+            if (TextUtils.equals(item.id, notificationData.id) &&
+                    TextUtils.equals(item.packageName, notificationData.packageName)) {
+                result = item;
+                break;
+            }
+        }
+        return result;
     }
 
     @Override
