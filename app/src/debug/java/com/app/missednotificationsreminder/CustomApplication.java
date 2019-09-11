@@ -14,14 +14,8 @@ import timber.log.Timber;
  */
 public class CustomApplication extends CustomApplicationBase {
 
-    @Inject LumberYard lumberYard;
-
     @Override public void onCreate() {
         super.onCreate();
-        AndroidThreeTen.init(this);
-
-        lumberYard.cleanUp();
-        Timber.plant(lumberYard.tree());
     }
 
     @Override Object[] getModules() {

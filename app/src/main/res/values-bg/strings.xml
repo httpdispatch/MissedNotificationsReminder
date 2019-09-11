@@ -24,6 +24,7 @@
     <string name="sound_reminder_ringtone_button">Мелодия за напомняне</string>
     <string name="sound_select_ringtone_dialog_title">Избор на мелодия</string>
     <string name="menu_advanced_settings_visible">Разширени настройки</string>
+    <string name="menu_show_logs">Показване на дневници</string>
     <string name="wakelock_disabled">Позволява на устройството да заспи (ПРЕПОРЪЧИТЕЛНО)</string>
     <string name="wakelock_enabled">Не позволява на устройството да заспи (ВНИМАНИЕ: използвайте тази възможност само ако срещате нередности с периодичността на напомнянията)</string>
     <string name="settings_battery_optimization">Пестене на заряда в батерията</string>

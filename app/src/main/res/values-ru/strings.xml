@@ -24,6 +24,7 @@
     <string name="sound_reminder_ringtone_button">Рингтон напоминаний</string>
     <string name="sound_select_ringtone_dialog_title">Выберите рингтон</string>
     <string name="menu_advanced_settings_visible">Расширенные настройки</string>
+    <string name="menu_show_logs">Показать логи</string>
     <string name="wakelock_disabled">Позволять устройству засыпать (РЕКОМЕНДУЕТСЯ)</string>
     <string name="wakelock_enabled">Не позволять устройству засыпать (ВНИМАНИЕ, используйте эту опцию только, если испытываете проблемы с периодичностью напоминаний)</string>
     <string name="settings_battery_optimization">Экономия заряда батареи</string>

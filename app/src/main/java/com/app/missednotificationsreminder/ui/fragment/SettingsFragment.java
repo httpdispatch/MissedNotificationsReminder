@@ -13,8 +13,12 @@ import com.app.missednotificationsreminder.binding.model.SettingsViewModel;
 import com.app.missednotificationsreminder.databinding.SettingsViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 import com.app.missednotificationsreminder.ui.view.SettingsView;
+import com.jakewharton.u2020.data.LumberYard;
+import com.jakewharton.u2020.ui.logs.LogsDialog;
 
 import javax.inject.Inject;
+
+import androidx.appcompat.view.ContextThemeWrapper;
 
 /**
  * Fragment which displays other settings view
@@ -24,6 +28,7 @@ import javax.inject.Inject;
 public class SettingsFragment extends CommonFragmentWithViewModel<SettingsViewModel> implements SettingsView {
 
     @Inject SettingsViewModel model;
+    @Inject LumberYard lumberYard;
     SettingsViewBinding mBinding;
 
     @Override public SettingsViewModel getModel() {
@@ -72,6 +77,9 @@ public class SettingsFragment extends CommonFragmentWithViewModel<SettingsViewMo
             // toggle menu item state and the related data binding value
             item.setChecked(!item.isChecked());
             model.advancedSettingsVisible.set(item.isChecked());
+            return true;
+        } else if(item.getItemId() == R.id.showLog){
+            new LogsDialog(new ContextThemeWrapper(getContext(), R.style.AppTheme), lumberYard).show();
             return true;
         } else {
             return super.onOptionsItemSelected(item);

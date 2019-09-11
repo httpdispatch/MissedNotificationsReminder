@@ -6,4 +6,9 @@
         android:checkable="true"
         app:showAsAction="never"
         android:title="@string/menu_advanced_settings_visible"/>
+    <item
+        android:id="@+id/showLog"
+        android:checkable="false"
+        app:showAsAction="never"
+        android:title="@string/menu_show_logs"/>
 </menu>

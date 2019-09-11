@@ -8,6 +8,8 @@ import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.service.ReminderServiceJobCreator;
 import com.app.missednotificationsreminder.ui.ActivityHierarchyServer;
 import com.evernote.android.job.JobManager;
+import com.jakewharton.threetenabp.AndroidThreeTen;
+import com.jakewharton.u2020.data.LumberYard;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -27,6 +29,7 @@ public abstract class CustomApplicationBase extends Application {
 
     @Inject ActivityHierarchyServer activityHierarchyServer;
     public RefWatcher refWatcher;
+    @Inject LumberYard lumberYard;
 
     public CustomApplicationBase() {
         // Initialize dependency injection graph
@@ -35,7 +38,6 @@ public abstract class CustomApplicationBase extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
-
         // leak inspection
         refWatcher = LeakCanary.install(this);
         mObjectGraph.inject(this);
@@ -45,6 +47,11 @@ public abstract class CustomApplicationBase extends Application {
         } else {
             Timber.plant(new CrashReportingTree());
         }
+
+        lumberYard.cleanUp();
+        Timber.plant(lumberYard.tree());
+
+        AndroidThreeTen.init(this);
 
         registerActivityLifecycleCallbacks(activityHierarchyServer);
         JobManager.create(this).addJobCreator(new ReminderServiceJobCreator());

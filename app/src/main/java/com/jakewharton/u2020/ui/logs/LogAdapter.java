@@ -8,9 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 import com.app.missednotificationsreminder.R;
 import com.jakewharton.u2020.ui.misc.BindableAdapter;
 import java.util.ArrayList;
@@ -26,6 +23,12 @@ final class LogAdapter extends BindableAdapter<Entry> implements Action1<Entry> 
   public LogAdapter(Context context) {
     super(context);
     logs = Collections.emptyList();
+  }
+
+
+  public void addLogs(List<Entry> entries) {
+    logs.addAll(entries);
+    notifyDataSetChanged();
   }
 
   public void setLogs(List<Entry> logs) {
@@ -63,14 +66,17 @@ final class LogAdapter extends BindableAdapter<Entry> implements Action1<Entry> 
 
   static final class LogItemViewHolder {
     private final View rootView;
-    @BindView(R.id.debug_log_level) TextView levelView;
-    @BindView(R.id.debug_log_tag) TextView tagView;
-    @BindView(R.id.debug_log_time) TextView timeView;
-    @BindView(R.id.debug_log_message) TextView messageView;
+    final TextView levelView;
+    final TextView tagView;
+    final TextView timeView;
+    final TextView messageView;
 
     public LogItemViewHolder(View rootView) {
       this.rootView = rootView;
-      ButterKnife.bind(this, rootView);
+      levelView= rootView.findViewById(R.id.debug_log_level);
+      tagView= rootView.findViewById(R.id.debug_log_tag);
+      timeView= rootView.findViewById(R.id.debug_log_time);
+      messageView= rootView.findViewById(R.id.debug_log_message);
     }
 
     public void setEntry(Entry entry) {

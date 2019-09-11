@@ -18,6 +18,7 @@
         for missed notifications</string>
     <string name="settings_applications_select_button">Select Applications</string>
     <string name="menu_advanced_settings_visible">Show advanced settings</string>
+    <string name="menu_show_logs">Show logs</string>
 
     <!-- Permissions settings -->
     <string name="settings_permissions_required">The following permissions are required for the app work: \"%1$s\". Please allow them.</string>

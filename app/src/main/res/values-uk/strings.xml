@@ -56,4 +56,5 @@
     <string name="create_dismiss_notification_enabled">Створити додаткове повідомлення, коли нагадування активні, яке дозволяє зупинити нагадування без видалення повідомлень інших додатків</string>
     <string name="dismiss_notification_text">Видаліть це повідомлення, щоб зупинити нагадування</string>
     <string name="dismiss_notification_title">Нагадування активні</string>
+    <string name="menu_show_logs">Показати логи</string>
 </resources>

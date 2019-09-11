@@ -18,6 +18,7 @@
         op gemiste meldingen</string>
     <string name="settings_applications_select_button">Kies apps</string>
     <string name="menu_advanced_settings_visible">Geavanceerde instellingen tonen</string>
+    <string name="menu_show_logs">Logboeken weergeven</string>
 
     <!-- Permissions settings -->
     <string name="settings_permissions_required">De volgende machtigingen zijn benodigd om de app te laten werken: \"%1$s\". Verleen deze machtigingen.</string>

@@ -16,6 +16,7 @@
         アプリケーション</string>
     <string name="settings_applications_select_button">アプリケーションを選択</string>
     <string name="menu_advanced_settings_visible">高度な設定を表示</string>
+    <string name="menu_show_logs">ログを表示</string>
 
     <!-- Permissions settings -->
     <string name="settings_permissions_required">アプリの動作に次のアクセス許可が必要です: \"%1$s\"。 許可してください。</string>

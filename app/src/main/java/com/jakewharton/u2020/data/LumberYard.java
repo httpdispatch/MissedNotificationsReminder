@@ -7,7 +7,6 @@ import android.util.Log;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
-import org.threeten.bp.format.ResolverStyle;
 import org.threeten.bp.temporal.ChronoField;
 
 import java.io.File;
@@ -28,11 +27,10 @@ import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 import static org.threeten.bp.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-import static org.threeten.bp.format.DateTimeFormatter.ISO_LOCAL_TIME;
 
 @Singleton
 public final class LumberYard {
-    private static final int BUFFER_SIZE = 20000;
+    private static final int BUFFER_SIZE = 10000;
 
     private final Application app;
 
