@@ -39,6 +39,12 @@ public interface ReminderNotificationListenerServiceInterface {
     List<NotificationData> getNotificationsData();
 
     /**
+     * Get the currently ignoring notification data
+     * @return
+     */
+    List<NotificationData> getIgnoredNotificationsData();
+
+    /**
      * Actualize the notification date
      */
     void actualizeNotificationData();

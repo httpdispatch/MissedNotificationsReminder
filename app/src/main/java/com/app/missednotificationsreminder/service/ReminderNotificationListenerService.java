@@ -725,6 +725,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         return Collections.unmodifiableList(new ArrayList<>(mAvailableNotifications));
     }
 
+    @Override public List<NotificationData> getIgnoredNotificationsData() {
+        return Collections.unmodifiableList(new ArrayList<>(mIgnoredNotifications));
+    }
+
     /**
      * The broadcast receiver for ringer mode changed events
      */

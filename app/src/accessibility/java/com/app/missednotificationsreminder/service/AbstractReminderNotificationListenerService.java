@@ -8,14 +8,23 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.app.missednotificationsreminder.data.model.NotificationData;
+import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.service.util.NotificationParser;
 import com.app.missednotificationsreminder.service.util.StatusBarWindowUtils;
+import com.f2prateek.rx.preferences.Preference;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import androidx.core.util.ObjectsCompat;
+import javax.inject.Inject;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 /**
@@ -33,11 +42,31 @@ public abstract class AbstractReminderNotificationListenerService extends Access
      */
     StatusBarWindowUtils mStatusBarWindowUtils;
 
+    @Inject @CreateDismissNotification Preference<Boolean> createDismissNotification;
+
+    PublishSubject<List<NotificationData>> mStatusBarContentChangedRemovedNotificationsNotifier = PublishSubject.create();
+
+    CompositeSubscription mSubscription = new CompositeSubscription();
+
     @Override public void onCreate() {
         super.onCreate();
         mNotificationParser = new NotificationParser(getApplicationContext());
         mStatusBarWindowUtils = new StatusBarWindowUtils(getPackageManager());
+        mSubscription.add(mStatusBarContentChangedRemovedNotificationsNotifier
+                .debounce(1, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+                .subscribe(notificationData -> {
+                    for (NotificationData data : notificationData) {
+                        if(!createDismissNotification.get() || getIgnoredNotificationsData().contains(data)) {
+                            onNotificationRemoved(data);
+                        }
+                    }
+                }));
         onReady();
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        mSubscription.clear();
     }
 
     @Override public void actualizeNotificationData() {
@@ -77,7 +106,7 @@ public abstract class AbstractReminderNotificationListenerService extends Access
                 // auto clear notifications when cleared from notifications bar (old api, Android < 4.3)
                 if (mStatusBarWindowUtils.isStatusBarWindowEvent(accessibilityEvent)) {
                     Timber.d("onAccessibilityEvent: status bar content changed");
-                    updateNotifications(accessibilityEvent);
+                    mStatusBarContentChangedRemovedNotificationsNotifier.onNext(getRemovedNotifications(accessibilityEvent));
                 }
                 break;
             case AccessibilityEvent.TYPE_VIEW_CLICKED:
@@ -96,7 +125,7 @@ public abstract class AbstractReminderNotificationListenerService extends Access
                         }
                     } else {
                         // update notifications if another view is clicked
-                        updateNotifications(accessibilityEvent);
+                        mStatusBarContentChangedRemovedNotificationsNotifier.onNext(getRemovedNotifications(accessibilityEvent));
                     }
                 }
                 break;
@@ -108,14 +137,15 @@ public abstract class AbstractReminderNotificationListenerService extends Access
 
 
     /**
-     * Update the available notification information from the node information of the accessibility event
+     * Get the removed notification information from the node information of the accessibility event
      * <br>
      * The algorithm is not exact. All the strings are recursively retrieved in the view hierarchy and then
      * titles are compared with the available notifications
      *
      * @param accessibilityEvent
      */
-    private void updateNotifications(AccessibilityEvent accessibilityEvent) {
+    private List<NotificationData> getRemovedNotifications(AccessibilityEvent accessibilityEvent) {
+        List<NotificationData> result = new ArrayList<>();
         AccessibilityNodeInfo node = accessibilityEvent.getSource();
         node = mStatusBarWindowUtils.getRootNode(node);
         Set<String> titles = node == null ? Collections.emptySet() : recursiveGetStrings(node);
@@ -123,9 +153,10 @@ public abstract class AbstractReminderNotificationListenerService extends Access
             if (!titles.contains(((ExtendedNotificationData) data).id)) {
                 Timber.d("updateNotifications: removed %s", data);
                 // if the title is absent in the view hierarchy remove notification from available notifications
-                onNotificationRemoved(data);
+                result.add(data);
             }
         }
+        return result;
     }
 
     /**
