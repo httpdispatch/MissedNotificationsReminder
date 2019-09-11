@@ -50,8 +50,10 @@ import com.f2prateek.rx.preferences.Preference;
 import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.picasso.Picasso;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
@@ -284,12 +286,17 @@ public final class DataModule {
     }
 
     @Provides @Singleton Observable<List<NotificationData>> provideNotificationDataObservable(RxEventBus eventBus) {
+        Timber.d("provideNotificationDataObservable() called with: eventBus = %s",
+                eventBus);
         return eventBus.toObserverable()
                 .filter(event -> event instanceof NotificationsUpdatedEvent)
                 .map(event -> ((NotificationsUpdatedEvent) event).notifications)
+                .startWith(Collections.<NotificationData>emptyList())
                 .mergeWith(Completable.fromAction(() -> eventBus.send(RemindEvents.GET_CURRENT_NOTIFICATIONS_DATA)).toObservable())
                 .replay(1)
-                .refCount();
+                .refCount()
+                .doOnNext(data -> Timber.d("notificationDataObservable: %d", data.size()))
+                .debounce(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread());
     }
 
 }

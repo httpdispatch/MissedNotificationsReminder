@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import androidx.core.util.ObjectsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SortedList;
 import androidx.recyclerview.widget.SortedListAdapterCallback;
@@ -68,7 +69,7 @@ public final class ApplicationsSelectionAdapter extends RecyclerView.Adapter<App
         @Override
         public boolean areContentsTheSame(ApplicationItem oldItem,
                                           ApplicationItem newItem) {
-            return getLabel(oldItem).equals(getLabel(newItem));
+            return ObjectsCompat.equals(oldItem, newItem);
         }
 
         @Override

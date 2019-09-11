@@ -4,6 +4,8 @@ import android.net.Uri;
 
 import com.app.missednotificationsreminder.binding.model.ApplicationsSelectionViewModel;
 
+import androidx.core.util.ObjectsCompat;
+
 /**
  * The class to store application item information used in the {@link ApplicationsSelectionViewModel}
  */
@@ -35,6 +37,17 @@ public class ApplicationItem {
         packageName = builder.packageName;
         iconUri = builder.iconUri;
         activeNotifications = builder.activeNotifications;
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ApplicationItem that = (ApplicationItem) o;
+        return checked == that.checked &&
+                activeNotifications == that.activeNotifications &&
+                ObjectsCompat.equals(applicationName, that.applicationName) &&
+                ObjectsCompat.equals(packageName, that.packageName) &&
+                ObjectsCompat.equals(iconUri, that.iconUri);
     }
 
     @Override public String toString() {
