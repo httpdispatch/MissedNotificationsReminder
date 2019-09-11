@@ -1,0 +1,4 @@
+<paths>
+    <files-path path="." name="int" />
+    <external-files-path path="." name="ext" />
+</paths>

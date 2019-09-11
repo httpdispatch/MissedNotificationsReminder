@@ -28,6 +28,16 @@
             android:name=".ui.activity.ApplicationsSelectionActivity"
             android:configChanges="orientation|screenSize"/>
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.FILEPROVIDER"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
+
     </application>
 
 </manifest>

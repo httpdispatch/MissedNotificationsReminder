@@ -1,14 +1,15 @@
 package com.jakewharton.u2020.ui.logs;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import androidx.appcompat.app.AlertDialog;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.app.missednotificationsreminder.util.ShareUtils;
 import com.jakewharton.u2020.data.LumberYard;
-import com.jakewharton.u2020.util.Intents;
+
 import java.io.File;
+
+import androidx.appcompat.app.AlertDialog;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -73,10 +74,7 @@ public final class LogsDialog extends AlertDialog {
           }
 
           @Override public void onNext(File file) {
-            Intent sendIntent = new Intent(Intent.ACTION_SEND);
-            sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            Intents.maybeStartChooser(getContext(), sendIntent);
+            ShareUtils.shareFile(ShareUtils.getAppFileProviderUri(file, getContext()), getContext());
           }
         });
   }
