@@ -71,10 +71,12 @@ public class NotificationParser {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup localView;
 
-        // detect id's from normal view
-        localView = (ViewGroup) inflater.inflate(n.contentView.getLayoutId(), null);
-        n.contentView.reapply(mContext, localView);
-        recursiveDetectNotificationsIds(localView);
+        if(n.contentView != null) {
+            // detect id's from normal view
+            localView = (ViewGroup) inflater.inflate(n.contentView.getLayoutId(), null);
+            n.contentView.reapply(mContext, localView);
+            recursiveDetectNotificationsIds(localView);
+        }
 
         // detect id's from expanded views
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -96,10 +98,12 @@ public class NotificationParser {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void detectExpandedNotificationsIds(Notification n) {
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ViewGroup localView = (ViewGroup) inflater.inflate(n.bigContentView.getLayoutId(), null);
-        n.bigContentView.reapply(mContext, localView);
-        recursiveDetectNotificationsIds(localView);
+        if(n.bigContentView != null) {
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            ViewGroup localView = (ViewGroup) inflater.inflate(n.bigContentView.getLayoutId(), null);
+            n.bigContentView.reapply(mContext, localView);
+            recursiveDetectNotificationsIds(localView);
+        }
     }
 
     private void recursiveDetectNotificationsIds(ViewGroup v) {
