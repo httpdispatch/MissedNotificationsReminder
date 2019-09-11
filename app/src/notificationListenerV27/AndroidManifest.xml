@@ -1,0 +1,10 @@
+<manifest
+    package="com.app.missednotificationsreminder"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <uses-feature android:name="android.hardware.ram.normal"
+        android:required="true"
+        android:minSdkVersion="27"/>
+
+</manifest>

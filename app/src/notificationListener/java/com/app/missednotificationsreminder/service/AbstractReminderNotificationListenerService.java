@@ -22,7 +22,6 @@ import timber.log.Timber;
  * @author Eugene Popovich
  */
 public abstract class AbstractReminderNotificationListenerService extends NotificationListenerService implements ReminderNotificationListenerServiceInterface {
-    ConcurrentLinkedQueue<String> mIgnoredNotificationKeys = new ConcurrentLinkedQueue<>();
 
     @Override public void onCreate() {
         super.onCreate();
