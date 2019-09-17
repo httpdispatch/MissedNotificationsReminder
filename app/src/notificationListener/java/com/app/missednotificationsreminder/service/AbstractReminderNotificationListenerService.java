@@ -5,14 +5,14 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.text.TextUtils;
 
 import com.app.missednotificationsreminder.data.model.NotificationData;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import timber.log.Timber;
 
@@ -32,8 +32,14 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
     }
 
     @Override public void actualizeNotificationData() {
-        StatusBarNotification[] activeNotifications = getActiveNotifications();
+        StatusBarNotification[] activeNotifications = null;
+        try {
+            activeNotifications = getActiveNotifications();
+        } catch (Exception e) {
+            Timber.e(e);
+        }
         Set<NotificationData> snapshotNotifications = new HashSet<>(getNotificationsData());
+        List<StatusBarNotification> addedNotifications = new ArrayList<>();
         if (activeNotifications != null) {
             for (StatusBarNotification sbn : activeNotifications) {
                 NotificationData notificationData = findNotificationData(sbn, snapshotNotifications);
@@ -41,13 +47,16 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
                     snapshotNotifications.remove(notificationData);
                 } else {
                     Timber.d("actualizeNotificationData() found new %s", sbn);
-                    onNotificationPosted(sbn);
+                    addedNotifications.add(sbn);
                 }
             }
         }
         for (NotificationData notificationData : snapshotNotifications) {
             Timber.w("actualizeNotificationData() found already removed %s", notificationData);
             onNotificationRemoved(notificationData);
+        }
+        for (StatusBarNotification sbn : addedNotifications) {
+            onNotificationPosted(sbn);
         }
     }
 
@@ -88,9 +97,11 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
 
     ExtendedNotificationData findNotificationData(StatusBarNotification sbn, Collection<NotificationData> snapshotNotifications) {
         ExtendedNotificationData result = null;
+        String key = notificationKey(sbn);
+        long when = sbn.getNotification().when;
         for (NotificationData notificationData : snapshotNotifications) {
             ExtendedNotificationData extendedNotificationData = (ExtendedNotificationData) notificationData;
-            if (extendedNotificationData.notificationKey.equals(notificationKey(sbn))) {
+            if (extendedNotificationData.id.equals(key) && extendedNotificationData.when == when) {
                 result = extendedNotificationData;
                 break;
             }
@@ -109,17 +120,7 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
                         : notification.getUser())
                 + "|" + notification.getPackageName()
                 + "|" + notification.getId()
-                + "|" + notification.getTag()
-                // The following part is not present in the original getKey(),
-                // but needed since some IM apps, e.g. Hangouts, re-post the
-                // same notification when a new message is received. As a
-                // result, ignoring a notification for the first IM message by
-                // deleting the dismiss notificaiton, will cause all further
-                // messages to be ignored too.
-                // TODO: Make this configurable in the settings as not all users
-                // make like this behavior and some may choose later messages to
-                // be ignored too
-                + "|" + String.valueOf(notification.getNotification().when);
+                + "|" + notification.getTag();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -129,19 +130,28 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
     }
 
     class ExtendedNotificationData extends NotificationData {
-        final String notificationKey;
+        // The following part is not present in the original getKey(),
+        // but needed since some IM apps, e.g. Hangouts, re-post the
+        // same notification when a new message is received. As a
+        // result, ignoring a notification for the first IM message by
+        // deleting the dismiss notificaiton, will cause all further
+        // messages to be ignored too.
+        // TODO: Make this configurable in the settings as not all users
+        // make like this behavior and some may choose later messages to
+        // be ignored too
+        final long when;
 
         public ExtendedNotificationData(StatusBarNotification sbn) {
-            this(sbn.getId(),
+            this(notificationKey(sbn),
                     sbn.getPackageName(),
                     SystemClock.elapsedRealtime(),
                     sbn.getNotification().flags,
-                    notificationKey(sbn));
+                    sbn.getNotification().when);
         }
 
-        public ExtendedNotificationData(int id, String packageName, long foundAtTime, int flags, String notificationKey) {
-            super(Integer.toString(id), packageName, foundAtTime, flags);
-            this.notificationKey = notificationKey;
+        public ExtendedNotificationData(String id, String packageName, long foundAtTime, int flags, long when) {
+            super(id, packageName, foundAtTime, flags);
+            this.when = when;
         }
 
         @Override public boolean equals(Object o) {
@@ -149,12 +159,12 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
             if (o == null || getClass() != o.getClass()) return false;
             if (!super.equals(o)) return false;
             ExtendedNotificationData that = (ExtendedNotificationData) o;
-            return TextUtils.equals(notificationKey, that.notificationKey);
+            return when == that.when;
         }
 
         @Override protected String fieldsAsString() {
             return new StringBuilder()
-                    .append("notificationKey='").append(notificationKey).append('\'')
+                    .append("when='").append(when).append('\'')
                     .append(", " + super.fieldsAsString())
                     .toString();
         }
