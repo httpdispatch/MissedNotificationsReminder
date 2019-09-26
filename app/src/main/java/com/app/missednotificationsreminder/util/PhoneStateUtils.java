@@ -16,6 +16,7 @@ public class PhoneStateUtils {
      */
     public static boolean isCallActive(Context context) {
         AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        return manager.getMode() == AudioManager.MODE_IN_CALL;
+        int mode = manager.getMode();
+        return mode == AudioManager.MODE_IN_CALL || mode == AudioManager.MODE_IN_COMMUNICATION || mode == AudioManager.MODE_RINGTONE;
     }
 }
