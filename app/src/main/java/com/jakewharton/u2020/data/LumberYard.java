@@ -78,9 +78,9 @@ public final class LumberYard {
                     return;
                 }
 
-                String fileName = ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())+".txt";
+                String fileName = ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()) + ".txt";
                 // replace ':' char to avoid file saving issue on some devices
-                fileName = fileName.replaceAll("\\:","_");
+                fileName = fileName.replaceAll("\\:", "_");
                 File output = new File(folder, fileName);
 
                 BufferedSink sink = null;
@@ -117,9 +117,12 @@ public final class LumberYard {
             @Override protected Void doInBackground(Void... folders) {
                 File folder = app.getExternalFilesDir(null);
                 if (folder != null) {
-                    for (File file : folder.listFiles()) {
-                        if (file.getName().endsWith(".log")) {
-                            file.delete();
+                    File[] files = folder.listFiles();
+                    if (files != null) {
+                        for (File file : files) {
+                            if (file.getName().endsWith(".log")) {
+                                file.delete();
+                            }
                         }
                     }
                 }
