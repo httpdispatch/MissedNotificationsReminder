@@ -1,7 +1,5 @@
 package com.app.missednotificationsreminder;
 
-import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -10,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
@@ -22,6 +21,19 @@ import static org.junit.Assert.assertTrue;
  * To work on unit tests, switch the Test Artifact in the Build Variants view.
  */
 public class ExampleUnitTest {
+
+    @Test public void testDoOnUnsubscribe() throws InterruptedException {
+        long start = System.currentTimeMillis();
+        Subscription s = Observable.just(1)
+                .doOnCompleted(() -> System.out.println("onCompleted %s"+(System.currentTimeMillis() - start)))
+                .doOnUnsubscribe(() -> System.out.println("onUnsubscribe %s"+(System.currentTimeMillis() - start)))
+                .ignoreElements()
+                .subscribe();
+        Thread.sleep(1000);
+        s.unsubscribe();
+        Thread.sleep(100);
+    }
+
     @Test
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);

@@ -854,8 +854,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                 .flatMapCompletable(vibrationDuration -> Completable.timer(vibrationDuration, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()))
                                 .doOnError(t -> Timber.e(t))
                                 .onErrorComplete()
-                                .doOnCompleted(() -> Timber.d("Minimum vibration completed"))
-                                .doOnUnsubscribe(() -> cancelVibrator());
+                                .doOnCompleted(() -> Timber.d("Minimum vibration completed"));
                     } else {
                         vibrationCompletedAtLeastOnce = Completable.complete();
                     }
@@ -863,18 +862,24 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                     mReminderSubscription.add(Completable.merge(
                             playbackCompleted,
                             vibrationCompletedAtLeastOnce)
-                            .doOnCompleted(() -> cancelVibrator())
+                            .doOnCompleted(() -> reminderCompleted())
+                            .doOnUnsubscribe(() -> cancelVibrator())
                             .subscribe(() -> Timber.d("Reminder completed")));
                 }
 
-                // notify listeners about reminder completion
-                mEventBus.send(RemindEvents.REMINDER_COMPLETED);
-                scheduleNextWakeup();
-                actualizeNotificationData();
             });
         }
 
+        void reminderCompleted(){
+            scheduleNextWakeup();
+            actualizeNotificationData();
+            cancelVibrator();
+            // notify listeners about reminder completion
+            mEventBus.send(RemindEvents.REMINDER_COMPLETED);
+        }
+
         private void cancelVibrator() {
+            Timber.d("cancelVibrator() called");
             mVibrator.cancel();
             if (mVibrationWakeLock != null) {
                 try {
@@ -884,7 +889,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 } catch (Exception ex) {
                     Timber.e(ex);
                 }
-                mWakeLock = null;
+                mVibrationWakeLock = null;
             }
         }
 
