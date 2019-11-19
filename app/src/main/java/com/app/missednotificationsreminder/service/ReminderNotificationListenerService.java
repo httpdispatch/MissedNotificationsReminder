@@ -627,7 +627,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 mAvailableNotifications.remove(existingElement);
             }
             mAvailableNotifications.add(notificationData);
-            mEventBus.send(new NotificationsUpdatedEvent(getNotificationsData()));
+            if (!mInitializing) {
+                mEventBus.send(new NotificationsUpdatedEvent(getNotificationsData()));
+            }
             if (mReady.get() && selectedApplications.get().contains(notificationData.packageName)) {
                 // check waking conditions only if notification has been posted for the monitored application to prevent
                 // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
@@ -662,7 +664,9 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             if (!mAvailableNotifications.remove(notificationData)) {
                 Timber.w("onNotificationRemoved: removal failed");
             }
-            mEventBus.send(new NotificationsUpdatedEvent(getNotificationsData()));
+            if (!mInitializing) {
+                mEventBus.send(new NotificationsUpdatedEvent(getNotificationsData()));
+            }
             if (mActive.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
                 // stop alarm if there are no more notifications to update
                 stopWaking();
