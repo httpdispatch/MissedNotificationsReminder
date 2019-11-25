@@ -4,6 +4,7 @@ import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.BindableString;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
+import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotificationImmediately;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderEnabled;
@@ -53,6 +54,10 @@ public class ReminderViewModel extends BaseViewModel {
      * Data binding field used to handle whether dismiss notification is to be generated.
      */
     public BindableBoolean createDismissNotification = new BindableBoolean(false);
+    /**
+     * Data binding field used to handle whether dismiss notification should be generated immediately when conditios are met.
+     */
+    public BindableBoolean createDismissNotificationImmediately = new BindableBoolean(false);
     /**
      * Data binding field used to handle whether reminder repeats are to be limited.
      */
@@ -119,6 +124,7 @@ public class ReminderViewModel extends BaseViewModel {
     private Preference<Boolean> mForceWakeLock;
     private Preference<Boolean> mLimitReminderRepeats;
     private Preference<Boolean> mCreateDismissNotification;
+    private Preference<Boolean> mCreateDismissNotificationImmediately;
     private ReminderView mView;
 
 
@@ -136,6 +142,7 @@ public class ReminderViewModel extends BaseViewModel {
             @ForceWakeLock Preference<Boolean> forceWakeLock,
             @LimitReminderRepeats Preference<Boolean> limitReminderRepeats,
             @CreateDismissNotification Preference<Boolean> createDismissNotification,
+            @CreateDismissNotificationImmediately Preference<Boolean> createDismissNotificationImmediately,
             @ReminderInterval Preference<Integer> reminderInterval,
             @ReminderRepeats Preference<Integer> reminderRepeats,
             @ReminderIntervalMax int maxInterval,
@@ -150,6 +157,7 @@ public class ReminderViewModel extends BaseViewModel {
         mReminderRepeats = reminderRepeats;
         mLimitReminderRepeats = limitReminderRepeats;
         mCreateDismissNotification = createDismissNotification;
+        mCreateDismissNotificationImmediately = createDismissNotificationImmediately;
         this.maxInterval = maxInterval;
         this.minInterval = minInterval;
         this.maxRepeats = maxRepeats;
@@ -170,6 +178,7 @@ public class ReminderViewModel extends BaseViewModel {
         repeats.set(mReminderRepeats.get());
         limitReminderRepeats.set(mLimitReminderRepeats.get());
         createDismissNotification.set(mCreateDismissNotification.get());
+        createDismissNotificationImmediately.set(mCreateDismissNotificationImmediately.get());
         monitor(
                 RxBindingUtils
                         .valueChanged(enabled)
@@ -190,6 +199,11 @@ public class ReminderViewModel extends BaseViewModel {
                         .valueChanged(createDismissNotification)
                         .skip(1)// skip initial value emitted automatically right after the subsription
                         .subscribe(mCreateDismissNotification.asAction()));
+        monitor(
+                RxBindingUtils
+                        .valueChanged(createDismissNotificationImmediately)
+                        .skip(1)// skip initial value emitted automatically right after the subsription
+                        .subscribe(mCreateDismissNotificationImmediately.asAction()));
 
         // Interval changed connectable observable with value transformed from minutes to seconds
         ConnectableObservable<Integer> intervalChanged = RxBindingUtils

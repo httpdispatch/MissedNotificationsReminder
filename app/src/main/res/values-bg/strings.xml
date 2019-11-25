@@ -55,6 +55,8 @@
     <string name="limit_reminder_repeats_enabled">Напомнянето ще се повтори ограничен брой пъти</string>
     <string name="create_dismiss_notification_disabled">Не създавайте допълнителна нотификация</string>
     <string name="create_dismiss_notification_enabled">Създайте допълнителна нотификация, когато са активни напомняния, което ви позволява да спрете напомнянията, без да изтривате известия от други приложения</string>
+    <string name="create_dismiss_notification_immediately_disabled">Създайте допълнително известие по време на първото напомняне</string>
+    <string name="create_dismiss_notification_immediately_enabled">Създайте допълнително известие веднага след откриване на известия от наблюдавани приложения</string>
     <string name="dismiss_notification_text">Изтрийте това известие, за да спрете напомнянията</string>
     <string name="dismiss_notification_title">Напомнянията са активни</string>
 </resources>

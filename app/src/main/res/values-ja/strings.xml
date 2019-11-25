@@ -83,6 +83,8 @@
     <string name="limit_reminder_repeats_enabled">リマインダは制限された回数だけ繰り返します。</string>
     <string name="create_dismiss_notification_disabled">特別な通知を作成しない</string>
     <string name="create_dismiss_notification_enabled">リマインダーがアクティブなときに余分な通知を作成して、他のアプリからの通知を無視しないで停止できるようにします。</string>
+    <string name="create_dismiss_notification_immediately_disabled">最初のリマインダイベントが発生したときに追加の通知を作成します</string>
+    <string name="create_dismiss_notification_immediately_enabled">監視対象アプリが通知を投稿した直後に追加の通知を作成します</string>
     <string name="dismiss_notification_title">リマインダがアクティブです。</string>
     <string name="dismiss_notification_text">この通知を閉じて、リマインダーを停止します。</string>
 </resources>

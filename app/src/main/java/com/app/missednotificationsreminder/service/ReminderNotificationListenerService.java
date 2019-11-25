@@ -33,6 +33,7 @@ import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
 import com.app.missednotificationsreminder.data.model.NotificationData;
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
+import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotificationImmediately;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
 import com.app.missednotificationsreminder.di.qualifiers.LimitReminderRepeats;
@@ -117,6 +118,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     @Inject @ReminderRepeats Preference<Integer> reminderRepeats;
     @Inject @LimitReminderRepeats Preference<Boolean> limitReminderRepeats;
     @Inject @CreateDismissNotification Preference<Boolean> createDismissNotification;
+    @Inject @CreateDismissNotificationImmediately Preference<Boolean> createDismissNotificationImmediately;
     @Inject @ForceWakeLock Preference<Boolean> forceWakeLock;
     @Inject @SelectedApplications Preference<Set<String>> selectedApplications;
     @Inject @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotifications;
@@ -317,6 +319,10 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                                         .skip(1) // skip initial value emitted right after the subscription
                                         .doOnNext(__ -> Timber.d("Create dismiss notification changed"))
                                         .map(__ -> true),
+                                createDismissNotificationImmediately.asObservable()
+                                        .skip(1) // skip initial value emitted right after the subscription
+                                        .doOnNext(__ -> Timber.d("Create dismiss notification immediately changed"))
+                                        .map(__ -> true),
                                 reminderRepeats.asObservable()
                                         .skip(1) // skip initial value emitted right after the subscription
                                         .doOnNext(__ -> Timber.d("Reminder repeats changed"))
@@ -438,7 +444,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 if (limitReminderRepeats.get()) {
                     mRemainingRepeats = reminderRepeats.get();
                 }
-                scheduleNextWakeup();
+                scheduleNextWakeup(false);
             } else {
                 Timber.d("checkWakingConditions: there are no notifications from selected applications to periodically remind");
             }
@@ -489,7 +495,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
     /**
      * Schedule wakeup alarm for the sound notification pending intent
      */
-    private void scheduleNextWakeup() {
+    private void scheduleNextWakeup(boolean repeating) {
         long scheduledTime = 0;
         if (limitReminderRepeats.get() && mRemainingRepeats-- <= 0) {
             Timber.d("scheduleNextWakeup: ran out of reminder repeats, stopping");
@@ -497,7 +503,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
             return;
         }
 
-        if (createDismissNotification.get()) {
+        if (createDismissNotification.get() && (repeating || createDismissNotificationImmediately.get())) {
             createDismissNotification();
         }
         if (schedulerEnabled.get()) {
@@ -871,7 +877,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         }
 
         void reminderCompleted(){
-            scheduleNextWakeup();
+            scheduleNextWakeup(true);
             actualizeNotificationData();
             cancelVibrator();
             // notify listeners about reminder completion

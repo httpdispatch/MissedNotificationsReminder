@@ -39,6 +39,8 @@
     <string name="limit_reminder_repeats_enabled">De herinnering wordt een aantal keer herhaald</string>
     <string name="create_dismiss_notification_disabled">Geen extra melding creëren</string>
     <string name="create_dismiss_notification_enabled">Creëer een extra melding als herinneringen zijn ingeschakeld om ze te kunnen stoppen zonder de melding(en) van andere apps te verwerpen.</string>
+    <string name="create_dismiss_notification_immediately_disabled">Maak een extra melding wanneer de eerste herinneringsgebeurtenis plaatsvindt</string>
+    <string name="create_dismiss_notification_immediately_enabled">Maak een extra melding direct nadat een gecontroleerde app een melding heeft gepost</string>
     <string name="wakelock_disabled">Apparaat niet ingeschakeld houden (AANBEVOLEN)</string>
     <string name="wakelock_enabled">Apparaat ingeschakeld houden (WAARSCHUWING: gebruik dit alleen als je problemen ervaart met het ontvangen van herinneringen. Dit houdt het apparaat ALTIJD ingeschakeld tijdens de ingeplande herinneringsperioden.</string>
 

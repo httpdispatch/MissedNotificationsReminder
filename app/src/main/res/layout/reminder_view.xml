@@ -115,6 +115,23 @@
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@{safeUnbox(model.createDismissNotificationImmediately.get()) ? @string/create_dismiss_notification_immediately_enabled : @string/create_dismiss_notification_immediately_disabled }"
+            android:visibility="@{parentModel.advancedSettingsVisible}"
+            tools:text="@string/create_dismiss_notification_immediately_enabled"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="@{safeUnbox(model.enabled.get()) &amp;&amp; safeUnbox(model.createDismissNotification.get())}"
+            android:textOff="@string/create_dismiss_notification_disabled"
+            android:textOn="@string/create_dismiss_notification_enabled"
+            android:visibility="@{parentModel.advancedSettingsVisible}"
+            tools:binding="@{model.createDismissNotificationImmediately}"/>
+
+        <TextView
+            style="@style/Label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="@{model.forceWakeLock.get() ? @string/wakelock_enabled : @string/wakelock_disabled}"
             android:visibility="@{parentModel.advancedSettingsVisible.get() || model.forceWakeLock.get() ? View.VISIBLE : View.GONE}"
             tools:text="@string/wakelock_enabled"/>

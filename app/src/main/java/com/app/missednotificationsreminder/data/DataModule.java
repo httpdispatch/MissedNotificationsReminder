@@ -12,6 +12,7 @@ import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.data.model.NotificationData;
 import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandler;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
+import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotificationImmediately;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
 import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
@@ -102,6 +103,10 @@ public final class DataModule {
      */
     static final String CREATE_DISMISS_NOTIFICATION_PREF = "CREATE_DISMISS_NOTIFICATION";
     /**
+     * Key used for the create dismiss notification immediately preference
+     */
+    static final String CREATE_DISMISS_NOTIFICATION_IMMEDIATELY_PREF = "CREATE_DISMISS_NOTIFICATION_IMMEDIATELY";
+    /**
      * Key used for the reminder ringtone preference
      */
     static final String REMINDER_RINGTONE_PREF = "REMINDER_RINGTONE";
@@ -187,6 +192,10 @@ public final class DataModule {
     @Provides @Singleton @CreateDismissNotification
     Preference<Boolean> provideCreateDismissNotification(RxSharedPreferences prefs) {
         return prefs.getBoolean(CREATE_DISMISS_NOTIFICATION_PREF, true);
+    }
+    @Provides @Singleton @CreateDismissNotificationImmediately
+    Preference<Boolean> provideCreateDismissNotificationImmediately(RxSharedPreferences prefs) {
+        return prefs.getBoolean(CREATE_DISMISS_NOTIFICATION_IMMEDIATELY_PREF, true);
     }
 
     @Provides @Singleton @ForceWakeLock Preference<Boolean> provideForceWakeLock

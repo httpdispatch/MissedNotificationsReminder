@@ -54,6 +54,8 @@
     <string name="settings_reminder">Налаштування нагадувань</string>
     <string name="create_dismiss_notification_disabled">Не створювати додаткове повідомлення</string>
     <string name="create_dismiss_notification_enabled">Створити додаткове повідомлення, коли нагадування активні, яке дозволяє зупинити нагадування без видалення повідомлень інших додатків</string>
+    <string name="create_dismiss_notification_immediately_disabled">Створювати додаткове повідомлення під час першого нагадування</string>
+    <string name="create_dismiss_notification_immediately_enabled">Створювати додаткове повідомлення відразу при виявленні повідомлень від спостережуваних додатків</string>
     <string name="dismiss_notification_text">Видаліть це повідомлення, щоб зупинити нагадування</string>
     <string name="dismiss_notification_title">Нагадування активні</string>
     <string name="menu_show_logs">Показати логи</string>
