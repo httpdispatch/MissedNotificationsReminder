@@ -61,12 +61,11 @@ public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerView
     }
 
     /**
-     * Get the TimePoint instance for the specified minutes of day value
-     *
-     * @param minutes the minutes of day
-     * @return
-     */
-    Timepoint timepointFromMinutes(int minutes) {
-        return new Timepoint(minutes / TimeUtils.MINUTES_IN_HOUR, minutes % TimeUtils.MINUTES_IN_HOUR, 0);
-    }
+	 * Get the TimePoint instance for the specified minutes of day value
+	 * @param minutes  the minutes of day
+	 * @return
+	 */
+	static Timepoint timepointFromMinutes(int minutes) {
+		return new Timepoint(minutes / TimeUtils.MINUTES_IN_HOUR, minutes % TimeUtils.MINUTES_IN_HOUR, 0);
+	}
 }
