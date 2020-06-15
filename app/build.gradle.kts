@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import java.io.FileInputStream
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -92,7 +93,7 @@ android {
 
     defaultConfig {
         applicationId = "com.app.missednotificationsreminder"
-        targetSdkVersion(28)
+        targetSdkVersion(Constants.targetSdkVersion)
         versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
 
         buildConfigField("String", "GIT_SHA", "\"${gitSha}\"")
@@ -192,6 +193,7 @@ object Versions {
 }
 
 dependencies {
+    implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.appcompat:appcompat:1.0.2")
