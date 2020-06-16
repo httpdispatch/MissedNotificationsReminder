@@ -188,7 +188,7 @@ dependencies {
     annotationProcessor("com.squareup.dagger:dagger-compiler:1.2.5")
     testAnnotationProcessor("com.squareup.dagger:dagger-compiler:1.2.5")
 
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:1.3")
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.4")
     releaseImplementation("com.squareup.leakcanary:leakcanary-android-no-op:1.6.3")
 
     implementation("com.squareup.picasso:picasso:2.71828")

@@ -10,7 +10,6 @@ import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
 import com.app.missednotificationsreminder.service.RemindJob;
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService;
 import com.app.missednotificationsreminder.ui.UiModule;
-import com.squareup.leakcanary.RefWatcher;
 
 import javax.inject.Singleton;
 
@@ -49,11 +48,6 @@ public class ApplicationModule {
      */
     @Provides @Singleton @ForApplication Context provideApplicationContext() {
         return mApp;
-    }
-
-
-    @Provides @Singleton RefWatcher provideRefWatcher() {
-        return mApp.refWatcher;
     }
 
     @Provides @Singleton Vibrator provideVibrator() {

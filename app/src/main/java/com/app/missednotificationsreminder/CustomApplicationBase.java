@@ -10,8 +10,6 @@ import com.app.missednotificationsreminder.ui.ActivityHierarchyServer;
 import com.evernote.android.job.JobManager;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.jakewharton.u2020.data.LumberYard;
-import com.squareup.leakcanary.LeakCanary;
-import com.squareup.leakcanary.RefWatcher;
 
 import javax.inject.Inject;
 
@@ -28,7 +26,6 @@ public abstract class CustomApplicationBase extends Application {
     private ObjectGraph mObjectGraph;
 
     @Inject ActivityHierarchyServer activityHierarchyServer;
-    public RefWatcher refWatcher;
     @Inject LumberYard lumberYard;
 
     public CustomApplicationBase() {
@@ -39,7 +36,6 @@ public abstract class CustomApplicationBase extends Application {
     @Override public void onCreate() {
         super.onCreate();
         // leak inspection
-        refWatcher = LeakCanary.install(this);
         mObjectGraph.inject(this);
         // initialize logging
         if (BuildConfig.DEBUG) {

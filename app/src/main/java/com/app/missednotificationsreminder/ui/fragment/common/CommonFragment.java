@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity;
-import com.squareup.leakcanary.RefWatcher;
 
 import javax.inject.Inject;
 
@@ -27,8 +26,6 @@ import timber.log.Timber;
  */
 public class CommonFragment extends Fragment implements
         ActivityStateAccessor {
-    @Inject RefWatcher mRefWatcher;
-
 
     void trackLifecycleEvent(String event) {
         Timber.d(event + ": " + getClass().getSimpleName());
@@ -65,7 +62,6 @@ public class CommonFragment extends Fragment implements
     @Override public void onDestroy() {
         super.onDestroy();
         trackLifecycleEvent("onDestroy");
-        mRefWatcher.watch(this);
     }
 
     @Override public void onActivityCreated(Bundle savedInstanceState) {
