@@ -168,21 +168,21 @@ dependencies {
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.appcompat:appcompat:1.2.0-rc01")
-    implementation("androidx.recyclerview:recyclerview:1.0.0")
+    implementation("androidx.appcompat:appcompat:1.0.2")
+    implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("com.google.android.material:material:1.0.0")
 
     implementation("com.jakewharton.timber:timber:4.7.1")
 
-    debugImplementation("com.jakewharton:butterknife:10.1.0")
-    annotationProcessor("com.jakewharton:butterknife-compiler:10.1.0")
+    debugImplementation("com.jakewharton:butterknife:10.2.1")
+    annotationProcessor("com.jakewharton:butterknife-compiler:10.2.1")
     debugImplementation("com.jakewharton.madge:madge:1.1.4")
     debugImplementation("com.jakewharton.scalpel:scalpel:1.1.2")
-    implementation("com.jakewharton.threetenabp:threetenabp:1.2.1")
-    implementation("com.squareup.okio:okio:2.3.0")
-    debugImplementation("com.mattprecious.telescope:telescope:1.5.0@aar")
+    implementation("com.jakewharton.threetenabp:threetenabp:1.2.4")
+    implementation("com.squareup.okio:okio:2.6.0")
+    debugImplementation("com.mattprecious.telescope:telescope:2.2.0@aar")
 
     implementation("com.squareup.dagger:dagger:1.2.5")
     annotationProcessor("com.squareup.dagger:dagger-compiler:1.2.5")
@@ -201,11 +201,11 @@ dependencies {
     implementation("com.f2prateek.rx.preferences:rx-preferences:1.0.2")
 
     implementation("com.appyvet:materialrangebar:1.3")
-    implementation("com.wdullaer:materialdatetimepicker:3.6.4")
+    implementation("com.wdullaer:materialdatetimepicker:4.2.3")
 
-    implementation("com.evernote:android-job:1.2.6")
+    implementation("com.evernote:android-job:1.4.2")
 
-    androidTestImplementation("junit:junit:4.12")
+    androidTestImplementation("junit:junit:4.13")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
     androidTestImplementation("androidx.test:runner:1.2.0")
     androidTestImplementation("androidx.test:rules:1.2.0")
@@ -216,7 +216,7 @@ dependencies {
         exclude(module = "recyclerview-v7")
     }
 
-    testImplementation("junit:junit:4.12")
-    testImplementation("org.mockito:mockito-core:3.0.0")
-    testImplementation("com.google.truth:truth:1.0")
+    testImplementation("junit:junit:4.13")
+    testImplementation("org.mockito:mockito-core:3.3.3")
+    testImplementation("com.google.truth:truth:1.0.1")
 }

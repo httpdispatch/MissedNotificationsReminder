@@ -57,7 +57,7 @@ public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerView
         tpg.setMinTime(timepointFromMinutes(minMinutes));
         tpg.setMaxTime(timepointFromMinutes(maxMinutes));
         tpg.dismissOnPause(true);
-        tpg.show(getActivity().getFragmentManager(), tpg.getClass().getSimpleName());
+        tpg.show(getActivity().getSupportFragmentManager(), tpg.getClass().getSimpleName());
     }
 
     /**
