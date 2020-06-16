@@ -150,7 +150,7 @@ public final class DebugAppContainer implements AppContainer {
 
     PowerManager power = (PowerManager) activity.getSystemService(POWER_SERVICE);
     PowerManager.WakeLock lock =
-        power.newWakeLock(FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP | ON_AFTER_RELEASE, "wakeup!");
+        power.newWakeLock(FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP | ON_AFTER_RELEASE, "mnr:wakeup!");
     lock.acquire();
     lock.release();
   }
