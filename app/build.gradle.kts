@@ -1,8 +1,5 @@
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import java.io.FileInputStream
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 plugins {
@@ -18,38 +15,19 @@ val versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 val gitSha = "git rev-parse --short HEAD".runCommand(project.rootDir).trim()
 val gitTimestamp = "git log -n 1 --format=%at".runCommand(project.rootDir).trim()
-val buildTime = ZonedDateTime.now().format(
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("Z")))
 // whether the build environment is Travis CI
 val isTravis = "true" == System.getenv("TRAVIS")
 val preDexEnabled = "true" == System.getProperty("pre-dex", "true")
 // get the keystore properties file
 val propsFile = rootProject.file("keystore.properties")
 
-fun String.runCommand(workingDir: File): String {
-    try {
-        val parts = this.split("\\s".toRegex())
-        val proc = ProcessBuilder(*parts.toTypedArray())
-                .directory(workingDir)
-                .redirectOutput(ProcessBuilder.Redirect.PIPE)
-                .redirectError(ProcessBuilder.Redirect.PIPE)
-                .start()
-
-        proc.waitFor(60, TimeUnit.MINUTES)
-        return proc.inputStream.bufferedReader().readText()
-    } catch (e: java.io.IOException) {
-        e.printStackTrace()
-        throw RuntimeException(e)
-    }
-}
-
 // method to generate version code depend on min sdk version
 fun getVersionCode(minSdkVersion: Int) =
         2000000000 + versionMajor * 10000000 + versionMinor * 100000 + versionPatch * 1000 + versionBuild * 100 + minSdkVersion
 
 android {
-    compileSdkVersion(28)
-    buildToolsVersion = "28.0.3"
+    compileSdkVersion(Constants.COMPILE_SDK_VERSION)
+    buildToolsVersion = Constants.BUILD_TOOLS_VERSION
     buildFeatures {
         dataBinding = true
     }
@@ -93,11 +71,11 @@ android {
 
     defaultConfig {
         applicationId = "com.app.missednotificationsreminder"
-        targetSdkVersion(Constants.targetSdkVersion)
+        targetSdkVersion(Constants.TARGET_SDK_VERSION)
         versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
 
         buildConfigField("String", "GIT_SHA", "\"${gitSha}\"")
-        buildConfigField("String", "BUILD_TIME", "\"${buildTime}\"")
+        buildConfigField("String", "BUILD_TIME", "\"${buildTime()}\"")
         buildConfigField("long", "GIT_TIMESTAMP", "${gitTimestamp}L")
 
         signingConfig = signingConfigs.getByName("release")
@@ -186,23 +164,17 @@ configurations.onEach {
     }
 }
 
-object Versions {
-    val androidSupportLibraryVersion = "28.0.0"
-    val leakCanaryVersion = "1.5.1"
-    val timberVersion = "4.7.1"
-}
-
 dependencies {
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.appcompat:appcompat:1.0.2")
+    implementation("androidx.appcompat:appcompat:1.2.0-rc01")
     implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("com.google.android.material:material:1.0.0")
 
-    implementation("com.jakewharton.timber:timber:${Versions.timberVersion}")
+    implementation("com.jakewharton.timber:timber:4.7.1")
 
     debugImplementation("com.jakewharton:butterknife:10.1.0")
     annotationProcessor("com.jakewharton:butterknife-compiler:10.1.0")
