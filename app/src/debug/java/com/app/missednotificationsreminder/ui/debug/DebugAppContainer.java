@@ -4,17 +4,15 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.PowerManager;
-import androidx.core.view.GravityCompat;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.app.missednotificationsreminder.R;
+import com.app.missednotificationsreminder.databinding.DebugActivityFrameBinding;
 import com.app.missednotificationsreminder.ui.AppContainer;
 import com.f2prateek.rx.preferences.Preference;
-import com.jakewharton.madge.MadgeFrameLayout;
-import com.jakewharton.scalpel.ScalpelFrameLayout;
 import com.jakewharton.u2020.data.LumberYard;
 import com.jakewharton.u2020.data.PixelGridEnabled;
 import com.jakewharton.u2020.data.PixelRatioEnabled;
@@ -30,8 +28,7 @@ import com.mattprecious.telescope.TelescopeLayout;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import androidx.core.view.GravityCompat;
 import rx.subscriptions.CompositeSubscription;
 
 import static android.content.Context.POWER_SERVICE;
@@ -53,14 +50,6 @@ public final class DebugAppContainer implements AppContainer {
   private final Preference<Boolean> scalpelEnabled;
   private final Preference<Boolean> scalpelWireframeEnabled;
 
-  static class ViewHolder {
-    @BindView(R.id.debug_drawer_layout) DebugDrawerLayout drawerLayout;
-    @BindView(R.id.debug_drawer) ViewGroup debugDrawer;
-    @BindView(R.id.telescope_container) TelescopeLayout telescopeLayout;
-    @BindView(R.id.madge_container) MadgeFrameLayout madgeFrameLayout;
-    @BindView(R.id.debug_content) ScalpelFrameLayout content;
-  }
-
   @Inject public DebugAppContainer(LumberYard lumberYard,
                                    @SeenDebugDrawer Preference<Boolean> seenDebugDrawer,
                                    @PixelGridEnabled Preference<Boolean> pixelGridEnabled,
@@ -76,37 +65,35 @@ public final class DebugAppContainer implements AppContainer {
   }
 
   @Override public ViewGroup bind(final Activity activity) {
-    activity.setContentView(R.layout.debug_activity_frame);
-
-    final ViewHolder viewHolder = new ViewHolder();
-    ButterKnife.bind(viewHolder, activity);
+    DebugActivityFrameBinding binding = DebugActivityFrameBinding.inflate(activity.getLayoutInflater());
+    activity.setContentView(binding.getRoot());
 
     final Context drawerContext = new ContextThemeWrapper(activity, R.style.Theme_U2020_Debug);
     final DebugView debugView = new DebugView(drawerContext);
-    viewHolder.debugDrawer.addView(debugView);
+    binding.debugDrawer.addView(debugView);
 
-//    viewHolder.drawerLayout.setDrawerShadow(R.drawable.debug_drawer_shadow, GravityCompat.END);
-    viewHolder.drawerLayout.setDrawerListener(new DebugDrawerLayout.SimpleDrawerListener() {
+//    binding.drawerLayout.setDrawerShadow(R.drawable.debug_drawer_shadow, GravityCompat.END);
+    binding.debugDrawerLayout.setDrawerListener(new DebugDrawerLayout.SimpleDrawerListener() {
       @Override public void onDrawerOpened(View drawerView) {
         debugView.onDrawerOpened();
       }
     });
 
     TelescopeLayout.cleanUp(activity); // Clean up any old screenshots.
-    viewHolder.telescopeLayout.setLens(new BugReportLens(activity, lumberYard));
+    binding.telescopeContainer.setLens(new BugReportLens(activity, lumberYard));
 
     // If you have not seen the debug drawer before, show it with a message
     if (!seenDebugDrawer.get()) {
-      viewHolder.drawerLayout.postDelayed(() -> {
-        viewHolder.drawerLayout.openDrawer(GravityCompat.END);
+      binding.debugDrawerLayout.postDelayed(() -> {
+        binding.debugDrawerLayout.openDrawer(GravityCompat.END);
         Toast.makeText(drawerContext, R.string.debug_drawer_welcome, Toast.LENGTH_LONG).show();
       }, 1000);
       seenDebugDrawer.set(true);
     }
 
     final CompositeSubscription subscriptions = new CompositeSubscription();
-    setupMadge(viewHolder, subscriptions);
-    setupScalpel(viewHolder, subscriptions);
+    setupMadge(binding, subscriptions);
+    setupScalpel(binding, subscriptions);
 
     final Application app = activity.getApplication();
     app.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {
@@ -119,24 +106,24 @@ public final class DebugAppContainer implements AppContainer {
     });
 
     riseAndShine(activity);
-    return viewHolder.content;
+    return binding.debugContent;
   }
 
-  private void setupMadge(final ViewHolder viewHolder, CompositeSubscription subscriptions) {
+  private void setupMadge(final DebugActivityFrameBinding binding, CompositeSubscription subscriptions) {
     subscriptions.add(pixelGridEnabled.asObservable().subscribe(enabled -> {
-      viewHolder.madgeFrameLayout.setOverlayEnabled(enabled);
+      binding.madgeContainer.setOverlayEnabled(enabled);
     }));
     subscriptions.add(pixelRatioEnabled.asObservable().subscribe(enabled -> {
-      viewHolder.madgeFrameLayout.setOverlayRatioEnabled(enabled);
+      binding.madgeContainer.setOverlayRatioEnabled(enabled);
     }));
   }
 
-  private void setupScalpel(final ViewHolder viewHolder, CompositeSubscription subscriptions) {
+  private void setupScalpel(final DebugActivityFrameBinding binding, CompositeSubscription subscriptions) {
     subscriptions.add(scalpelEnabled.asObservable().subscribe(enabled -> {
-      viewHolder.content.setLayerInteractionEnabled(enabled);
+      binding.debugContent.setLayerInteractionEnabled(enabled);
     }));
     subscriptions.add(scalpelWireframeEnabled.asObservable().subscribe(enabled -> {
-      viewHolder.content.setDrawViews(!enabled);
+      binding.debugContent.setDrawViews(!enabled);
     }));
   }
 

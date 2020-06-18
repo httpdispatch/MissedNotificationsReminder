@@ -6,6 +6,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("android.extensions")
+    kotlin("kapt")
 }
 // Manifest version information!
 val versionMajor = 1
@@ -29,6 +30,7 @@ android {
     compileSdkVersion(Constants.COMPILE_SDK_VERSION)
     buildToolsVersion = Constants.BUILD_TOOLS_VERSION
     buildFeatures {
+        viewBinding = true
         dataBinding = true
     }
 
@@ -176,8 +178,6 @@ dependencies {
 
     implementation("com.jakewharton.timber:timber:4.7.1")
 
-    debugImplementation("com.jakewharton:butterknife:10.2.1")
-    annotationProcessor("com.jakewharton:butterknife-compiler:10.2.1")
     debugImplementation("com.jakewharton.madge:madge:1.1.4")
     debugImplementation("com.jakewharton.scalpel:scalpel:1.1.2")
     implementation("com.jakewharton.threetenabp:threetenabp:1.2.4")

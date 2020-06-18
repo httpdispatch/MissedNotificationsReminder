@@ -3,22 +3,14 @@ package com.jakewharton.u2020.ui.bugreport;
 import android.content.Context;
 import android.text.Editable;
 import android.util.AttributeSet;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.app.missednotificationsreminder.R;
+import com.app.missednotificationsreminder.databinding.BugreportViewBinding;
 import com.jakewharton.u2020.ui.misc.EmptyTextWatcher;
 import com.jakewharton.u2020.util.Strings;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public final class BugReportView extends LinearLayout {
-  @BindView(R.id.title) EditText titleView;
-  @BindView(R.id.description) EditText descriptionView;
-  @BindView(R.id.screenshot) CheckBox screenshotView;
-  @BindView(R.id.logs) CheckBox logsView;
+  BugreportViewBinding mBinding;
 
   public interface ReportDetailsListener {
     void onStateChanged(boolean valid);
@@ -32,14 +24,14 @@ public final class BugReportView extends LinearLayout {
 
   @Override protected void onFinishInflate() {
     super.onFinishInflate();
-    ButterKnife.bind(this);
 
-    titleView.setOnFocusChangeListener((v, hasFocus) -> {
+    mBinding = BugreportViewBinding.bind(this);
+    mBinding.title.setOnFocusChangeListener((v, hasFocus) -> {
       if (!hasFocus) {
-        titleView.setError(Strings.isBlank(titleView.getText()) ? "Cannot be empty." : null);
+        mBinding.title.setError(Strings.isBlank(mBinding.title.getText()) ? "Cannot be empty." : null);
       }
     });
-    titleView.addTextChangedListener(new EmptyTextWatcher() {
+    mBinding.title.addTextChangedListener(new EmptyTextWatcher() {
       @Override public void afterTextChanged(Editable s) {
         if (listener != null) {
           listener.onStateChanged(!Strings.isBlank(s));
@@ -47,8 +39,8 @@ public final class BugReportView extends LinearLayout {
       }
     });
 
-    screenshotView.setChecked(true);
-    logsView.setChecked(true);
+    mBinding.screenshot.setChecked(true);
+    mBinding.logs.setChecked(true);
   }
 
   public void setBugReportListener(ReportDetailsListener listener) {
@@ -56,9 +48,9 @@ public final class BugReportView extends LinearLayout {
   }
 
   public Report getReport() {
-    return new Report(String.valueOf(titleView.getText()),
-        String.valueOf(descriptionView.getText()), screenshotView.isChecked(),
-        logsView.isChecked());
+    return new Report(String.valueOf(mBinding.title.getText()),
+            String.valueOf(mBinding.description.getText()), mBinding.screenshot.isChecked(),
+            mBinding.logs.isChecked());
   }
 
   public static final class Report {

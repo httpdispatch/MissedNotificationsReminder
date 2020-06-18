@@ -8,16 +8,12 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.missednotificationsreminder.BuildConfig;
 import com.app.missednotificationsreminder.R;
+import com.app.missednotificationsreminder.databinding.DebugViewContentBinding;
 import com.app.missednotificationsreminder.di.Injector;
 import com.f2prateek.rx.preferences.Preference;
 import com.jakewharton.rxbinding.widget.RxAdapterView;
@@ -39,13 +35,9 @@ import org.threeten.bp.temporal.TemporalAccessor;
 
 import java.lang.reflect.Method;
 import java.util.Locale;
-import java.util.Set;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import timber.log.Timber;
 
 import static org.threeten.bp.format.DateTimeFormatter.ISO_INSTANT;
@@ -54,38 +46,8 @@ public final class DebugView extends FrameLayout {
   private static final DateTimeFormatter DATE_DISPLAY_FORMAT =
       DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a", Locale.US).withZone(ZoneId.systemDefault());
 
-  @BindView(R.id.debug_contextual_title) View contextualTitleView;
-  @BindView(R.id.debug_contextual_list) LinearLayout contextualListView;
 
-  @BindView(R.id.debug_ui_animation_speed) Spinner uiAnimationSpeedView;
-  @BindView(R.id.debug_ui_pixel_grid) Switch uiPixelGridView;
-  @BindView(R.id.debug_ui_pixel_ratio) Switch uiPixelRatioView;
-  @BindView(R.id.debug_ui_scalpel) Switch uiScalpelView;
-  @BindView(R.id.debug_ui_scalpel_wireframe) Switch uiScalpelWireframeView;
-
-  @BindView(R.id.debug_build_name) TextView buildNameView;
-  @BindView(R.id.debug_build_code) TextView buildCodeView;
-  @BindView(R.id.debug_build_sha) TextView buildShaView;
-  @BindView(R.id.debug_build_date) TextView buildDateView;
-
-  @BindView(R.id.debug_device_make) TextView deviceMakeView;
-  @BindView(R.id.debug_device_model) TextView deviceModelView;
-  @BindView(R.id.debug_device_resolution) TextView deviceResolutionView;
-  @BindView(R.id.debug_device_density) TextView deviceDensityView;
-  @BindView(R.id.debug_device_release) TextView deviceReleaseView;
-  @BindView(R.id.debug_device_api) TextView deviceApiView;
-
-  @BindView(R.id.debug_picasso_indicators) Switch picassoIndicatorView;
-  @BindView(R.id.debug_picasso_cache_size) TextView picassoCacheSizeView;
-  @BindView(R.id.debug_picasso_cache_hit) TextView picassoCacheHitView;
-  @BindView(R.id.debug_picasso_cache_miss) TextView picassoCacheMissView;
-  @BindView(R.id.debug_picasso_decoded) TextView picassoDecodedView;
-  @BindView(R.id.debug_picasso_decoded_total) TextView picassoDecodedTotalView;
-  @BindView(R.id.debug_picasso_decoded_avg) TextView picassoDecodedAvgView;
-  @BindView(R.id.debug_picasso_transformed) TextView picassoTransformedView;
-  @BindView(R.id.debug_picasso_transformed_total) TextView picassoTransformedTotalView;
-  @BindView(R.id.debug_picasso_transformed_avg) TextView picassoTransformedAvgView;
-
+  DebugViewContentBinding mBinding;
   @Inject Picasso picasso;
   @Inject LumberYard lumberYard;
   @Inject @AnimationSpeed Preference<Integer> animationSpeed;
@@ -105,9 +67,7 @@ public final class DebugView extends FrameLayout {
     Injector.obtain(context).inject(this);
 
     // Inflate all of the controls and inject them.
-    LayoutInflater.from(context).inflate(R.layout.debug_view_content, this);
-    ButterKnife.bind(this);
-
+    mBinding = DebugViewContentBinding.inflate(LayoutInflater.from(context), this, true);
 
     setupUserInterfaceSection();
     setupBuildSection();
@@ -121,12 +81,12 @@ public final class DebugView extends FrameLayout {
 
   private void setupUserInterfaceSection() {
     final AnimationSpeedAdapter speedAdapter = new AnimationSpeedAdapter(getContext());
-    uiAnimationSpeedView.setAdapter(speedAdapter);
+    mBinding.debugUiAnimationSpeed.setAdapter(speedAdapter);
     final int animationSpeedValue = animationSpeed.get();
-    uiAnimationSpeedView.setSelection(
+    mBinding.debugUiAnimationSpeed.setSelection(
         AnimationSpeedAdapter.getPositionForValue(animationSpeedValue));
 
-    RxAdapterView.itemSelections(uiAnimationSpeedView)
+    RxAdapterView.itemSelections(mBinding.debugUiAnimationSpeed)
         .map(speedAdapter::getItem)
         .filter(item -> item != animationSpeed.get())
         .subscribe(selected -> {
@@ -138,64 +98,61 @@ public final class DebugView extends FrameLayout {
     post(() -> applyAnimationSpeed(animationSpeedValue));
 
     boolean gridEnabled = pixelGridEnabled.get();
-    uiPixelGridView.setChecked(gridEnabled);
-    uiPixelRatioView.setEnabled(gridEnabled);
-    uiPixelGridView.setOnCheckedChangeListener((buttonView, isChecked) -> {
+    mBinding.debugUiPixelGrid.setChecked(gridEnabled);
+    mBinding.debugUiPixelRatio.setEnabled(gridEnabled);
+    mBinding.debugUiPixelGrid.setOnCheckedChangeListener((buttonView, isChecked) -> {
       Timber.d("Setting pixel grid overlay enabled to " + isChecked);
       pixelGridEnabled.set(isChecked);
-      uiPixelRatioView.setEnabled(isChecked);
+      mBinding.debugUiPixelRatio.setEnabled(isChecked);
     });
 
-    uiPixelRatioView.setChecked(pixelRatioEnabled.get());
-    uiPixelRatioView.setOnCheckedChangeListener((buttonView, isChecked) -> {
+    mBinding.debugUiPixelRatio.setChecked(pixelRatioEnabled.get());
+    mBinding.debugUiPixelRatio.setOnCheckedChangeListener((buttonView, isChecked) -> {
       Timber.d("Setting pixel scale overlay enabled to " + isChecked);
       pixelRatioEnabled.set(isChecked);
     });
 
-    uiScalpelView.setChecked(scalpelEnabled.get());
-    uiScalpelWireframeView.setEnabled(scalpelEnabled.get());
-    uiScalpelView.setOnCheckedChangeListener((buttonView, isChecked) -> {
+    mBinding.debugUiScalpel.setChecked(scalpelEnabled.get());
+    mBinding.debugUiScalpelWireframe.setEnabled(scalpelEnabled.get());
+    mBinding.debugUiScalpel.setOnCheckedChangeListener((buttonView, isChecked) -> {
       Timber.d("Setting scalpel interaction enabled to " + isChecked);
       scalpelEnabled.set(isChecked);
-      uiScalpelWireframeView.setEnabled(isChecked);
+      mBinding.debugUiScalpelWireframe.setEnabled(isChecked);
     });
 
-    uiScalpelWireframeView.setChecked(scalpelWireframeEnabled.get());
-    uiScalpelWireframeView.setOnCheckedChangeListener((buttonView, isChecked) -> {
+    mBinding.debugUiScalpelWireframe.setChecked(scalpelWireframeEnabled.get());
+    mBinding.debugUiScalpelWireframe.setOnCheckedChangeListener((buttonView, isChecked) -> {
       Timber.d("Setting scalpel wireframe enabled to " + isChecked);
       scalpelWireframeEnabled.set(isChecked);
     });
-  }
-
-  @OnClick(R.id.debug_logs_show) void showLogs() {
-    new LogsDialog(new ContextThemeWrapper(getContext(), R.style.AppTheme), lumberYard).show();
+    mBinding.debugLogsShow.setOnClickListener(view -> new LogsDialog(new ContextThemeWrapper(getContext(), R.style.AppTheme), lumberYard).show());
   }
 
   private void setupBuildSection() {
-    buildNameView.setText(BuildConfig.VERSION_NAME);
-    buildCodeView.setText(String.valueOf(BuildConfig.VERSION_CODE));
-    buildShaView.setText(BuildConfig.GIT_SHA);
+    mBinding.debugBuildName.setText(BuildConfig.VERSION_NAME);
+    mBinding.debugBuildCode.setText(String.valueOf(BuildConfig.VERSION_CODE));
+    mBinding.debugBuildSha.setText(BuildConfig.GIT_SHA);
 
     TemporalAccessor buildTime = ISO_INSTANT.parse(BuildConfig.BUILD_TIME);
-    buildDateView.setText(DATE_DISPLAY_FORMAT.format(buildTime));
+    mBinding.debugBuildDate.setText(DATE_DISPLAY_FORMAT.format(buildTime));
   }
 
   private void setupDeviceSection() {
     DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
     String densityBucket = getDensityString(displayMetrics);
-    deviceMakeView.setText(Strings.truncateAt(Build.MANUFACTURER, 20));
-    deviceModelView.setText(Strings.truncateAt(Build.MODEL, 20));
-    deviceResolutionView.setText(displayMetrics.heightPixels + "x" + displayMetrics.widthPixels);
-    deviceDensityView.setText(displayMetrics.densityDpi + "dpi (" + densityBucket + ")");
-    deviceReleaseView.setText(Build.VERSION.RELEASE);
-    deviceApiView.setText(String.valueOf(Build.VERSION.SDK_INT));
+    mBinding.debugDeviceMake.setText(Strings.truncateAt(Build.MANUFACTURER, 20));
+    mBinding.debugDeviceModel.setText(Strings.truncateAt(Build.MODEL, 20));
+    mBinding.debugDeviceResolution.setText(displayMetrics.heightPixels + "x" + displayMetrics.widthPixels);
+    mBinding.debugDeviceDensity.setText(displayMetrics.densityDpi + "dpi (" + densityBucket + ")");
+    mBinding.debugDeviceRelease.setText(Build.VERSION.RELEASE);
+    mBinding.debugDeviceApi.setText(String.valueOf(Build.VERSION.SDK_INT));
   }
 
   private void setupPicassoSection() {
     boolean picassoDebuggingValue = picassoDebugging.get();
     picasso.setIndicatorsEnabled(picassoDebuggingValue);
-    picassoIndicatorView.setChecked(picassoDebuggingValue);
-    picassoIndicatorView.setOnCheckedChangeListener((button, isChecked) -> {
+    mBinding.debugPicassoIndicators.setChecked(picassoDebuggingValue);
+    mBinding.debugPicassoIndicators.setOnCheckedChangeListener((button, isChecked) -> {
       Timber.d("Setting Picasso debugging to " + isChecked);
       picasso.setIndicatorsEnabled(isChecked);
       picassoDebugging.set(isChecked);
@@ -209,15 +166,15 @@ public final class DebugView extends FrameLayout {
     String size = getSizeString(snapshot.size);
     String total = getSizeString(snapshot.maxSize);
     int percentage = (int) ((1f * snapshot.size / snapshot.maxSize) * 100);
-    picassoCacheSizeView.setText(size + " / " + total + " (" + percentage + "%)");
-    picassoCacheHitView.setText(String.valueOf(snapshot.cacheHits));
-    picassoCacheMissView.setText(String.valueOf(snapshot.cacheMisses));
-    picassoDecodedView.setText(String.valueOf(snapshot.originalBitmapCount));
-    picassoDecodedTotalView.setText(getSizeString(snapshot.totalOriginalBitmapSize));
-    picassoDecodedAvgView.setText(getSizeString(snapshot.averageOriginalBitmapSize));
-    picassoTransformedView.setText(String.valueOf(snapshot.transformedBitmapCount));
-    picassoTransformedTotalView.setText(getSizeString(snapshot.totalTransformedBitmapSize));
-    picassoTransformedAvgView.setText(getSizeString(snapshot.averageTransformedBitmapSize));
+    mBinding.debugPicassoCacheSize.setText(size + " / " + total + " (" + percentage + "%)");
+    mBinding.debugPicassoCacheHit.setText(String.valueOf(snapshot.cacheHits));
+    mBinding.debugPicassoCacheMiss.setText(String.valueOf(snapshot.cacheMisses));
+    mBinding.debugPicassoDecoded.setText(String.valueOf(snapshot.originalBitmapCount));
+    mBinding.debugPicassoDecodedTotal.setText(getSizeString(snapshot.totalOriginalBitmapSize));
+    mBinding.debugPicassoDecodedAvg.setText(getSizeString(snapshot.averageOriginalBitmapSize));
+    mBinding.debugPicassoTransformed.setText(String.valueOf(snapshot.transformedBitmapCount));
+    mBinding.debugPicassoTransformedTotal.setText(getSizeString(snapshot.totalTransformedBitmapSize));
+    mBinding.debugPicassoTransformedAvg.setText(getSizeString(snapshot.averageTransformedBitmapSize));
   }
 
   private void applyAnimationSpeed(int multiplier) {
