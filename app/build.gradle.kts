@@ -98,7 +98,8 @@ android {
             // generate more meaningful app file name in format
             // <Project_Name>-production-v<Version_Name>.apk.
             // Example: MissingNOtificationsReminder-release-v1.0.0.apk
-            applicationVariants.onEach { variant ->
+            applicationVariants.all {
+                val variant = this
                 variant.outputs.onEach { output ->
                     output as com.android.build.gradle.internal.api.ApkVariantOutputImpl
                     var newName = output.outputFileName
@@ -147,17 +148,20 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    applicationVariants.onEach { variant ->
-        variant.outputs.onEach { output ->
-            // get the version code of each flavor
-            val serviceVersion = variant.productFlavors[0].versionCode!!
-            val apiVersion = variant.productFlavors[1].versionCode!!
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+                .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+                .forEach { output ->
+                    // get the version code of each flavor
+                    val serviceVersion = variant.productFlavors[0].versionCode!!
+                    val apiVersion = variant.productFlavors[1].versionCode!!
 
-            output as com.android.build.gradle.internal.api.ApkVariantOutputImpl
-            // set the composite code
-            output.versionCodeOverride = getVersionCode(apiVersion * 10 + serviceVersion)
-            output.versionNameOverride = "${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}.${apiVersion}${serviceVersion}"
-        }
+                    output as com.android.build.gradle.internal.api.ApkVariantOutputImpl
+                    // set the composite code
+                    output.versionCodeOverride = getVersionCode(apiVersion * 10 + serviceVersion)
+                    output.versionNameOverride = "${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}.${apiVersion}${serviceVersion}"
+                }
     }
 }
 
