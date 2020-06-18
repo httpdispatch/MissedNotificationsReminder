@@ -17,7 +17,7 @@ public final class ApplicationTestRunner extends AndroidJUnitRunner {
     @Override
     public void onStart() {
         // Inform the app we are an instrumentation test before the object graph is initialized.
-        DebugApplicationModule.instrumentationTest = true;
+        ApplicationModuleExt.instrumentationTest = true;
 
         Context app = getTargetContext().getApplicationContext();
 

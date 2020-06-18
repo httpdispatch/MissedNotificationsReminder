@@ -1,7 +1,5 @@
 package com.app.missednotificationsreminder.service;
 
-import androidx.annotation.NonNull;
-
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.service.event.RemindEvents;
 import com.app.missednotificationsreminder.util.event.RxEventBus;
@@ -9,7 +7,9 @@ import com.evernote.android.job.Job;
 
 import javax.inject.Inject;
 
-import dagger.ObjectGraph;
+import androidx.annotation.NonNull;
+import dagger.android.AndroidInjector;
+import dagger.android.ContributesAndroidInjector;
 import rx.Completable;
 import timber.log.Timber;
 
@@ -27,7 +27,7 @@ public class RemindJob extends Job {
         Timber.d("onRunJob() called with: params = %s",
                 params);
         // inject dependencies
-        ObjectGraph appGraph = Injector.obtain(getContext().getApplicationContext());
+        AndroidInjector appGraph = Injector.obtain(getContext().getApplicationContext());
         appGraph.inject(this);
 
         // request reminder and await for the reminder completed event
@@ -38,5 +38,11 @@ public class RemindJob extends Job {
                 .first();
         Timber.d("onRunJob() done");
         return Result.SUCCESS;
+    }
+
+    @dagger.Module
+    public static abstract class Module {
+        @ContributesAndroidInjector
+        abstract RemindJob contribute();
     }
 }

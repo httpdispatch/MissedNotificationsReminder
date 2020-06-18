@@ -6,19 +6,15 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.ui.AppContainer;
 import com.app.missednotificationsreminder.ui.fragment.common.ActivityStateAccessor;
 
 import javax.inject.Inject;
 
-import dagger.ObjectGraph;
+import dagger.android.support.DaggerAppCompatActivity;
 import timber.log.Timber;
 
 /**
@@ -26,7 +22,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-public class CommonFragmentActivity extends AppCompatActivityWithNestedFragmentFix implements
+public class CommonFragmentActivity extends DaggerAppCompatActivity implements
         ActivityStateAccessor {
 
     @Inject
@@ -43,34 +39,9 @@ public class CommonFragmentActivity extends AppCompatActivityWithNestedFragmentF
     private boolean mResumed = false;
 
     /**
-     * The activity related graph
-     */
-    private ObjectGraph mActivityGraph;
-
-    /**
      * The root view container
      */
     private ViewGroup mContainer;
-
-    @Override
-    public Object getSystemService(@NonNull String name) {
-        // return corresponding activity graph in case injector service is requested
-        if (Injector.matchesService(name)) {
-            return mActivityGraph;
-        }
-        return super.getSystemService(name);
-    }
-
-    /**
-     * Override this method to provide the activity related object graph in case it exists. Oterwise the
-     * application graph will be used
-     *
-     * @param appGraph
-     * @return
-     */
-    protected ObjectGraph initializeActivityGraph(ObjectGraph appGraph) {
-        return appGraph;
-    }
 
     void trackLifecycleEvent(String event) {
         Timber.d(event + ": " + getClass().getSimpleName());
@@ -90,12 +61,7 @@ public class CommonFragmentActivity extends AppCompatActivityWithNestedFragmentF
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LayoutInflater inflater = getLayoutInflater();
         // Explicitly reference the application object since we don't want to match our own injector.
-        ObjectGraph appGraph = Injector.obtain(getApplication());
-        appGraph.inject(this);
-        // initialize activity related graph
-        mActivityGraph = initializeActivityGraph(appGraph);
         super.onCreate(savedInstanceState);
         trackLifecycleEvent("onCreate");
 
@@ -107,7 +73,6 @@ public class CommonFragmentActivity extends AppCompatActivityWithNestedFragmentF
 
     @Override
     protected void onDestroy() {
-        mActivityGraph = null;
         super.onDestroy();
         trackLifecycleEvent("onDestroy");
         mActivityAlive = false;

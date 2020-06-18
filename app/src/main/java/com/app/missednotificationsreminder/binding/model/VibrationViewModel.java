@@ -22,7 +22,6 @@ import javax.inject.Singleton;
  *
  * @author Eugene Popovich
  */
-@Singleton
 public class VibrationViewModel extends BaseViewModel {
     /**
      * Data binding field used to handle vibration enabled state

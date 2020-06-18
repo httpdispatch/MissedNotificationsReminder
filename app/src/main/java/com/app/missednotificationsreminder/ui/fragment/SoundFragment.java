@@ -18,6 +18,8 @@ import com.app.missednotificationsreminder.ui.view.SoundView;
 
 import javax.inject.Inject;
 
+import dagger.android.ContributesAndroidInjector;
+
 /**
  * Fragment which displays sound settings view
  *
@@ -73,5 +75,11 @@ public class SoundFragment extends CommonFragmentWithViewModel<SoundViewModel> i
             Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
             model.onRingtoneSelected(uri);
         }
+    }
+
+    @dagger.Module
+    public static abstract class Module {
+        @ContributesAndroidInjector
+        abstract SoundFragment contribute();
     }
 }

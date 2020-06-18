@@ -19,6 +19,7 @@ import com.jakewharton.u2020.ui.logs.LogsDialog;
 import javax.inject.Inject;
 
 import androidx.appcompat.view.ContextThemeWrapper;
+import dagger.android.ContributesAndroidInjector;
 
 /**
  * Fragment which displays other settings view
@@ -78,12 +79,18 @@ public class SettingsFragment extends CommonFragmentWithViewModel<SettingsViewMo
             item.setChecked(!item.isChecked());
             model.advancedSettingsVisible.set(item.isChecked());
             return true;
-        } else if(item.getItemId() == R.id.showLog){
+        } else if (item.getItemId() == R.id.showLog) {
             new LogsDialog(new ContextThemeWrapper(getContext(), R.style.AppTheme), lumberYard).show();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    @dagger.Module
+    public static abstract class Module {
+        @ContributesAndroidInjector
+        abstract SettingsFragment contribute();
     }
 }
 

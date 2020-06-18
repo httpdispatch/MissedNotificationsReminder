@@ -72,10 +72,7 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * The Dagger dependency injection module for the data layer
  */
-@Module(
-        complete = false,
-        library = true
-)
+@Module()
 public final class DataModule {
 
     /**
@@ -193,6 +190,7 @@ public final class DataModule {
     Preference<Boolean> provideCreateDismissNotification(RxSharedPreferences prefs) {
         return prefs.getBoolean(CREATE_DISMISS_NOTIFICATION_PREF, true);
     }
+
     @Provides @Singleton @CreateDismissNotificationImmediately
     Preference<Boolean> provideCreateDismissNotificationImmediately(RxSharedPreferences prefs) {
         return prefs.getBoolean(CREATE_DISMISS_NOTIFICATION_IMMEDIATELY_PREF, true);

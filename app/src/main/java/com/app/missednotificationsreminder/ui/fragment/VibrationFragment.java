@@ -13,6 +13,8 @@ import com.app.missednotificationsreminder.ui.view.VibrationView;
 
 import javax.inject.Inject;
 
+import dagger.android.ContributesAndroidInjector;
+
 /**
  * Fragment which displays vibration settings view
  *
@@ -47,5 +49,11 @@ public class VibrationFragment extends CommonFragmentWithViewModel<VibrationView
 
     @Override public void vibrate() {
         mVibrator.vibrate(200);
+    }
+
+    @dagger.Module
+    public static abstract class Module {
+        @ContributesAndroidInjector
+        abstract VibrationFragment contribute();
     }
 }

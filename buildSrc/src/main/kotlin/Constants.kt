@@ -4,3 +4,7 @@ object Constants {
     const val COMPILE_SDK_VERSION = 29
     const val BUILD_TOOLS_VERSION = "29.0.2"
 }
+
+object Versions {
+    const val DAGGER = "2.28"
+}

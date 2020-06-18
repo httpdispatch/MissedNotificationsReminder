@@ -188,9 +188,14 @@ dependencies {
     implementation("com.squareup.okio:okio:2.6.0")
     debugImplementation("com.mattprecious.telescope:telescope:2.2.0@aar")
 
-    implementation("com.squareup.dagger:dagger:1.2.5")
-    annotationProcessor("com.squareup.dagger:dagger-compiler:1.2.5")
-    testAnnotationProcessor("com.squareup.dagger:dagger-compiler:1.2.5")
+    // Dagger
+    implementation( "com.google.dagger:dagger:${Versions.DAGGER}")
+    kapt( "com.google.dagger:dagger-compiler:${Versions.DAGGER}")
+    implementation( "com.google.dagger:dagger-android-support:${Versions.DAGGER}")
+    kapt( "com.google.dagger:dagger-android-processor:${Versions.DAGGER}")
+    // Using Dagger in androidTest and Robolectric too
+    kaptAndroidTest( "com.google.dagger:dagger-compiler:${Versions.DAGGER}")
+    kaptTest( "com.google.dagger:dagger-compiler:${Versions.DAGGER}")
 
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.4")
     releaseImplementation("com.squareup.leakcanary:leakcanary-android-no-op:1.6.3")

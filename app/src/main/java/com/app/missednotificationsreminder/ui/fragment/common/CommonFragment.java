@@ -4,19 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity;
 
-import javax.inject.Inject;
-
-import dagger.ObjectGraph;
+import dagger.android.support.DaggerFragment;
 import timber.log.Timber;
 
 /**
@@ -24,7 +20,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-public class CommonFragment extends Fragment implements
+public class CommonFragment extends DaggerFragment implements
         ActivityStateAccessor {
 
     void trackLifecycleEvent(String event) {
@@ -43,10 +39,6 @@ public class CommonFragment extends Fragment implements
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         trackLifecycleEvent("onCreate");
-
-        // Obtain the activity related object graph and inject dependencies
-        ObjectGraph injector = Injector.obtain(getActivity());
-        injector.inject(this);
     }
 
     @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

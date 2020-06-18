@@ -10,8 +10,6 @@ import com.app.missednotificationsreminder.databinding.ApplicationsSelectionActi
 import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity;
 import com.app.missednotificationsreminder.ui.fragment.ApplicationsSelectionFragment;
 
-import dagger.ObjectGraph;
-
 /**
  * Applications selection activity
  *
@@ -36,11 +34,6 @@ public class ApplicationsSelectionActivity extends CommonFragmentActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         mBinding.toolbar.setNavigationOnClickListener(v -> finish());
-    }
-
-    @Override
-    protected ObjectGraph initializeActivityGraph(ObjectGraph appGraph) {
-        return super.initializeActivityGraph(appGraph).plus(new ApplicationsSelectionActivityModule(this));
     }
 
     /**

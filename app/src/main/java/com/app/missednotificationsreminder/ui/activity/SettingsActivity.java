@@ -3,7 +3,6 @@ package com.app.missednotificationsreminder.ui.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 
 import com.app.missednotificationsreminder.R;
@@ -15,7 +14,7 @@ import com.app.missednotificationsreminder.ui.fragment.SettingsFragment;
 import com.app.missednotificationsreminder.ui.fragment.SoundFragment;
 import com.app.missednotificationsreminder.ui.fragment.VibrationFragment;
 
-import dagger.ObjectGraph;
+import androidx.appcompat.widget.Toolbar;
 
 /**
  * Main settings activity
@@ -35,11 +34,6 @@ public class SettingsActivity extends CommonFragmentActivity {
 
         // can't use binding here because of release bug (http://stackoverflow.com/a/30880378/527759)
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-    }
-
-    @Override
-    protected ObjectGraph initializeActivityGraph(ObjectGraph appGraph) {
-        return super.initializeActivityGraph(appGraph).plus(new SettingsActivityModule(this));
     }
 
     /**

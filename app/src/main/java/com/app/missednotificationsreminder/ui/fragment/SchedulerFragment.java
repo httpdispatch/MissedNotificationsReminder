@@ -16,6 +16,8 @@ import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
 import javax.inject.Inject;
 
+import dagger.android.ContributesAndroidInjector;
+
 /**
  * Fragment which displays scheduler settings view
  *
@@ -68,5 +70,11 @@ public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerView
      */
     Timepoint timepointFromMinutes(int minutes) {
         return new Timepoint(minutes / TimeUtils.MINUTES_IN_HOUR, minutes % TimeUtils.MINUTES_IN_HOUR, 0);
+    }
+
+    @dagger.Module
+    public static abstract class Module {
+        @ContributesAndroidInjector
+        abstract SchedulerFragment contribute();
     }
 }

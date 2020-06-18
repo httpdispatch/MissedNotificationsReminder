@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import dagger.android.ContributesAndroidInjector;
 import rx.functions.Action1;
 
 /**
@@ -93,5 +94,11 @@ public class ApplicationsSelectionFragment extends CommonFragmentWithViewModel<A
     @Override public void onDestroy() {
         super.onDestroy();
         adapter.shutdown();
+    }
+
+    @dagger.Module
+    public static abstract class Module {
+        @ContributesAndroidInjector
+        abstract ApplicationsSelectionFragment contribute();
     }
 }

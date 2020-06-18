@@ -13,6 +13,8 @@ import com.app.missednotificationsreminder.ui.view.ReminderView;
 
 import javax.inject.Inject;
 
+import dagger.android.ContributesAndroidInjector;
+
 /**
  * Fragment which displays interval settings view
  *
@@ -46,5 +48,11 @@ public class ReminderFragment extends CommonFragmentWithViewModel<ReminderViewMo
     private void init(View view, Bundle savedInstanceState) {
         mBinding.setModel(model);
         mBinding.setParentModel(parentModel);
+    }
+
+    @dagger.Module
+    public static abstract class Module {
+        @ContributesAndroidInjector
+        abstract ReminderFragment contribute();
     }
 }

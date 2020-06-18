@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableString;
+import com.app.missednotificationsreminder.di.qualifiers.ActivityScope;
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService;
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils;
@@ -17,10 +18,8 @@ import com.app.missednotificationsreminder.util.BatteryUtils;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.functions.Func1;
 import timber.log.Timber;
 
 /**
@@ -28,7 +27,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-@Singleton
+@ActivityScope
 public class SettingsViewModel extends BaseViewModel {
 
     /**
@@ -68,19 +67,26 @@ public class SettingsViewModel extends BaseViewModel {
     /**
      * The activity context
      */
-    @Inject @ForActivity Context context;
+    @ForActivity final Context context;
     /**
      * The related view
      */
-    @Inject SettingsView view;
+    final SettingsView view;
     /**
      * The vibrator instance
      */
-    @Inject Vibrator mVibrator;
+    final Vibrator mVibrator;
     /**
      * The nested applications settings view model
      */
-    @Inject public ApplicationsSettingsViewModel applicationsSettingsModel;
+    public final ApplicationsSettingsViewModel applicationsSettingsModel;
+
+    @Inject public SettingsViewModel(ApplicationsSettingsViewModel applicationsSettingsModel, Vibrator vibrator, SettingsView view, @ForActivity Context context) {
+        this.context = context;
+        this.view = view;
+        mVibrator = vibrator;
+        this.applicationsSettingsModel = applicationsSettingsModel;
+    }
 
     /**
      * Run the operation to check whether the notification service is enabled
@@ -89,7 +95,7 @@ public class SettingsViewModel extends BaseViewModel {
         monitor(
                 Observable
                         .just(ReminderNotificationListenerService.class)
-                        .flatMap(checkAccess)
+                        .map(serviceClass -> ReminderNotificationListenerServiceUtils.isServiceEnabled(context, serviceClass))
                         .subscribe(enabled -> {
                             accessEnabled.set(enabled);
                             accessInitialized.set(true);
@@ -104,7 +110,8 @@ public class SettingsViewModel extends BaseViewModel {
         monitor(
                 Observable
                         .just(true)
-                        .map(checkBatteryOptimizationDisabled)
+                        .map(__ -> isBatteryOptimizationSettingsVisible() ?
+                                BatteryUtils.isBatteryOptimizationDisabled(context) : true)
                         .subscribe(v -> batteryOptimizationDisabled.set(v),
                                 t -> Timber.e(t, "Unexpected"))
         );
@@ -185,21 +192,4 @@ public class SettingsViewModel extends BaseViewModel {
         super.shutdown();
         applicationsSettingsModel.shutdown();
     }
-
-    /**
-     * The function to check whether the notification service is enabled for the specified
-     * package name
-     */
-    private final Func1<Class<?>, Observable<Boolean>> checkAccess =
-            serviceClass -> {
-                boolean result = ReminderNotificationListenerServiceUtils.isServiceEnabled(context, serviceClass);
-                return Observable.just(result);
-            };
-
-    /**
-     * The function to check whether the battery optimization is disabled for the application
-     */
-    private final Func1<Boolean, Boolean> checkBatteryOptimizationDisabled =
-            __ -> isBatteryOptimizationSettingsVisible() ?
-                    BatteryUtils.isBatteryOptimizationDisabled(context) : true;
 }

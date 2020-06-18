@@ -76,7 +76,8 @@ import javax.inject.Inject;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.res.ResourcesCompat;
-import dagger.ObjectGraph;
+import dagger.android.AndroidInjector;
+import dagger.android.ContributesAndroidInjector;
 import rx.Completable;
 import rx.Emitter;
 import rx.Observable;
@@ -248,7 +249,7 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
 
     private void initialize() {
         // inject dependencies
-        ObjectGraph appGraph = Injector.obtain(getApplicationContext());
+        AndroidInjector appGraph = Injector.obtain(getApplicationContext());
         if (appGraph == null) {
             Log.e("ReminderService", "application is not available");
             mHandler.postDelayed(() -> {
@@ -1013,5 +1014,11 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
                 stopWaking();
             });
         }
+    }
+
+    @dagger.Module
+    public static abstract class Module {
+        @ContributesAndroidInjector
+        abstract ReminderNotificationListenerService contribute();
     }
 }
