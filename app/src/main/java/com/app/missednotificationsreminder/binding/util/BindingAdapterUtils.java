@@ -1,7 +1,9 @@
 package com.app.missednotificationsreminder.binding.util;
 
 import androidx.databinding.BindingAdapter;
+
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -9,6 +11,7 @@ import android.widget.SeekBar;
 
 import com.app.missednotificationsreminder.R;
 import com.appyvet.rangebar.RangeBar;
+import com.jakewharton.rxbinding.view.RxView;
 import com.jakewharton.rxbinding.widget.RxCompoundButton;
 import com.jakewharton.rxbinding.widget.RxSeekBar;
 import com.jakewharton.rxbinding.widget.RxTextView;
@@ -18,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 /**
@@ -38,17 +42,19 @@ public class BindingAdapterUtils {
         if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
             view.setTag(R.id.binded, true);
+            CompositeSubscription subscription = new CompositeSubscription();
             // subscribe view to the observable value changed event
-            RxBindingUtils
+            subscription.add(RxBindingUtils
                     .valueChanged(observable)
                     .filter(value -> !TextUtils.equals(view.getText(), value)) // filter if value
-                            // doesn't need to be updated
-                    .subscribe(RxTextView.text(view))
+                    // doesn't need to be updated
+                    .subscribe(RxTextView.text(view)))
             ;
             // subscribe observable to the text changes event
-            RxTextView.textChanges(view)
+            subscription.add(RxTextView.textChanges(view)
                     .map(cs -> cs.toString())
-                    .subscribe(observable.asAction());
+                    .subscribe(observable.asAction()));
+            unbindWhenDetached(view, subscription);
         }
     }
 
@@ -64,13 +70,14 @@ public class BindingAdapterUtils {
         if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
             view.setTag(R.id.binded, true);
+            CompositeSubscription subscription = new CompositeSubscription();
             // subscribe view to the observable value changed event
-            RxBindingUtils
+            subscription.add(RxBindingUtils
                     .valueChanged(observable)
                     .map(value -> Integer.toString(value))
                     .filter(value -> !TextUtils.equals(view.getText(), value)) // filter if value
-                            // doesn't need to be updated
-                    .subscribe(RxTextView.text(view))
+                    // doesn't need to be updated
+                    .subscribe(RxTextView.text(view)))
             ;
             // subscribe observable to the text changes event
             Observable<Integer> textChangesObservable = RxTextView.textChanges(view)
@@ -84,17 +91,18 @@ public class BindingAdapterUtils {
                             ))
                     .share();
             // if value is not null (no parse error occurred), set it to observable field
-            textChangesObservable
+            subscription.add(textChangesObservable
                     .filter(v -> v != null)
-                    .subscribe(observable.asAction());
+                    .subscribe(observable.asAction()));
             // if value is null (parse error occurred), set view text to the current observable value and select it so
             // it may be overwritten
-            textChangesObservable
+            subscription.add(textChangesObservable
                     .filter(v -> v == null)
                     .subscribe(__ -> {
                         view.setText(Integer.toString(observable.get()));
                         view.selectAll();
-                    });
+                    }));
+            unbindWhenDetached(view, subscription);
         }
     }
 
@@ -107,20 +115,21 @@ public class BindingAdapterUtils {
     @BindingAdapter({"binding"})
     public static void bindEditTextWithFloat(EditText view,
                                              final BindableObject<Float> observable) {
-        if(observable == null){
+        if (observable == null) {
             // overcome NPE issue at Android 4.3 and below
             return;
         }
         if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
             view.setTag(R.id.binded, true);
+            CompositeSubscription subscription = new CompositeSubscription();
             // subscribe view to the observable value changed event
-            RxBindingUtils
+            subscription.add(RxBindingUtils
                     .valueChanged(observable)
                     .map(value -> Float.toString(value))
                     .filter(value -> !TextUtils.equals(view.getText(), value)) // filter if value
                     // doesn't need to be updated
-                    .subscribe(RxTextView.text(view))
+                    .subscribe(RxTextView.text(view)))
             ;
             // subscribe observable to the text changes event
             Observable<Float> textChangesObservable = RxTextView.textChanges(view)
@@ -135,17 +144,18 @@ public class BindingAdapterUtils {
                     .observeOn(AndroidSchedulers.mainThread())
                     .share();
             // if value is not null (no parse error occurred), set it to observable field
-            textChangesObservable
+            subscription.add(textChangesObservable
                     .filter(v -> v != null)
-                    .subscribe(observable.asAction());
+                    .subscribe(observable.asAction()));
             // if value is null (parse error occurred), set view text to the current observable value and select it so
             // it may be overwritten
-            textChangesObservable
+            subscription.add(textChangesObservable
                     .filter(v -> v == null)
                     .subscribe(__ -> {
                         view.setText(Float.toString(observable.get()));
                         view.selectAll();
-                    });
+                    }));
+            unbindWhenDetached(view, subscription);
         }
     }
 
@@ -161,14 +171,16 @@ public class BindingAdapterUtils {
         if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
             view.setTag(R.id.binded, true);
+            CompositeSubscription subscription = new CompositeSubscription();
             // subscribe view to the observable value changed event
-            RxBindingUtils
+            subscription.add(RxBindingUtils
                     .valueChanged(observable)
                     .filter(value -> value != view.getProgress()) // filter if value
-                            // doesn't need to be updated
-                    .subscribe(value -> view.setProgress(value));
+                    // doesn't need to be updated
+                    .subscribe(value -> view.setProgress(value)));
             // subscribe observable to the seekbar changes event
-            RxSeekBar.changes(view).subscribe(observable.asAction());
+            subscription.add(RxSeekBar.changes(view).subscribe(observable.asAction()));
+            unbindWhenDetached(view, subscription);
         }
     }
 
@@ -186,25 +198,26 @@ public class BindingAdapterUtils {
         if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
             view.setTag(R.id.binded, true);
+            CompositeSubscription subscription = new CompositeSubscription();
             // subscribe view to the observable value changed event
-            RxBindingUtils
+            subscription.add(RxBindingUtils
                     .valueChanged(leftObservable)
                     .filter(value -> value != view.getLeftIndex()) // filter if value
-                            // doesn't need to be updated
+                    // doesn't need to be updated
                     .filter(value -> value >= view.getTickStart() / view.getTickInterval())// RangeBar is not stable enough.
-                            // Check the value fits the possible range
+                    // Check the value fits the possible range
                     .filter(value -> value <= view.getTickEnd() / view.getTickInterval())// RangeBar is not stable enough.
-                            // Check the value fits the possible range
-                    .subscribe(value -> view.setRangePinsByIndices(value, rightObservable.get()));
-            RxBindingUtils
+                    // Check the value fits the possible range
+                    .subscribe(value -> view.setRangePinsByIndices(value, rightObservable.get())));
+            subscription.add(RxBindingUtils
                     .valueChanged(rightObservable)
                     .filter(value -> value != view.getRightIndex()) // filter if value
-                            // doesn't need to be updated
+                    // doesn't need to be updated
                     .filter(value -> value >= view.getTickStart() / view.getTickInterval())// RangeBar is not stable enough.
-                            // Check the value fits the possible range
+                    // Check the value fits the possible range
                     .filter(value -> value <= view.getTickEnd() / view.getTickInterval())// RangeBar is not stable enough.
-                            // Check the value fits the possible range
-                    .subscribe(value -> view.setRangePinsByIndices(leftObservable.get(), value));
+                    // Check the value fits the possible range
+                    .subscribe(value -> view.setRangePinsByIndices(leftObservable.get(), value)));
             // subscribe observable to the rangebar changes event
             view.setOnRangeBarChangeListener((v, left, right, lv, rv) -> {
                 int min = (int) (v.getTickStart() / v.getTickInterval());
@@ -221,6 +234,7 @@ public class BindingAdapterUtils {
                     rightObservable.set(right);
                 }
             });
+            unbindWhenDetached(view, subscription);
         }
     }
 
@@ -240,16 +254,26 @@ public class BindingAdapterUtils {
         if (view.getTag(R.id.binded) == null) {
             // if the binding was not done before
             view.setTag(R.id.binded, true);
+            CompositeSubscription subscription = new CompositeSubscription();
             // subscribe view to the observable value changed event
-            RxBindingUtils
+            subscription.add(RxBindingUtils
                     .valueChanged(observable)
                     .filter(value -> value != view.isChecked()) // filter if value
-                            // doesn't need to be updated
-                    .subscribe(RxCompoundButton.checked(view))
+                    // doesn't need to be updated
+                    .subscribe(RxCompoundButton.checked(view)))
             ;
             // subscribe observable to the compound button checked changes event
-            RxCompoundButton.checkedChanges(view).subscribe(observable.asAction());
+            subscription.add(RxCompoundButton.checkedChanges(view).subscribe(observable.asAction()));
+            unbindWhenDetached(view, subscription);
         }
+    }
+
+    private static void unbindWhenDetached(View view, CompositeSubscription subscription) {
+        subscription.add(RxView.detaches(view)
+                .subscribe(__ -> {
+                    view.setTag(R.id.binded, null);
+                    subscription.clear();
+                }));
     }
 
     /**
