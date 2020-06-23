@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".ui.activity.SettingsActivity">
+        tools:context=".ui.activity.MainActivity">
 
     <data>
 
         <import type="android.view.View"/>
+
+        <variable
+            name="fragment"
+            type="com.app.missednotificationsreminder.ui.fragment.SettingsFragment"/>
 
         <variable
             name="parentModel"
@@ -106,7 +110,7 @@
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="@{model::onSelectApplicationsButtonClicked}"
+                    android:onClick="@{fragment::onSelectApplicationsButtonClicked}"
                     android:text="@string/settings_applications_select_button"/>
 
             </LinearLayout>

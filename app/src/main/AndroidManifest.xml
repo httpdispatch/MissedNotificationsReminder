@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".ui.activity.SettingsActivity"
+            android:name=".ui.activity.MainActivity"
             android:label="@string/launcher_name"
             android:launchMode="singleTask">
             <intent-filter>
@@ -27,9 +27,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.activity.ApplicationsSelectionActivity"
-            android:configChanges="orientation|screenSize"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -181,6 +181,8 @@ dependencies {
     implementation("com.google.android.material:material:1.0.0")
 
     implementation("com.jakewharton.timber:timber:4.7.1")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.2.2")
+    implementation("androidx.navigation:navigation-ui-ktx:2.2.2")
 
     debugImplementation("com.jakewharton.madge:madge:1.1.4")
     debugImplementation("com.jakewharton.scalpel:scalpel:1.1.2")

@@ -1,16 +1,11 @@
 package com.app.missednotificationsreminder.binding.model;
 
-import android.content.Context;
-import android.view.View;
-
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
-import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;
 import com.app.missednotificationsreminder.di.qualifiers.RemindWhenScreenIsOn;
 import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls;
 import com.app.missednotificationsreminder.di.qualifiers.RespectRingerMode;
-import com.app.missednotificationsreminder.ui.activity.ApplicationsSelectionActivity;
 import com.f2prateek.rx.preferences.Preference;
 
 import javax.inject.Inject;
@@ -55,27 +50,17 @@ public class ApplicationsSettingsViewModel extends BaseViewModel {
     Preference<Boolean> mRemindWhenScreenIsOn;
 
     /**
-     * The context instance
-     */
-    Context mContext;
-
-    /**
      * Construct instance of the {@link ApplicationsSettingsViewModel}
-     *
-     * @param ignorePersistentNotificationsPref The ignore persistent notifications preference
-     * @param context                           The context instance
      */
     @Inject public ApplicationsSettingsViewModel(
             @IgnorePersistentNotifications Preference<Boolean> ignorePersistentNotificationsPref,
             @RespectPhoneCalls Preference<Boolean> respectPhoneCallsPref,
             @RespectRingerMode Preference<Boolean> respectRingerModePref,
-            @RemindWhenScreenIsOn Preference<Boolean> remindWhenScreenIsOnPref,
-            @ForActivity Context context) {
+            @RemindWhenScreenIsOn Preference<Boolean> remindWhenScreenIsOnPref) {
         mIgnorePersistentNotifications = ignorePersistentNotificationsPref;
         mRespectPhoneCalls = respectPhoneCallsPref;
         mRespectRingerMode = respectRingerModePref;
         mRemindWhenScreenIsOn = remindWhenScreenIsOnPref;
-        mContext = context;
         init();
     }
 
@@ -87,16 +72,5 @@ public class ApplicationsSettingsViewModel extends BaseViewModel {
         monitor(RxBindingUtils.bindWithPreferences(respectPhoneCalls, mRespectPhoneCalls));
         monitor(RxBindingUtils.bindWithPreferences(respectRingerMode, mRespectRingerMode));
         monitor(RxBindingUtils.bindWithPreferences(remindWhenScreenIsOn, mRemindWhenScreenIsOn));
-    }
-
-    /**
-     * Method which is called when the select applications button is clicked. It launches the
-     * {@linkplain ApplicationsSelectionActivity applications selection activity}
-     *
-     * @param v
-     */
-    public void onSelectApplicationsButtonClicked(View v) {
-        mContext.startActivity(ApplicationsSelectionActivity
-                .getCallingIntent(mContext));
     }
 }

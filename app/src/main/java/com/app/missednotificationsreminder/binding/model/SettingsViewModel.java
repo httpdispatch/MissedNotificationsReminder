@@ -11,6 +11,7 @@ import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableString;
 import com.app.missednotificationsreminder.di.qualifiers.ActivityScope;
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
+import com.app.missednotificationsreminder.di.qualifiers.FragmentScope;
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService;
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils;
 import com.app.missednotificationsreminder.ui.view.SettingsView;
@@ -27,7 +28,7 @@ import timber.log.Timber;
  *
  * @author Eugene Popovich
  */
-@ActivityScope
+@FragmentScope
 public class SettingsViewModel extends BaseViewModel {
 
     /**

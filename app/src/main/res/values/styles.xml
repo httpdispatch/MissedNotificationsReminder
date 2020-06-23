@@ -19,7 +19,7 @@
     <style name="BaseToolbar" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">?attr/colorPrimaryDark</item>
         <item name="android:minHeight">?attr/actionBarSize</item>
-        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
     </style>
 
     <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">

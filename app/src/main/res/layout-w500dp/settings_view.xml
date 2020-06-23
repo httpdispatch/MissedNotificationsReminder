@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".ui.activity.SettingsActivity">
+        tools:context=".ui.activity.MainActivity">
 
     <data>
 
         <import type="android.text.TextUtils"/>
+
+        <variable
+            name="fragment"
+            type="com.app.missednotificationsreminder.ui.fragment.SettingsFragment"/>
 
         <variable
             name="model"
@@ -39,6 +43,7 @@
 
                 <include
                     layout="@layout/settings_view_card_apps"
+                    tools:fragment="@{fragment}"
                     tools:parentModel="@{model}"
                     tools:model="@{model.applicationsSettingsModel}"/>
 
