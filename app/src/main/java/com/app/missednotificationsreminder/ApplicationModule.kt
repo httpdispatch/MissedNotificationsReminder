@@ -5,6 +5,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.os.Vibrator
 import com.app.missednotificationsreminder.data.DataModule
+import com.app.missednotificationsreminder.di.ViewModelBuilder
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication
 import com.app.missednotificationsreminder.service.RemindJob
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
@@ -21,7 +22,8 @@ import javax.inject.Singleton
     DataModule::class,
     ReminderNotificationListenerService.Module::class,
     RemindJob.Module::class,
-    ApplicationModuleExt::class])
+    ApplicationModuleExt::class,
+    ViewModelBuilder::class])
 class ApplicationModule {
     @Provides
     @Singleton

@@ -1,27 +1,34 @@
 package com.app.missednotificationsreminder.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.binding.model.ApplicationItemViewModel
 import com.app.missednotificationsreminder.binding.model.ApplicationsSelectionViewModel
+import com.app.missednotificationsreminder.binding.model.LoadingStatus
+import com.app.missednotificationsreminder.binding.model.ViewState
 import com.app.missednotificationsreminder.data.model.ApplicationItem
 import com.app.missednotificationsreminder.databinding.ApplicationsSelectionViewBinding
-import com.app.missednotificationsreminder.di.qualifiers.ActivityScope
+import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
-import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel
-import com.app.missednotificationsreminder.ui.view.ApplicationsSelectionView
+import com.app.missednotificationsreminder.ui.fragment.common.CommonFragment
 import com.app.missednotificationsreminder.ui.widget.ApplicationsSelectionAdapter
 import com.app.missednotificationsreminder.ui.widget.misc.DividerItemDecoration
 import com.f2prateek.rx.preferences.Preference
+import dagger.Binds
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
-import rx.functions.Action1
+import dagger.multibindings.IntoMap
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -30,62 +37,64 @@ import javax.inject.Inject
  *
  * @author Eugene Popovich
  */
-class ApplicationsSelectionFragment : CommonFragmentWithViewModel<ApplicationsSelectionViewModel?>(), ApplicationsSelectionView {
-    // sequence is important: adapter should be before model, such as model refers to the
-    // getListLoadedAction method during initialization
+class ApplicationsSelectionFragment : CommonFragment() {
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val viewModel by viewModels<ApplicationsSelectionViewModel> { viewModelFactory }
+
     @Inject
     lateinit var adapter: ApplicationsSelectionAdapter
 
-    @Inject
-    lateinit var _model: ApplicationsSelectionViewModel
-    lateinit var mBinding: ApplicationsSelectionViewBinding
-    
-    override fun getModel(): ApplicationsSelectionViewModel {
-        return _model
-    }
+    private lateinit var viewDataBinding: ApplicationsSelectionViewBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        mBinding = ApplicationsSelectionViewBinding.inflate(inflater, container, false)
-        return mBinding.root
+        viewDataBinding = ApplicationsSelectionViewBinding.inflate(inflater, container, false)
+        return viewDataBinding.root
+    }
+
+
+    @ExperimentalCoroutinesApi
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        // load the model data
+        viewModel.loadData()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        init(view, savedInstanceState)
+        init()
     }
 
-    private fun init(view: View, savedInstanceState: Bundle?) {
-        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
-            override fun onChanged() {
-                mBinding.animator.setDisplayedChild(if (adapter.itemCount == 0 //
-                ) mBinding.empty //
-                else mBinding.list)
-            }
-        })
-        mBinding.list.layoutManager = LinearLayoutManager(context)
-        mBinding.list.adapter = adapter
-        mBinding.list.addItemDecoration(
+    private fun init() {
+        // Set the lifecycle owner to the lifecycle of the view
+        viewDataBinding.lifecycleOwner = this.viewLifecycleOwner
+
+        viewDataBinding.list.layoutManager = LinearLayoutManager(context)
+        viewDataBinding.list.adapter = adapter
+        viewDataBinding.list.addItemDecoration(
                 DividerItemDecoration(context, LinearLayoutManager.VERTICAL,
                         resources.getDimension(R.dimen.applications_divider_padding_start),
                         safeIsRtl()))
+        viewModel.viewState.observe(viewLifecycleOwner, Observer {
+            renderViewState(it)
+        })
 
-        // load the model data
-        _model.loadData()
     }
 
-    override fun setErrorState() {
-        mBinding.animator.setDisplayedChild(mBinding.error)
-    }
-
-    override fun getListLoadedAction(): Action1<List<ApplicationItem>> {
-        return Action1 { data: List<ApplicationItem>? -> adapter.setData(data) }
-    }
-
-    override fun setLoadingState() {
-        if (mBinding.animator.displayedChildId != mBinding.list.id) {
-            mBinding.animator.setDisplayedChild(mBinding.loading)
+    private fun renderViewState(viewState: ViewState) {
+        Timber.d("renderViewState: viewState=%s", viewState)
+        when (viewState.loadingStatus) {
+            is LoadingStatus.Loading -> viewDataBinding.animator.setDisplayedChild(viewDataBinding.loading)
+            is LoadingStatus.Error -> viewDataBinding.animator.setDisplayedChild(viewDataBinding.error)
+            is LoadingStatus.NotStarted -> {
+                viewDataBinding.animator.setDisplayedChild(
+                        if (viewState.data.isEmpty()) viewDataBinding.empty
+                        else viewDataBinding.list)
+                adapter.setData(viewState.data)
+            }
         }
     }
 
@@ -99,14 +108,16 @@ class ApplicationsSelectionFragment : CommonFragmentWithViewModel<ApplicationsSe
         @FragmentScope
         @ContributesAndroidInjector(modules = [ModuleExt::class])
         abstract fun contribute(): ApplicationsSelectionFragment
+
+
+        @Binds
+        @IntoMap
+        @ViewModelKey(ApplicationsSelectionViewModel::class)
+        internal abstract fun bindViewModel(viewmodel: ApplicationsSelectionViewModel): ViewModel
     }
 
     @dagger.Module
     class ModuleExt {
-        @Provides
-        fun provideApplicationsSelectionView(fragment: ApplicationsSelectionFragment): ApplicationsSelectionView {
-            return fragment
-        }
 
         @Provides
         @FragmentScope
@@ -118,12 +129,12 @@ class ApplicationsSelectionFragment : CommonFragmentWithViewModel<ApplicationsSe
                 // same result with RxJava usage.
                 (selectedApplications.get() ?: emptySet())
                         .let {
-                            val updatedSet = it.toMutableSet();
+                            val updatedSet = it.toMutableSet()
                             if (updatedSet.contains(applicationItem.packageName))
                                 updatedSet.remove(applicationItem.packageName)
                             else
                                 updatedSet.add(applicationItem.packageName)
-                            selectedApplications.set(updatedSet.toSet());
+                            selectedApplications.set(updatedSet.toSet())
                         }
             }
         }

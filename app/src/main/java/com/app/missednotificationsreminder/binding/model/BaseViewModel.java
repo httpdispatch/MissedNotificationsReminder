@@ -1,5 +1,6 @@
 package com.app.missednotificationsreminder.binding.model;
 
+import androidx.lifecycle.ViewModel;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
@@ -8,7 +9,7 @@ import rx.subscriptions.CompositeSubscription;
  *
  * @author Eugene Popovich
  */
-public class BaseViewModel {
+public class BaseViewModel extends ViewModel {
     /**
      * Composite subscription used to handle subscriptions added in the
      * {@linkplain #monitor(Subscription)} monitor method
