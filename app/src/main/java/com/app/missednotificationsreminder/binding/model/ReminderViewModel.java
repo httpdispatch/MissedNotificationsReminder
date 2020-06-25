@@ -15,7 +15,6 @@ import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeats;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeatsMax;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRepeatsMin;
 import com.app.missednotificationsreminder.di.qualifiers.LimitReminderRepeats;
-import com.app.missednotificationsreminder.ui.view.ReminderView;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.f2prateek.rx.preferences.Preference;
 
@@ -70,12 +69,12 @@ public class ReminderViewModel extends BaseViewModel {
      * Data binding field used to mirror {@link #interval} field for the interval SeekBar with the
      * value adjustment such as SeekBar doesn't have minValue parameter
      */
-    public BindableObject<Integer> seekInterval = new BindableObject<Integer>(0);
+    public BindableObject<Integer> seekInterval = new BindableObject<>(0);
     /**
      * Data binding field used to mirror {@link #repeats} field for the repeats SeekBar with the
      * value adjustment such as SeekBar doesn't have minValue parameter
      */
-    public BindableObject<Integer> seekRepeats = new BindableObject<Integer>(0);
+    public BindableObject<Integer> seekRepeats = new BindableObject<>(0);
     /**
      * Data binding field to provide maximum possible interval information to the interval SeekBar
      */
@@ -125,11 +124,9 @@ public class ReminderViewModel extends BaseViewModel {
     private Preference<Boolean> mLimitReminderRepeats;
     private Preference<Boolean> mCreateDismissNotification;
     private Preference<Boolean> mCreateDismissNotificationImmediately;
-    private ReminderView mView;
 
 
     /**
-     * @param view             the related view
      * @param reminderEnabled  preference to store/retrieve enabled information
      * @param reminderInterval preference to store/retrieve reminder interval value
      * @param reminderRepeats  preference to store/retrieve number of reminder repetitions
@@ -137,7 +134,6 @@ public class ReminderViewModel extends BaseViewModel {
      * @param minInterval      the minimum allowed reminder interval value
      */
     @Inject public ReminderViewModel(
-            ReminderView view,
             @ReminderEnabled Preference<Boolean> reminderEnabled,
             @ForceWakeLock Preference<Boolean> forceWakeLock,
             @LimitReminderRepeats Preference<Boolean> limitReminderRepeats,
@@ -150,7 +146,6 @@ public class ReminderViewModel extends BaseViewModel {
             @ReminderRepeatsMax int maxRepeats,
             @ReminderRepeatsMin int minRepeats
     ) {
-        mView = view;
         mReminderEnabled = reminderEnabled;
         mForceWakeLock = forceWakeLock;
         mReminderInterval = reminderInterval;

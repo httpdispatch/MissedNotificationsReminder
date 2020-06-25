@@ -9,7 +9,6 @@ import com.app.missednotificationsreminder.binding.model.ReminderViewModel;
 import com.app.missednotificationsreminder.binding.model.SettingsViewModel;
 import com.app.missednotificationsreminder.databinding.ReminderViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
-import com.app.missednotificationsreminder.ui.view.ReminderView;
 
 import javax.inject.Inject;
 
@@ -20,7 +19,7 @@ import dagger.android.ContributesAndroidInjector;
  *
  * @author Eugene Popovich
  */
-public class ReminderFragment extends CommonFragmentWithViewModel<ReminderViewModel> implements ReminderView {
+public class ReminderFragment extends CommonFragmentWithViewModel<ReminderViewModel> {
 
     @Inject
     ReminderViewModel model;
