@@ -33,4 +33,9 @@ public class BaseViewModel extends ViewModel {
     public void shutdown() {
         mSubscriptions.unsubscribe();
     }
+
+    @Override protected void onCleared() {
+        super.onCleared();
+        shutdown();
+    }
 }

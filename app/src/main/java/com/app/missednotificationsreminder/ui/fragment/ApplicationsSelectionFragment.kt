@@ -1,10 +1,7 @@
 package com.app.missednotificationsreminder.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -20,7 +17,7 @@ import com.app.missednotificationsreminder.databinding.ApplicationsSelectionView
 import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
-import com.app.missednotificationsreminder.ui.fragment.common.CommonFragment
+import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewBinding
 import com.app.missednotificationsreminder.ui.widget.ApplicationsSelectionAdapter
 import com.app.missednotificationsreminder.ui.widget.misc.DividerItemDecoration
 import com.f2prateek.rx.preferences.Preference
@@ -37,7 +34,8 @@ import javax.inject.Inject
  *
  * @author Eugene Popovich
  */
-class ApplicationsSelectionFragment : CommonFragment() {
+class ApplicationsSelectionFragment : CommonFragmentWithViewBinding<ApplicationsSelectionViewBinding>(
+        R.layout.applications_selection_view) {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
@@ -45,16 +43,6 @@ class ApplicationsSelectionFragment : CommonFragment() {
 
     @Inject
     lateinit var adapter: ApplicationsSelectionAdapter
-
-    private lateinit var viewDataBinding: ApplicationsSelectionViewBinding
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        super.onCreateView(inflater, container, savedInstanceState)
-        viewDataBinding = ApplicationsSelectionViewBinding.inflate(inflater, container, false)
-        return viewDataBinding.root
-    }
-
 
     @ExperimentalCoroutinesApi
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -108,7 +96,6 @@ class ApplicationsSelectionFragment : CommonFragment() {
         @FragmentScope
         @ContributesAndroidInjector(modules = [ModuleExt::class])
         abstract fun contribute(): ApplicationsSelectionFragment
-
 
         @Binds
         @IntoMap
