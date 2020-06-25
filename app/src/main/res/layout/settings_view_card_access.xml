@@ -8,6 +8,10 @@
         <import type="android.view.View"/>
 
         <variable
+            name="fragment"
+            type="com.app.missednotificationsreminder.ui.fragment.SettingsFragment" />
+
+        <variable
             name="model"
             type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
     </data>
@@ -60,10 +64,10 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:onClick="@{model::onManageAccessButtonPressed}"
+                        android:onClick="@{fragment::onManageAccessButtonPressed}"
                         android:text="@string/settings_access_manage"/>
                 </LinearLayout>
 

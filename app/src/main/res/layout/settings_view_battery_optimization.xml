@@ -8,6 +8,10 @@
         <import type="android.view.View"/>
 
         <variable
+            name="fragment"
+            type="com.app.missednotificationsreminder.ui.fragment.SettingsFragment" />
+
+        <variable
             name="model"
             type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
     </data>
@@ -61,10 +65,10 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:onClick="@{model::onManageBatteryOptimizationPressed}"
+                        android:onClick="@{fragment::onManageBatteryOptimizationPressed}"
                         android:text="@string/settings_manage_battery_optimization"/>
                 </LinearLayout>
             </LinearLayout>

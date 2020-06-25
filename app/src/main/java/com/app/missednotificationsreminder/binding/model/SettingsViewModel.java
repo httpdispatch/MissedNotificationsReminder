@@ -1,20 +1,15 @@
 package com.app.missednotificationsreminder.binding.model;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.os.Vibrator;
 import android.text.TextUtils;
-import android.view.View;
 
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableString;
-import com.app.missednotificationsreminder.di.qualifiers.ActivityScope;
-import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope;
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService;
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils;
-import com.app.missednotificationsreminder.ui.view.SettingsView;
 import com.app.missednotificationsreminder.util.BatteryUtils;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -64,15 +59,6 @@ public class SettingsViewModel extends BaseViewModel {
      * Data binding field used to hold information about missing required permissions
      */
     public BindableString missingPermissions = new BindableString();
-
-    /**
-     * The activity context
-     */
-    @ForActivity final Context context;
-    /**
-     * The related view
-     */
-    final SettingsView view;
     /**
      * The vibrator instance
      */
@@ -82,9 +68,7 @@ public class SettingsViewModel extends BaseViewModel {
      */
     public final ApplicationsSettingsViewModel applicationsSettingsModel;
 
-    @Inject public SettingsViewModel(ApplicationsSettingsViewModel applicationsSettingsModel, Vibrator vibrator, SettingsView view, @ForActivity Context context) {
-        this.context = context;
-        this.view = view;
+    @Inject public SettingsViewModel(ApplicationsSettingsViewModel applicationsSettingsModel, Vibrator vibrator) {
         mVibrator = vibrator;
         this.applicationsSettingsModel = applicationsSettingsModel;
     }
@@ -92,7 +76,7 @@ public class SettingsViewModel extends BaseViewModel {
     /**
      * Run the operation to check whether the notification service is enabled
      */
-    public void checkServiceEnabled() {
+    public void checkServiceEnabled(Context context) {
         monitor(
                 Observable
                         .just(ReminderNotificationListenerService.class)
@@ -107,21 +91,15 @@ public class SettingsViewModel extends BaseViewModel {
     /**
      * Run the operation to check whether the battery optimization is disabled for the application
      */
-    public void checkBatteryOptimizationDisabled() {
-        monitor(
-                Observable
-                        .just(true)
-                        .map(__ -> isBatteryOptimizationSettingsVisible() ?
-                                BatteryUtils.isBatteryOptimizationDisabled(context) : true)
-                        .subscribe(v -> batteryOptimizationDisabled.set(v),
-                                t -> Timber.e(t, "Unexpected"))
-        );
+    public void checkBatteryOptimizationDisabled(Context context) {
+        batteryOptimizationDisabled.set(!isBatteryOptimizationSettingsVisible() ||
+                BatteryUtils.isBatteryOptimizationDisabled(context));
     }
 
     /**
      * Check whether all required permissions are granted
      */
-    public void checkPermissions() {
+    public void checkPermissions(Context context) {
         monitor(Observable
                 .from(REQUIRED_PERMISSIONS)
                 .filter(permission -> !RxPermissions.getInstance(context).isGranted(permission))
@@ -138,22 +116,10 @@ public class SettingsViewModel extends BaseViewModel {
     }
 
     /**
-     * Method which is called when the manage access button is clicked. It launches the system
-     * notification listener settings window
-     *
-     * @param v
+     * Grant required permissions
      */
-    public void onManageAccessButtonPressed(View v) {
-        context.startActivity(ReminderNotificationListenerServiceUtils.getServiceEnabledManagementIntent());
-    }
-
-    /**
-     * Method which is called when the grant permissions button is clicked. It launches the grant permission dialog
-     *
-     * @param v
-     */
-    public void onGrantPermissionsPressed(View v) {
-        Timber.d("onGrantPermissionsPressed");
+    public void grantRequiredPermissions(Context context) {
+        Timber.d("grantRequiredPermissions");
         monitor(RxPermissions
                 .getInstance(context)
                 .requestEach(REQUIRED_PERMISSIONS)
@@ -162,22 +128,6 @@ public class SettingsViewModel extends BaseViewModel {
                 .toList()
                 .map(permissions -> TextUtils.join(", ", permissions))
                 .subscribe(missingPermissions.asAction()));
-    }
-
-    /**
-     * Method which is called when the manage access button is clicked. It launches the system
-     * notification listener settings window
-     *
-     * @param v
-     */
-    public void onManageBatteryOptimizationPressed(View v) {
-        try {
-            context.startActivity(BatteryUtils.getBatteryOptimizationIntent(context));
-        } catch (ActivityNotFoundException ex) {
-            // possibly Oppo phone
-            Timber.e(ex);
-            // TODO notify view
-        }
     }
 
     /**

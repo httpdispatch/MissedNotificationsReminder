@@ -1,5 +1,6 @@
 package com.app.missednotificationsreminder.ui.fragment
 
+import android.content.ActivityNotFoundException
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.view.ContextThemeWrapper
@@ -9,12 +10,18 @@ import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.binding.model.SettingsViewModel
 import com.app.missednotificationsreminder.databinding.SettingsViewBinding
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
+import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel
-import com.app.missednotificationsreminder.ui.view.*
+import com.app.missednotificationsreminder.ui.view.ReminderView
+import com.app.missednotificationsreminder.ui.view.SchedulerView
+import com.app.missednotificationsreminder.ui.view.SoundView
+import com.app.missednotificationsreminder.ui.view.VibrationView
+import com.app.missednotificationsreminder.util.BatteryUtils
 import com.jakewharton.u2020.data.LumberYard
 import com.jakewharton.u2020.ui.logs.LogsDialog
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -22,7 +29,7 @@ import javax.inject.Inject
  *
  * @author Eugene Popovich
  */
-class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>(), SettingsView {
+class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
     @Inject
     lateinit var _model: SettingsViewModel
 
@@ -44,10 +51,10 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>(), Sett
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        init(view, savedInstanceState)
+        init()
     }
 
-    private fun init(view: View, savedInstanceState: Bundle?) {
+    private fun init() {
         mBinding.model = model
         mBinding.fragment = this
     }
@@ -60,9 +67,9 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>(), Sett
 
     override fun onResume() {
         super.onResume()
-        model.checkServiceEnabled()
-        model.checkBatteryOptimizationDisabled()
-        model.checkPermissions()
+        model.checkServiceEnabled(activity)
+        model.checkBatteryOptimizationDisabled(activity)
+        model.checkPermissions(activity)
         model.checkVibrationAvailable()
     }
 
@@ -99,6 +106,44 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>(), Sett
      */
     fun onSelectApplicationsButtonClicked(v: View?) {
         findNavController().navigate(ActionOnlyNavDirections(R.id.action_settingsFragment_to_applicationsSelectionFragment))
+    }
+
+
+    /**
+     * Method which is called when the manage access button is clicked. It launches the system
+     * notification listener settings window
+     *
+     * @param v
+     */
+    fun onManageBatteryOptimizationPressed(v: View?) {
+        try {
+            startActivity(BatteryUtils.getBatteryOptimizationIntent(context))
+        } catch (ex: ActivityNotFoundException) {
+            // possibly Oppo phone
+            Timber.e(ex)
+            // TODO notify view
+        }
+    }
+
+
+    /**
+     * Method which is called when the manage access button is clicked. It launches the system
+     * notification listener settings window
+     *
+     * @param v
+     */
+    fun onManageAccessButtonPressed(v: View?) {
+        startActivity(ReminderNotificationListenerServiceUtils.getServiceEnabledManagementIntent())
+    }
+
+    /**
+     * Method which is called when the grant permissions button is clicked. It launches the grant permission dialog
+     *
+     * @param v
+     */
+    fun onGrantPermissionsPressed(v: View?) {
+        Timber.d("onGrantPermissionsPressed")
+        model.grantRequiredPermissions(activity)
     }
 
     @dagger.Module
@@ -138,11 +183,6 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>(), Sett
         fun provideVibrationView(fragment: SettingsFragment): VibrationView {
             return fragment.childFragmentManager
                     .findFragmentById(R.id.vibration_fragment) as VibrationFragment
-        }
-
-        @Provides
-        fun provideSettingsView(fragment: SettingsFragment): SettingsView {
-            return fragment
         }
     }
 }

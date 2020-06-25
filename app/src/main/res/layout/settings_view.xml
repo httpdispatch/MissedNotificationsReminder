@@ -31,6 +31,7 @@
 
             <include
                 layout="@layout/settings_view_card_access"
+                tools:fragment="@{fragment}"
                 tools:model="@{model}"/>
 
             <androidx.legacy.widget.Space
@@ -40,6 +41,7 @@
 
             <include
                 layout="@layout/settings_view_permissions"
+                tools:fragment="@{fragment}"
                 tools:model="@{model}"/>
 
             <androidx.legacy.widget.Space
@@ -49,6 +51,7 @@
 
             <include
                 layout="@layout/settings_view_battery_optimization"
+                tools:fragment="@{fragment}"
                 tools:model="@{model}"/>
 
             <androidx.legacy.widget.Space
