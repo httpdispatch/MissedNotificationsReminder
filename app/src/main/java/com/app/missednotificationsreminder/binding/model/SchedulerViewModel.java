@@ -1,7 +1,5 @@
 package com.app.missednotificationsreminder.binding.model;
 
-import android.view.View;
-
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.BindableString;
@@ -12,7 +10,6 @@ import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeBegin;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeEnd;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeMax;
 import com.app.missednotificationsreminder.di.qualifiers.SchedulerRangeMin;
-import com.app.missednotificationsreminder.ui.view.SchedulerView;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.f2prateek.rx.preferences.Preference;
 
@@ -84,10 +81,6 @@ public class SchedulerViewModel extends BaseViewModel {
      */
     public int interval = 5;
     /**
-     * The related view.
-     */
-    private SchedulerView mView;
-    /**
      * Preference to store/retrieve scheduler enabled information
      */
     private Preference<Boolean> mSchedulerEnabled;
@@ -105,22 +98,19 @@ public class SchedulerViewModel extends BaseViewModel {
     private Preference<Integer> mSchedulerRangeEnd;
 
     /**
-     * @param view The related view
-     * @param schedulerEnabled Preference to store/retrieve scheduler enabled information
-     * @param schedulerMode Preference to store/retrieve scheduler mode information
-     * @param schedulerRangeBegin Preference to store/retrieve scheduler range begin value
-     * @param schedulerRangeEnd Preference to store/retrieve scheduler range end value
+     * @param schedulerEnabled      Preference to store/retrieve scheduler enabled information
+     * @param schedulerMode         Preference to store/retrieve scheduler mode information
+     * @param schedulerRangeBegin   Preference to store/retrieve scheduler range begin value
+     * @param schedulerRangeEnd     Preference to store/retrieve scheduler range end value
      * @param schedulerRangeMinimum The maximum allowed scheduler range value
      * @param schedulerRangeMaximum The minimum allowed scheduler range value
      */
-    @Inject public SchedulerViewModel(SchedulerView view,
-                                      @SchedulerEnabled Preference<Boolean> schedulerEnabled,
+    @Inject public SchedulerViewModel(@SchedulerEnabled Preference<Boolean> schedulerEnabled,
                                       @SchedulerMode Preference<Boolean> schedulerMode,
                                       @SchedulerRangeBegin Preference<Integer> schedulerRangeBegin,
                                       @SchedulerRangeEnd Preference<Integer> schedulerRangeEnd,
                                       @SchedulerRangeMin int schedulerRangeMinimum,
                                       @SchedulerRangeMax int schedulerRangeMaximum) {
-        mView = view;
         mSchedulerEnabled = schedulerEnabled;
         mSchedulerMode = schedulerMode;
         mSchedulerRangeBegin = schedulerRangeBegin;
@@ -144,19 +134,19 @@ public class SchedulerViewModel extends BaseViewModel {
                 RxBindingUtils
                         .valueChanged(enabled)
                         .skip(1)// skip initial value emitted automatically right after the
-                                // subsription
+                        // subsription
                         .subscribe(mSchedulerEnabled.asAction()));
         monitor(
                 RxBindingUtils
                         .valueChanged(mode)
                         .skip(1)// skip initial value emitted automatically right after the
-                                // subsription
+                        // subsription
                         .subscribe(mSchedulerMode.asAction()));
 
         // can't use shared observable because of unexpected behaviour with skip call, so using ConnectableObservable
         ConnectableObservable<Integer> beginChanged = RxBindingUtils
                 .valueChanged(begin)
-                .doOnEach(value -> Timber.d("Begin value changed: " + value.getValue()))
+                .doOnEach(value -> Timber.d("Begin value changed: %s", value.getValue()))
                 .publish();
 
         monitor(
@@ -170,12 +160,12 @@ public class SchedulerViewModel extends BaseViewModel {
         monitor(
                 beginChanged
                         .skip(1)// skip initial value emitted automatically right after the
-                                // subsription
+                        // subsription
                         .debounce(500, TimeUnit.MILLISECONDS)// such as range bar may change the
-                                // value very quickly use the
-                                // debounce function for the timeout
-                                // based processing
-                        .doOnEach(value -> Timber.d("Begin value changed 2: " + value.getValue()))
+                        // value very quickly use the
+                        // debounce function for the timeout
+                        // based processing
+                        .doOnEach(value -> Timber.d("Begin value changed 2: %s", value.getValue()))
                         .subscribe(mSchedulerRangeBegin.asAction()));
 
         beginChanged.connect();
@@ -187,16 +177,16 @@ public class SchedulerViewModel extends BaseViewModel {
                 RxBindingUtils
                         .valueChanged(rangeBegin)
                         .map(v -> v * interval)
-                        .doOnEach(value -> Timber.d("Range begin value changed: " + value.getValue()))
+                        .doOnEach(value -> Timber.d("Range begin value changed: %s", value.getValue()))
                         .filter(minutes -> Math.abs(minutes - begin.get()) > interval) // user may enter value manually within interval by using time picker dialog,
-                                                                                       // so ignore range bar changes in such case
-                        .doOnEach(value -> Timber.d("Range begin filtered value changed: " + value.getValue()))
+                        // so ignore range bar changes in such case
+                        .doOnEach(value -> Timber.d("Range begin filtered value changed: %s", value.getValue()))
                         .subscribe(begin.asAction()));
 
         // can't use shared observable because of unexpected behaviour with skip call, so using ConnectableObservable
         ConnectableObservable<Integer> endChanged = RxBindingUtils
                 .valueChanged(end)
-                .doOnEach(value -> Timber.d("End value changed: " + value.getValue()))
+                .doOnEach(value -> Timber.d("End value changed: %s", value.getValue()))
                 .publish();
 
         monitor(
@@ -210,12 +200,12 @@ public class SchedulerViewModel extends BaseViewModel {
         monitor(
                 endChanged
                         .skip(1)// skip initial value emitted automatically right after the
-                                // subsription
+                        // subsription
                         .debounce(500, TimeUnit.MILLISECONDS)// such as seek bar may change the
-                                // interval value very quickly use the
-                                // debounce function for the timeout
-                                // based processing
-                        .doOnEach(value -> Timber.d("End value changed 2: " + value.getValue()))
+                        // interval value very quickly use the
+                        // debounce function for the timeout
+                        // based processing
+                        .doOnEach(value -> Timber.d("End value changed 2: %s", value.getValue()))
                         .subscribe(mSchedulerRangeEnd.asAction()));
         endChanged.connect();
 
@@ -226,28 +216,10 @@ public class SchedulerViewModel extends BaseViewModel {
                 RxBindingUtils
                         .valueChanged(rangeEnd)
                         .map(v -> v * interval)
-                        .doOnEach(value -> Timber.d("Range end value changed: " + value.getValue()))
+                        .doOnEach(value -> Timber.d("Range end value changed: %s", value.getValue()))
                         .filter(minutes -> Math.abs(minutes - end.get()) > interval) // user may enter value manually within interval by using time picker dialog,
-                                                                                     // so ignore range bar changes in such case
-                        .doOnEach(value -> Timber.d("Range end filtered value changed: " + value.getValue()))
+                        // so ignore range bar changes in such case
+                        .doOnEach(value -> Timber.d("Range end filtered value changed: %s", value.getValue()))
                         .subscribe(end.asAction()));
-    }
-
-    /**
-     * Method which is called when the begin input is clicked. It launches the time selection dialog
-     *
-     * @param v
-     */
-    public void onBeginClicked(View v) {
-        mView.selectTime(begin, minimum, end.get());
-    }
-
-    /**
-     * Method which is called when the end input is clicked. It launches the time selection dialog
-     *
-     * @param v
-     */
-    public void onEndClicked(View v) {
-        mView.selectTime(end, begin.get(), maximum);
     }
 }

@@ -3,7 +3,9 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
+        <variable
+            name="fragment"
+            type="com.app.missednotificationsreminder.ui.fragment.SchedulerFragment" />
         <variable
             name="model"
             type="com.app.missednotificationsreminder.binding.model.SchedulerViewModel"/>
@@ -55,13 +57,12 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:editable="false"
                     android:enabled="@{model.enabled}"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:hint="@string/scheduler_begin_hint"
-                    android:inputType="numberDecimal"
-                    android:onClick="@{model::onBeginClicked}"
+                    android:inputType="none"
+                    android:onClick="@{fragment::onBeginClicked}"
                     app:binding="@{model.beginTime}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -74,13 +75,12 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:editable="false"
                     android:enabled="@{model.enabled}"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:hint="@string/scheduler_end_hint"
-                    android:inputType="numberDecimal"
-                    android:onClick="@{model::onEndClicked}"
+                    android:inputType="none"
+                    android:onClick="@{fragment::onEndClicked}"
                     app:binding="@{model.endTime}"/>
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>

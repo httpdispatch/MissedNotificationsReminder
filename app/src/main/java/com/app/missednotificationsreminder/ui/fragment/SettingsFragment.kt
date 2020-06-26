@@ -12,7 +12,6 @@ import com.app.missednotificationsreminder.databinding.SettingsViewBinding
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel
-import com.app.missednotificationsreminder.ui.view.SchedulerView
 import com.app.missednotificationsreminder.ui.view.SoundView
 import com.app.missednotificationsreminder.ui.view.VibrationView
 import com.app.missednotificationsreminder.util.BatteryUtils
@@ -160,12 +159,6 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
 
     @dagger.Module
     class ModuleExt {
-
-        @Provides
-        fun provideSchedulerView(fragment: SettingsFragment): SchedulerView {
-            return fragment.childFragmentManager
-                    .findFragmentById(R.id.scheduler_fragment) as SchedulerFragment
-        }
 
         @Provides
         fun provideSoundView(fragment: SettingsFragment): SoundView {

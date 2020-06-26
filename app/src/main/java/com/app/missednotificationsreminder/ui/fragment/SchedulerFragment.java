@@ -9,7 +9,6 @@ import com.app.missednotificationsreminder.binding.model.SchedulerViewModel;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.databinding.SchedulerViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
-import com.app.missednotificationsreminder.ui.view.SchedulerView;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
@@ -23,7 +22,7 @@ import dagger.android.ContributesAndroidInjector;
  *
  * @author Eugene Popovich
  */
-public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerViewModel> implements SchedulerView {
+public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerViewModel> {
 
     @Inject SchedulerViewModel model;
     SchedulerViewBinding mBinding;
@@ -47,10 +46,11 @@ public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerView
     }
 
     private void init(View view, Bundle savedInstanceState) {
+        mBinding.setFragment(this);
         mBinding.setModel(model);
     }
 
-    @Override public void selectTime(
+    public void selectTime(
             BindableObject<Integer> minutes, int minMinutes, int maxMinutes) {
         // launch the time picker dialog
         TimePickerDialog tpg = TimePickerDialog.newInstance(
@@ -62,6 +62,23 @@ public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerView
         tpg.show(getActivity().getSupportFragmentManager(), tpg.getClass().getSimpleName());
     }
 
+    /**
+     * Method which is called when the begin input is clicked. It launches the time selection dialog
+     *
+     * @param v
+     */
+    public void onBeginClicked(View v) {
+        selectTime(model.begin, model.minimum, model.end.get());
+    }
+
+    /**
+     * Method which is called when the end input is clicked. It launches the time selection dialog
+     *
+     * @param v
+     */
+    public void onEndClicked(View v) {
+        selectTime(model.end, model.begin.get(), model.maximum);
+    }
     /**
      * Get the TimePoint instance for the specified minutes of day value
      *
