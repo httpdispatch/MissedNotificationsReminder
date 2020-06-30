@@ -2,7 +2,6 @@ package com.app.missednotificationsreminder.binding.model
 
 import android.content.pm.PackageManager
 import android.net.Uri
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.data.model.ApplicationItem
 import com.app.missednotificationsreminder.data.model.NotificationData
@@ -10,7 +9,6 @@ import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandle
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.ui.widget.ApplicationsSelectionAdapter
 import com.app.missednotificationsreminder.util.asFlow
-import com.app.missednotificationsreminder.util.livedata.NonNullMutableLiveData
 import com.f2prateek.rx.preferences.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,8 +27,10 @@ class ApplicationsSelectionViewModel @Inject constructor(
         @param:SelectedApplications private val selectedApplicationsPref: Preference<Set<String>>,
         private val notificationDataObservable: Observable<List<NotificationData>>,
         private val packageManager: PackageManager) : BaseViewModel() {
-    private val _viewState = NonNullMutableLiveData(ViewState(LoadingStatus.NotStarted, Collections.emptyList()))
-    val viewState: LiveData<ViewState> = _viewState
+    @ExperimentalCoroutinesApi
+    private val _viewState = MutableStateFlow(ViewState(LoadingStatus.NotStarted, Collections.emptyList()))
+    @ExperimentalCoroutinesApi
+    val viewState: StateFlow<ViewState> = _viewState
 
     init {
         // initialize data loading

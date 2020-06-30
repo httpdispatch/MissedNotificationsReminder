@@ -75,6 +75,7 @@ android {
         applicationId = "com.app.missednotificationsreminder"
         targetSdkVersion(Constants.TARGET_SDK_VERSION)
         versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+        multiDexEnabled = true
 
         buildConfigField("String", "GIT_SHA", "\"${gitSha}\"")
         buildConfigField("String", "BUILD_TIME", "\"${buildTime()}\"")
@@ -174,6 +175,10 @@ configurations.onEach {
 
 dependencies {
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES_VERSION}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.COROUTINES_VERSION}")
+
+    implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.appcompat:appcompat:1.0.2")
@@ -181,6 +186,7 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("com.google.android.material:material:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE_VERSION}")
 
     implementation("com.jakewharton.timber:timber:4.7.1")
     implementation("androidx.navigation:navigation-fragment-ktx:2.2.2")
@@ -193,13 +199,13 @@ dependencies {
     debugImplementation("com.mattprecious.telescope:telescope:2.2.0@aar")
 
     // Dagger
-    implementation( "com.google.dagger:dagger:${Versions.DAGGER}")
-    kapt( "com.google.dagger:dagger-compiler:${Versions.DAGGER}")
-    implementation( "com.google.dagger:dagger-android-support:${Versions.DAGGER}")
-    kapt( "com.google.dagger:dagger-android-processor:${Versions.DAGGER}")
+    implementation("com.google.dagger:dagger:${Versions.DAGGER}")
+    kapt("com.google.dagger:dagger-compiler:${Versions.DAGGER}")
+    implementation("com.google.dagger:dagger-android-support:${Versions.DAGGER}")
+    kapt("com.google.dagger:dagger-android-processor:${Versions.DAGGER}")
     // Using Dagger in androidTest and Robolectric too
-    kaptAndroidTest( "com.google.dagger:dagger-compiler:${Versions.DAGGER}")
-    kaptTest( "com.google.dagger:dagger-compiler:${Versions.DAGGER}")
+    kaptAndroidTest("com.google.dagger:dagger-compiler:${Versions.DAGGER}")
+    kaptTest("com.google.dagger:dagger-compiler:${Versions.DAGGER}")
 
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.4")
     releaseImplementation("com.squareup.leakcanary:leakcanary-android-no-op:1.6.3")
@@ -229,6 +235,8 @@ dependencies {
         exclude(module = "recyclerview-v7")
     }
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES_VERSION}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.COROUTINES_VERSION}")
     testImplementation("junit:junit:4.13")
     testImplementation("org.mockito:mockito-core:3.3.3")
     testImplementation("com.google.truth:truth:1.0.1")

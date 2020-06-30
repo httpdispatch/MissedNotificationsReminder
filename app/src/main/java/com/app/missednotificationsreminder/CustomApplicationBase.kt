@@ -1,6 +1,8 @@
 package com.app.missednotificationsreminder
 
+import android.content.Context
 import android.util.Log
+import androidx.multidex.MultiDex
 import com.app.missednotificationsreminder.service.ReminderServiceJobCreator
 import com.app.missednotificationsreminder.ui.ActivityHierarchyServer
 import com.evernote.android.job.JobManager
@@ -22,6 +24,11 @@ abstract class CustomApplicationBase : DaggerApplication() {
 
     @Inject
     lateinit var lumberYard: LumberYard
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
+    }
 
     override fun onCreate() {
         super.onCreate()

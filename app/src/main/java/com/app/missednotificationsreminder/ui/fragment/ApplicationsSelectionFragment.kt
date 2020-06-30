@@ -3,9 +3,9 @@ package com.app.missednotificationsreminder.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.binding.model.ApplicationItemViewModel
@@ -26,6 +26,8 @@ import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -51,11 +53,13 @@ class ApplicationsSelectionFragment : CommonFragmentWithViewBinding<Applications
         viewModel.loadData()
     }
 
+    @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
     }
 
+    @ExperimentalCoroutinesApi
     private fun init() {
         // Set the lifecycle owner to the lifecycle of the view
         viewDataBinding.lifecycleOwner = this.viewLifecycleOwner
@@ -66,10 +70,9 @@ class ApplicationsSelectionFragment : CommonFragmentWithViewBinding<Applications
                 DividerItemDecoration(context, LinearLayoutManager.VERTICAL,
                         resources.getDimension(R.dimen.applications_divider_padding_start),
                         safeIsRtl()))
-        viewModel.viewState.observe(viewLifecycleOwner, Observer {
-            renderViewState(it)
-        })
-
+        viewModel.viewState
+                .onEach { renderViewState(it) }
+                .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun renderViewState(viewState: ViewState) {
