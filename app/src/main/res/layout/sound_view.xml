@@ -4,6 +4,9 @@
     <data>
 
         <variable
+            name="fragment"
+            type="com.app.missednotificationsreminder.ui.fragment.SoundFragment" />
+        <variable
             name="model"
             type="com.app.missednotificationsreminder.binding.model.SoundViewModel"/>
     </data>
@@ -18,7 +21,7 @@
             android:layout_height="?attr/listPreferredItemHeight"
             android:background="?selectableItemBackground"
             android:minHeight="?attr/listPreferredItemHeight"
-            android:onClick="@{model::onSoundButtonClicked}"
+            android:onClick="@{fragment::onSoundButtonClicked}"
             android:orientation="vertical"
             android:paddingLeft="@dimen/default_widget_interval"
             android:paddingRight="@dimen/default_widget_interval"

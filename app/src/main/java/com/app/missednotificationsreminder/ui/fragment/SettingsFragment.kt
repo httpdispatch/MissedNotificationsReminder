@@ -12,7 +12,6 @@ import com.app.missednotificationsreminder.databinding.SettingsViewBinding
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel
-import com.app.missednotificationsreminder.ui.view.SoundView
 import com.app.missednotificationsreminder.ui.view.VibrationView
 import com.app.missednotificationsreminder.util.BatteryUtils
 import com.jakewharton.u2020.data.LumberYard
@@ -159,12 +158,6 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
 
     @dagger.Module
     class ModuleExt {
-
-        @Provides
-        fun provideSoundView(fragment: SettingsFragment): SoundView {
-            return fragment.childFragmentManager
-                    .findFragmentById(R.id.sound_fragment) as SoundFragment
-        }
 
         @Provides
         fun provideVibrationView(fragment: SettingsFragment): VibrationView {

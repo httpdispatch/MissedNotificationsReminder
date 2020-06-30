@@ -14,7 +14,6 @@ import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.binding.model.SoundViewModel;
 import com.app.missednotificationsreminder.databinding.SoundViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
-import com.app.missednotificationsreminder.ui.view.SoundView;
 
 import javax.inject.Inject;
 
@@ -25,7 +24,7 @@ import dagger.android.ContributesAndroidInjector;
  *
  * @author Eugene Popovich
  */
-public class SoundFragment extends CommonFragmentWithViewModel<SoundViewModel> implements SoundView {
+public class SoundFragment extends CommonFragmentWithViewModel<SoundViewModel> {
     /**
      * The request code used to run ringtone picker
      */
@@ -53,16 +52,27 @@ public class SoundFragment extends CommonFragmentWithViewModel<SoundViewModel> i
     }
 
     private void init(View view, Bundle savedInstanceState) {
+        mBinding.setFragment(this);
         mBinding.setModel(model);
     }
 
-    @Override public void selectRingtone(String currentRingtoneUri) {
+    /**
+     * Method which is called when select ringtone button is clicked. It launches the system
+     * ringtone picker window.
+     *
+     * @param v
+     */
+    public void onSoundButtonClicked(View v) {
+        selectRingtone(model.getSelectedRingtone());
+    }
+
+    public void selectRingtone(String currentRingtoneUri) {
         Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(R.string.sound_select_ringtone_dialog_title));
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                TextUtils.isEmpty(currentRingtoneUri) ? (Uri) null : Uri.parse(currentRingtoneUri));
+                TextUtils.isEmpty(currentRingtoneUri) ? null : Uri.parse(currentRingtoneUri));
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         startActivityForResult(intent, SELECT_RINGTONE_REQUEST_CODE);

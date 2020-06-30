@@ -6,12 +6,11 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.view.View;
 
 import com.app.missednotificationsreminder.binding.util.BindableString;
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
+import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone;
-import com.app.missednotificationsreminder.ui.view.SoundView;
 import com.f2prateek.rx.preferences.Preference;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -28,11 +27,6 @@ public class SoundViewModel extends BaseViewModel {
      * Data binding field used to display current ringtone name information
      */
     public BindableString currentRingtoneName = new BindableString();
-
-    /**
-     * The related view.
-     */
-    private SoundView mView;
     /**
      * The activity context
      */
@@ -44,15 +38,12 @@ public class SoundViewModel extends BaseViewModel {
 
 
     /**
-     * @param view             the related view
      * @param reminderRingtone preference to store/retrieve reminder interval enabled information
      * @param context          preference the activity context
      */
     @Inject public SoundViewModel(
-            SoundView view,
             @ReminderRingtone Preference<String> reminderRingtone,
-            @ForActivity Context context) {
-        mView = view;
+            @ForApplication Context context) {
         mRingtone = reminderRingtone;
         mContext = context;
         init();
@@ -88,15 +79,8 @@ public class SoundViewModel extends BaseViewModel {
         }
     }
 
-    /**
-     * Method which is called when select ringtone button is clicked. It launches the system
-     * ringtone picker window.
-     *
-     * @param v
-     */
-    public void onSoundButtonClicked(View v) {
-        mView.selectRingtone(mRingtone.get());
+    public String getSelectedRingtone(){
+        return mRingtone.get();
     }
-
 }
 
