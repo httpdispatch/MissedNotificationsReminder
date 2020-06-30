@@ -12,11 +12,9 @@ import com.app.missednotificationsreminder.databinding.SettingsViewBinding
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel
-import com.app.missednotificationsreminder.ui.view.VibrationView
 import com.app.missednotificationsreminder.util.BatteryUtils
 import com.jakewharton.u2020.data.LumberYard
 import com.jakewharton.u2020.ui.logs.LogsDialog
-import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import timber.log.Timber
 import javax.inject.Inject
@@ -158,11 +156,5 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
 
     @dagger.Module
     class ModuleExt {
-
-        @Provides
-        fun provideVibrationView(fragment: SettingsFragment): VibrationView {
-            return fragment.childFragmentManager
-                    .findFragmentById(R.id.vibration_fragment) as VibrationFragment
-        }
     }
 }

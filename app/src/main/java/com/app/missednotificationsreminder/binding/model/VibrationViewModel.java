@@ -1,21 +1,20 @@
 package com.app.missednotificationsreminder.binding.model;
 
 import android.content.Context;
+import android.os.Vibrator;
 
 import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableString;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
-import com.app.missednotificationsreminder.di.qualifiers.ForActivity;
+import com.app.missednotificationsreminder.di.qualifiers.ForApplication;
 import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
 import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern;
-import com.app.missednotificationsreminder.ui.view.VibrationView;
 import com.f2prateek.rx.preferences.Preference;
 
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * The view model for the vibration configuration view
@@ -46,29 +45,26 @@ public class VibrationViewModel extends BaseViewModel {
      * Preference to store vibration pattern
      */
     private Preference<String> mVibrationPattern;
-    /**
-     * The related view
-     */
-    private VibrationView mView;
+
+    @Inject Vibrator mVibrator;
     /**
      * The activity context
      */
     private Context mContext;
 
     /**
-     * @param view             the related view
      * @param vibrationEnabled preference to store/retrieve vibration interval enabled information
      * @param vibrationPattern preference to store/retrieve vibration pattern information
      * @param context          preference the activity context
      */
     @Inject public VibrationViewModel(
-            VibrationView view,
             @Vibrate Preference<Boolean> vibrationEnabled,
             @VibrationPattern Preference<String> vibrationPattern,
-            @ForActivity Context context) {
-        mView = view;
+            Vibrator vibrator,
+            @ForApplication Context context) {
         mVibrationEnabled = vibrationEnabled;
         mVibrationPattern = vibrationPattern;
+        mVibrator = vibrator;
         mContext = context;
         init();
     }
@@ -87,7 +83,7 @@ public class VibrationViewModel extends BaseViewModel {
                 .valueChanged(enabled)
                 .skip(1)
                 .filter(enabled -> enabled)
-                .subscribe(__ -> mView.vibrate()));
+                .subscribe(__ -> vibrate()));
 
         // set the initial pattern from preferences
         pattern.set(mVibrationPattern.get());
@@ -108,4 +104,8 @@ public class VibrationViewModel extends BaseViewModel {
                 .subscribe(pattern.asAction()));
     }
 
+
+    public void vibrate() {
+        mVibrator.vibrate(200);
+    }
 }
