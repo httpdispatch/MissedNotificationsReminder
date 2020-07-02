@@ -1,5 +1,6 @@
-package com.app.missednotificationsreminder.binding.model;
+package com.app.missednotificationsreminder.settings.scheduler;
 
+import com.app.missednotificationsreminder.binding.model.BaseViewModel;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.BindableString;
@@ -151,7 +152,7 @@ public class SchedulerViewModel extends BaseViewModel {
 
         monitor(
                 beginChanged
-                        .map(minutes -> TimeUtils.minutesToTime(minutes))
+                        .map(TimeUtils::minutesToTime)
                         .subscribe(beginTime.asAction()));
         monitor(
                 beginChanged
@@ -191,7 +192,7 @@ public class SchedulerViewModel extends BaseViewModel {
 
         monitor(
                 endChanged
-                        .map(minutes -> TimeUtils.minutesToTime(minutes))
+                        .map(TimeUtils::minutesToTime)
                         .subscribe(endTime.asAction()));
         monitor(
                 endChanged

@@ -1,10 +1,11 @@
-package com.app.missednotificationsreminder.binding.model;
+package com.app.missednotificationsreminder.settings;
 
 import android.Manifest;
 import android.content.Context;
 import android.os.Vibrator;
 import android.text.TextUtils;
 
+import com.app.missednotificationsreminder.binding.model.BaseViewModel;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableString;
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope;

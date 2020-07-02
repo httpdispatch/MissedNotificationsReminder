@@ -30,7 +30,7 @@ import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
-import com.app.missednotificationsreminder.data.model.NotificationData;
+import com.app.missednotificationsreminder.service.data.model.NotificationData;
 import com.app.missednotificationsreminder.di.Injector;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotificationImmediately;
@@ -54,7 +54,7 @@ import com.app.missednotificationsreminder.di.qualifiers.Vibrate;
 import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern;
 import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEvent;
 import com.app.missednotificationsreminder.service.event.RemindEvents;
-import com.app.missednotificationsreminder.util.PhoneStateUtils;
+import com.app.missednotificationsreminder.service.util.PhoneStateUtils;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.app.missednotificationsreminder.util.event.RxEventBus;
 import com.evernote.android.job.JobManager;
@@ -244,7 +244,6 @@ public class ReminderNotificationListenerService extends AbstractReminderNotific
         super.onCreate();
         Timber.d("onCreate");
         initialize();
-
     }
 
     private void initialize() {

@@ -1,8 +1,10 @@
-package com.app.missednotificationsreminder.data.model;
+package com.app.missednotificationsreminder.settings.applicationselection.data.model;
 
 import android.net.Uri;
 
-import com.app.missednotificationsreminder.binding.model.ApplicationsSelectionViewModel;
+import com.app.missednotificationsreminder.settings.applicationselection.ApplicationsSelectionViewModel;
+
+import org.jetbrains.annotations.NotNull;
 
 import androidx.core.util.ObjectsCompat;
 
@@ -50,7 +52,7 @@ public class ApplicationItem {
                 ObjectsCompat.equals(iconUri, that.iconUri);
     }
 
-    @Override public String toString() {
+    @NotNull @Override public String toString() {
         return new StringBuilder()
                 .append("ApplicationItem{")
                 .append("checked=").append(checked)

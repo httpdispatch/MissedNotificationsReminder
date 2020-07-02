@@ -6,7 +6,7 @@
         <import type="android.view.View"/>
         <variable
             name="model"
-            type="com.app.missednotificationsreminder.binding.model.VibrationViewModel"/>
+            type="com.app.missednotificationsreminder.settings.vibration.VibrationViewModel"/>
     </data>
 
     <LinearLayout

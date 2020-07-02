@@ -1,5 +1,6 @@
-package com.app.missednotificationsreminder.binding.model;
+package com.app.missednotificationsreminder.settings.reminder;
 
+import com.app.missednotificationsreminder.binding.model.BaseViewModel;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.BindableObject;
 import com.app.missednotificationsreminder.binding.util.BindableString;
@@ -204,7 +205,7 @@ public class ReminderViewModel extends BaseViewModel {
         ConnectableObservable<Integer> intervalChanged = RxBindingUtils
                 .valueChanged(interval)
                 .doOnNext(value -> Timber.d("Interval value changed: %1$f", value))
-                .map(value -> TimeUtils.minutesToSeconds(value))
+                .map(TimeUtils::minutesToSeconds)
                 .doOnNext(value -> Timber.d("Interval value transformed: %1$d", value))
                 .publish();
 

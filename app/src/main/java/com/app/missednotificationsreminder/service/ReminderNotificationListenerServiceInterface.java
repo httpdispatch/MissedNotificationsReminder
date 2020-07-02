@@ -1,8 +1,7 @@
 package com.app.missednotificationsreminder.service;
 
-import com.app.missednotificationsreminder.data.model.NotificationData;
+import com.app.missednotificationsreminder.service.data.model.NotificationData;
 
-import java.util.Collection;
 import java.util.List;
 
 /**

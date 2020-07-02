@@ -1,6 +1,6 @@
 package com.app.missednotificationsreminder.ui
 
-import com.app.missednotificationsreminder.ui.activity.MainActivity
+import com.app.missednotificationsreminder.settings.MainActivity
 import dagger.Module
 
 /**

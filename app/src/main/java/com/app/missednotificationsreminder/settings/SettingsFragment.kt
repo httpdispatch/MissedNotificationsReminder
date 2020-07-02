@@ -1,4 +1,4 @@
-package com.app.missednotificationsreminder.ui.fragment
+package com.app.missednotificationsreminder.settings
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
@@ -7,10 +7,13 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.fragment.findNavController
 import com.app.missednotificationsreminder.R
-import com.app.missednotificationsreminder.binding.model.SettingsViewModel
 import com.app.missednotificationsreminder.databinding.SettingsViewBinding
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
+import com.app.missednotificationsreminder.settings.sound.SoundFragment
+import com.app.missednotificationsreminder.settings.reminder.ReminderFragment
+import com.app.missednotificationsreminder.settings.scheduler.SchedulerFragment
+import com.app.missednotificationsreminder.settings.vibration.VibrationFragment
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel
 import com.app.missednotificationsreminder.util.BatteryUtils
 import com.jakewharton.u2020.data.LumberYard

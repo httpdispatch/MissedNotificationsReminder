@@ -1,12 +1,11 @@
-package com.app.missednotificationsreminder.ui.fragment;
+package com.app.missednotificationsreminder.settings.reminder;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.app.missednotificationsreminder.binding.model.ReminderViewModel;
-import com.app.missednotificationsreminder.binding.model.SettingsViewModel;
+import com.app.missednotificationsreminder.settings.SettingsViewModel;
 import com.app.missednotificationsreminder.databinding.ReminderViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 

@@ -5,10 +5,10 @@
 
         <variable
             name="fragment"
-            type="com.app.missednotificationsreminder.ui.fragment.SoundFragment" />
+            type="com.app.missednotificationsreminder.settings.sound.SoundFragment" />
         <variable
             name="model"
-            type="com.app.missednotificationsreminder.binding.model.SoundViewModel"/>
+            type="com.app.missednotificationsreminder.settings.sound.SoundViewModel"/>
     </data>
 
     <LinearLayout

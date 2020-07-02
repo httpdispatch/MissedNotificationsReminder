@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.app.missednotificationsreminder.ui.fragment.SettingsFragment"
+        android:name="com.app.missednotificationsreminder.settings.SettingsFragment"
         android:label="@string/settings_title"
         tools:layout="@layout/settings_view">
         <action
@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/applicationsSelectionFragment"
-        android:name="com.app.missednotificationsreminder.ui.fragment.ApplicationsSelectionFragment"
+        android:name="com.app.missednotificationsreminder.settings.applicationselection.ApplicationsSelectionFragment"
         android:label="@string/applications_selection_title"
         tools:layout="@layout/applications_selection_view"/>
 </navigation>

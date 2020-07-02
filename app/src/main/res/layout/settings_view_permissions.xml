@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".ui.activity.MainActivity">
+        tools:context=".settings.MainActivity">
 
     <data>
 
@@ -10,10 +10,10 @@
 
         <variable
             name="fragment"
-            type="com.app.missednotificationsreminder.ui.fragment.SettingsFragment" />
+            type="com.app.missednotificationsreminder.settings.SettingsFragment" />
         <variable
             name="model"
-            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
+            type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
     </data>
 
     <androidx.cardview.widget.CardView

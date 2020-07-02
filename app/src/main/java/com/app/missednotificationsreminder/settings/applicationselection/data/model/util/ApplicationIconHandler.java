@@ -1,4 +1,4 @@
-package com.app.missednotificationsreminder.data.model.util;
+package com.app.missednotificationsreminder.settings.applicationselection.data.model.util;
 
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -31,8 +31,7 @@ public class ApplicationIconHandler extends RequestHandler {
         return SCHEME.equals(data.uri.getScheme());
     }
 
-    @Override
-    public Result load(Request request, int networkPolicy) throws IOException {
+    @Override public Result load(Request request, int networkPolicy) {
         String packageName = request.uri.getHost();
         return new Result(getAppIcon(packageName), Picasso.LoadedFrom.DISK);
     }

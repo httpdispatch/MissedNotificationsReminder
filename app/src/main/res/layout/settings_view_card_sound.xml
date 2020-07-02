@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".ui.activity.MainActivity">
+        tools:context=".settings.MainActivity">
 
     <data>
 
@@ -9,7 +9,7 @@
 
         <variable
             name="model"
-            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
+            type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
     </data>
 
     <androidx.cardview.widget.CardView
@@ -36,7 +36,7 @@
 
             <fragment
                 android:id="@+id/sound_fragment"
-                android:name="com.app.missednotificationsreminder.ui.fragment.SoundFragment"
+                android:name="com.app.missednotificationsreminder.settings.sound.SoundFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:layout="@layout/sound_view"/>

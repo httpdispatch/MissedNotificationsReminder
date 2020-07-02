@@ -1,13 +1,13 @@
-package com.app.missednotificationsreminder.binding.model
+package com.app.missednotificationsreminder.settings.applicationselection
 
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
-import com.app.missednotificationsreminder.data.model.ApplicationItem
-import com.app.missednotificationsreminder.data.model.NotificationData
-import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandler
+import com.app.missednotificationsreminder.binding.model.BaseViewModel
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
+import com.app.missednotificationsreminder.service.data.model.NotificationData
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
-import com.app.missednotificationsreminder.ui.widget.ApplicationsSelectionAdapter
 import com.app.missednotificationsreminder.util.asFlow
 import com.f2prateek.rx.preferences.Preference
 import kotlinx.coroutines.Dispatchers

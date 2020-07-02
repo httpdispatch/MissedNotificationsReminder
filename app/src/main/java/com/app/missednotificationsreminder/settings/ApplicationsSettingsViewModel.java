@@ -1,5 +1,6 @@
-package com.app.missednotificationsreminder.binding.model;
+package com.app.missednotificationsreminder.settings;
 
+import com.app.missednotificationsreminder.binding.model.BaseViewModel;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
 import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotifications;

@@ -1,14 +1,12 @@
-package com.app.missednotificationsreminder.ui.widget;
+package com.app.missednotificationsreminder.settings.applicationselection;
 
 import android.content.pm.PackageManager;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.app.missednotificationsreminder.binding.model.ApplicationItemViewModel;
-import com.app.missednotificationsreminder.data.model.ApplicationItem;
-import com.app.missednotificationsreminder.data.model.NotificationData;
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem;
+import com.app.missednotificationsreminder.service.data.model.NotificationData;
 import com.app.missednotificationsreminder.databinding.ApplicationSelectableItemViewBinding;
-import com.app.missednotificationsreminder.ui.fragment.ApplicationsSelectionFragment;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SortedList;
 import androidx.recyclerview.widget.SortedListAdapterCallback;
 import rx.Completable;
-import rx.Emitter;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;

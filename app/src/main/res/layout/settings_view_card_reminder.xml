@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".ui.activity.MainActivity">
+        tools:context=".settings.MainActivity">
 
     <data>
 
@@ -35,7 +35,7 @@
 
                 <fragment
                     android:id="@+id/reminder_fragment"
-                    android:name="com.app.missednotificationsreminder.ui.fragment.ReminderFragment"
+                    android:name="com.app.missednotificationsreminder.settings.reminder.ReminderFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:layout="@layout/reminder_view"/>

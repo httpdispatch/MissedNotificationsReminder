@@ -1,11 +1,10 @@
-package com.app.missednotificationsreminder.ui.fragment;
+package com.app.missednotificationsreminder.settings.vibration;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.app.missednotificationsreminder.binding.model.VibrationViewModel;
 import com.app.missednotificationsreminder.databinding.VibrationViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 

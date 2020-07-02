@@ -1,12 +1,15 @@
-package com.app.missednotificationsreminder.binding.model;
+package com.app.missednotificationsreminder.settings.applicationselection;
 
 import android.view.View;
 
+import com.app.missednotificationsreminder.binding.model.BaseViewModel;
 import com.app.missednotificationsreminder.binding.util.BindableBoolean;
 import com.app.missednotificationsreminder.binding.util.RxBindingUtils;
-import com.app.missednotificationsreminder.data.model.ApplicationItem;
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
+
+import org.jetbrains.annotations.NotNull;
 
 import timber.log.Timber;
 
@@ -102,7 +105,7 @@ public class ApplicationItemViewModel extends BaseViewModel {
         checked.set(!checked.get());
     }
 
-    @Override
+    @NotNull @Override
     public String toString() {
         return String.format("%1$s(checked=%2$b, package=%3$s)", getClass().getSimpleName(), checked.get(), mApplicationItem.packageName);
     }
@@ -110,7 +113,7 @@ public class ApplicationItemViewModel extends BaseViewModel {
     /**
      * The interface subscribers to the onApplicationCheckedStateChanged event should implement
      */
-    public static interface ApplicationCheckedStateChangedListener {
+    public interface ApplicationCheckedStateChangedListener {
         void onApplicationCheckedStateChanged(ApplicationItem applicationItem, boolean checked);
     }
 }

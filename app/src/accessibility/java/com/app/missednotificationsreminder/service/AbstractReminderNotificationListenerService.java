@@ -7,8 +7,8 @@ import android.text.TextUtils;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.app.missednotificationsreminder.data.model.NotificationData;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
+import com.app.missednotificationsreminder.service.data.model.NotificationData;
 import com.app.missednotificationsreminder.service.util.NotificationParser;
 import com.app.missednotificationsreminder.service.util.StatusBarWindowUtils;
 import com.f2prateek.rx.preferences.Preference;

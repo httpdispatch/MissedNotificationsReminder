@@ -1,4 +1,6 @@
-package com.app.missednotificationsreminder.data.model;
+package com.app.missednotificationsreminder.service.data.model;
+
+import org.jetbrains.annotations.NotNull;
 
 import androidx.core.util.ObjectsCompat;
 
@@ -41,9 +43,9 @@ public class NotificationData {
                 ObjectsCompat.equals(packageName, that.packageName);
     }
 
-    @Override public String toString() {
+    @NotNull @Override public String toString() {
         return new StringBuilder()
-                .append(getClassName() + "{")
+                .append(getClassName()).append("{")
                 .append(fieldsAsString())
                 .append("}")
                 .toString();

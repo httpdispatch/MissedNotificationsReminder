@@ -1,4 +1,4 @@
-package com.app.missednotificationsreminder.util;
+package com.app.missednotificationsreminder.service.util;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -12,7 +12,7 @@ public class PhoneStateUtils {
      * Taken from http://stackoverflow.com/a/17418732/527759
      *
      * @param context the context instance
-     * @return
+     * @return true if devices is in phone call, false otherwise
      */
     public static boolean isCallActive(Context context) {
         AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);

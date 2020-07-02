@@ -1,7 +1,9 @@
 package com.app.missednotificationsreminder.service.event;
 
-import com.app.missednotificationsreminder.data.model.NotificationData;
+import com.app.missednotificationsreminder.service.data.model.NotificationData;
 import com.app.missednotificationsreminder.util.event.Event;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -12,7 +14,7 @@ public class NotificationsUpdatedEvent implements Event {
         this.notifications = notifications;
     }
 
-    @Override public String toString() {
+    @NotNull @Override public String toString() {
         return new StringBuilder()
                 .append("NotificationsUpdatedEvent{")
                 .append("notifications=").append(notifications)

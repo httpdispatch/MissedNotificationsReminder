@@ -5,10 +5,10 @@
     <data>
         <variable
             name="fragment"
-            type="com.app.missednotificationsreminder.ui.fragment.SchedulerFragment" />
+            type="com.app.missednotificationsreminder.settings.scheduler.SchedulerFragment" />
         <variable
             name="model"
-            type="com.app.missednotificationsreminder.binding.model.SchedulerViewModel"/>
+            type="com.app.missednotificationsreminder.settings.scheduler.SchedulerViewModel"/>
     </data>
 
     <LinearLayout

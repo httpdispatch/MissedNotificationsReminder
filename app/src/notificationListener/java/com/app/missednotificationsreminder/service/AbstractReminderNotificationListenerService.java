@@ -6,7 +6,7 @@ import android.os.SystemClock;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
-import com.app.missednotificationsreminder.data.model.NotificationData;
+import com.app.missednotificationsreminder.service.data.model.NotificationData;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -165,7 +165,8 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
         @Override protected String fieldsAsString() {
             return new StringBuilder()
                     .append("when='").append(when).append('\'')
-                    .append(", " + super.fieldsAsString())
+                    .append(", ")
+                    .append(super.fieldsAsString())
                     .toString();
         }
 

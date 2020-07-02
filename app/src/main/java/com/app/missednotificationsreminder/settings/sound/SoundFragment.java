@@ -1,4 +1,4 @@
-package com.app.missednotificationsreminder.ui.fragment;
+package com.app.missednotificationsreminder.settings.sound;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.app.missednotificationsreminder.R;
-import com.app.missednotificationsreminder.binding.model.SoundViewModel;
 import com.app.missednotificationsreminder.databinding.SoundViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 

@@ -1,4 +1,4 @@
-package com.app.missednotificationsreminder.ui.activity
+package com.app.missednotificationsreminder.settings
 
 import android.content.Context
 import android.os.Bundle
@@ -12,8 +12,7 @@ import com.app.missednotificationsreminder.databinding.ActivityMainBinding
 import com.app.missednotificationsreminder.di.qualifiers.ActivityScope
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity
 import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity
-import com.app.missednotificationsreminder.ui.fragment.ApplicationsSelectionFragment
-import com.app.missednotificationsreminder.ui.fragment.SettingsFragment
+import com.app.missednotificationsreminder.settings.applicationselection.ApplicationsSelectionFragment
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 

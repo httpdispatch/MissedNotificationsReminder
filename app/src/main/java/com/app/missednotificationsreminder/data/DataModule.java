@@ -9,8 +9,8 @@ import android.net.Uri;
 import android.os.Vibrator;
 
 import com.app.missednotificationsreminder.R;
-import com.app.missednotificationsreminder.data.model.NotificationData;
-import com.app.missednotificationsreminder.data.model.util.ApplicationIconHandler;
+import com.app.missednotificationsreminder.service.data.model.NotificationData;
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotification;
 import com.app.missednotificationsreminder.di.qualifiers.CreateDismissNotificationImmediately;
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication;

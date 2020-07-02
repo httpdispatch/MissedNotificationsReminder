@@ -8,11 +8,11 @@
 
         <variable
             name="parentModel"
-            type="com.app.missednotificationsreminder.binding.model.SettingsViewModel"/>
+            type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
 
         <variable
             name="model"
-            type="com.app.missednotificationsreminder.binding.model.ReminderViewModel"/>
+            type="com.app.missednotificationsreminder.settings.reminder.ReminderViewModel"/>
     </data>
 
     <LinearLayout

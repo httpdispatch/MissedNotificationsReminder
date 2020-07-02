@@ -1,4 +1,4 @@
-package com.app.missednotificationsreminder.ui.fragment
+package com.app.missednotificationsreminder.settings.applicationselection
 
 import android.os.Bundle
 import android.view.View
@@ -8,17 +8,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.missednotificationsreminder.R
-import com.app.missednotificationsreminder.binding.model.ApplicationItemViewModel
-import com.app.missednotificationsreminder.binding.model.ApplicationsSelectionViewModel
-import com.app.missednotificationsreminder.binding.model.LoadingStatus
-import com.app.missednotificationsreminder.binding.model.ViewState
-import com.app.missednotificationsreminder.data.model.ApplicationItem
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
 import com.app.missednotificationsreminder.databinding.ApplicationsSelectionViewBinding
 import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewBinding
-import com.app.missednotificationsreminder.ui.widget.ApplicationsSelectionAdapter
 import com.app.missednotificationsreminder.ui.widget.misc.DividerItemDecoration
 import com.f2prateek.rx.preferences.Preference
 import dagger.Binds
