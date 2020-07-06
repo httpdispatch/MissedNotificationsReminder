@@ -125,6 +125,7 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override public void onListenerConnected() {
+        Timber.d("onListenerConnected");
         super.onListenerConnected();
         onReady();
     }

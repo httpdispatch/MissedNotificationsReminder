@@ -187,6 +187,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("com.google.android.material:material:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE_VERSION}")
+    implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE_VERSION}")
 
     implementation("com.jakewharton.timber:timber:4.7.1")
     implementation("androidx.navigation:navigation-fragment-ktx:2.2.2")

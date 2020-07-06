@@ -23,8 +23,13 @@ import android.provider.Settings.SettingNotFoundException
 import android.text.TextUtils
 import android.util.Log
 import android.view.Display
+import androidx.annotation.CallSuper
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
+import androidx.lifecycle.lifecycleScope
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.binding.util.BindableBoolean
 import com.app.missednotificationsreminder.binding.util.BindableObject
@@ -61,7 +66,9 @@ import javax.inject.Inject
  *
  * @author Eugene Popovich
  */
-class ReminderNotificationListenerService : AbstractReminderNotificationListenerService() {
+class ReminderNotificationListenerService : AbstractReminderNotificationListenerService(), LifecycleOwner {
+    private val mDispatcher = ServiceLifecycleDispatcher(this)
+
     @Inject
     @ReminderEnabled
     lateinit var reminderEnabled: Preference<Boolean>
@@ -278,13 +285,34 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      */
     private val scheduler = AndroidSchedulers.from(handler.looper)
 
+    @CallSuper
     override fun onCreate() {
+        mDispatcher.onServicePreSuperOnCreate()
         super.onCreate()
         Timber.d("onCreate")
     }
 
+    @CallSuper
+    override fun onBind(intent: Intent): IBinder? {
+        mDispatcher.onServicePreSuperOnBind()
+        Timber.d("onBind()")
+        return super.onBind(intent)
+    }
+
+    @CallSuper
+    override fun onStart(intent: Intent?, startId: Int) {
+        mDispatcher.onServicePreSuperOnStart()
+        Timber.d("onStart()")
+        super.onStart(intent, startId)
+    }
+
+    override fun getLifecycle(): Lifecycle {
+        return mDispatcher.lifecycle
+    }
+
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
+        Timber.d("attachBaseContext")
         initialize()
     }
 
@@ -437,7 +465,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      * Check whether the waking alarm should be scheduled or no
      */
     private fun checkWakingConditions() {
-        Timber.d("checkWakingConditions() called")
+        Timber.d("checkWakingConditions() called %s", Thread.currentThread().name)
         try {
             if (active.get()) {
                 Timber.d("checkWakingConditions: already active, skipping")
@@ -621,7 +649,10 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         }
     }
 
+
+    @CallSuper
     override fun onDestroy() {
+        mDispatcher.onServicePreSuperOnDestroy()
         super.onDestroy()
         Timber.d("onDestroy")
         // stop any scheduled alarms
@@ -694,6 +725,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     }
 
     override fun onReady() {
+        Timber.d("onReady")
         ready.set(true)
     }
 
