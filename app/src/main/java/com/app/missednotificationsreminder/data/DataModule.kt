@@ -279,10 +279,10 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun providePicasso(app: Application, packageManager: PackageManager?): Picasso {
+    fun providePicasso(app: Application, packageManager: PackageManager): Picasso {
         return Picasso.Builder(app)
                 .addRequestHandler(ApplicationIconHandler(packageManager))
-                .listener { picasso: Picasso?, uri: Uri?, e: Exception? -> Timber.e(e, "Failed to load image: %s", uri) }
+                .listener { _, uri, e -> Timber.e(e, "Failed to load image: %s", uri) }
                 .build()
     }
 

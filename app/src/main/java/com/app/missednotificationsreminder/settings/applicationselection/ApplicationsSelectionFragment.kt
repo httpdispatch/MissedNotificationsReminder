@@ -8,11 +8,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.missednotificationsreminder.R
-import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
 import com.app.missednotificationsreminder.databinding.ApplicationsSelectionViewBinding
 import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewBinding
 import com.app.missednotificationsreminder.ui.widget.misc.DividerItemDecoration
 import com.f2prateek.rx.preferences.Preference
@@ -107,21 +107,22 @@ class ApplicationsSelectionFragment : CommonFragmentWithViewBinding<Applications
         @Provides
         @FragmentScope
         fun provideApplicationsCheckedStateChangeListener(
-                @SelectedApplications selectedApplications: Preference<Set<String>>): ApplicationItemViewModel.ApplicationCheckedStateChangedListener {
-            return ApplicationItemViewModel.ApplicationCheckedStateChangedListener { applicationItem: ApplicationItem, checked: Boolean ->
-                Timber.d("Update selected application value %1\$s to %2\$b", applicationItem.packageName, checked)
-                // for sure we may use if condition here instead of concatenation of 2 observables. Just wanted to achieve
-                // same result with RxJava usage.
-                (selectedApplications.get() ?: emptySet())
-                        .let {
-                            val updatedSet = it.toMutableSet()
-                            if (updatedSet.contains(applicationItem.packageName))
-                                updatedSet.remove(applicationItem.packageName)
-                            else
-                                updatedSet.add(applicationItem.packageName)
-                            selectedApplications.set(updatedSet.toSet())
-                        }
-            }
-        }
+                @SelectedApplications selectedApplications: Preference<Set<String>>): ApplicationCheckedStateChangedListener =
+                object : ApplicationCheckedStateChangedListener {
+                    override fun onApplicationCheckedStateChanged(applicationItem: ApplicationItem, checked: Boolean) {
+                        Timber.d("Update selected application value %1\$s to %2\$b", applicationItem.packageName, checked)
+                        // for sure we may use if condition here instead of concatenation of 2 observables. Just wanted to achieve
+                        // same result with RxJava usage.
+                        (selectedApplications.get() ?: emptySet())
+                                .let {
+                                    val updatedSet = it.toMutableSet()
+                                    if (updatedSet.contains(applicationItem.packageName))
+                                        updatedSet.remove(applicationItem.packageName)
+                                    else
+                                        updatedSet.add(applicationItem.packageName)
+                                    selectedApplications.set(updatedSet.toSet())
+                                }
+                    }
+                }
     }
 }

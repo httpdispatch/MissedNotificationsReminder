@@ -4,10 +4,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.binding.model.BaseViewModel
-import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
-import com.app.missednotificationsreminder.service.data.model.NotificationData
-import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
+import com.app.missednotificationsreminder.service.data.model.NotificationData
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
+import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.app.missednotificationsreminder.util.asFlow
 import com.f2prateek.rx.preferences.Preference
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +29,7 @@ class ApplicationsSelectionViewModel @Inject constructor(
         private val packageManager: PackageManager) : BaseViewModel() {
     @ExperimentalCoroutinesApi
     private val _viewState = MutableStateFlow(ViewState(LoadingStatus.NotStarted, Collections.emptyList()))
+
     @ExperimentalCoroutinesApi
     val viewState: StateFlow<ViewState> = _viewState
 
@@ -57,16 +58,16 @@ class ApplicationsSelectionViewModel @Inject constructor(
                     val selectedApplications = selectedApplicationsPref.get() ?: emptySet()
                     for (packageInfo in packages) {
                         val selected = selectedApplications.contains(packageInfo.packageName)
-                        result.add(ApplicationItem.Builder()
-                                .checked(selected)
-                                .applicationName(packageInfo.applicationInfo.loadLabel(packageManager))
-                                .packageName(packageInfo.packageName)
-                                .activeNotifications(if (notificationsCountInfo.containsKey(packageInfo.packageName)) notificationsCountInfo[packageInfo.packageName]!! else 0)
-                                .iconUri(Uri.Builder()
+                        result.add(ApplicationItem(
+                                checked = selected,
+                                applicationName = packageInfo.applicationInfo.loadLabel(packageManager),
+                                packageName = packageInfo.packageName,
+                                activeNotifications = notificationsCountInfo[packageInfo.packageName]
+                                        ?: 0,
+                                iconUri = Uri.Builder()
                                         .scheme(ApplicationIconHandler.SCHEME)
                                         .authority(packageInfo.packageName)
-                                        .build())
-                                .build())
+                                        .build()))
                     }
                     result.toList()
                 }
