@@ -236,6 +236,7 @@ dependencies {
         exclude(module = "recyclerview-v7")
     }
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.COROUTINES_VERSION}")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES_VERSION}")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.COROUTINES_VERSION}")
     testImplementation("junit:junit:4.13")
