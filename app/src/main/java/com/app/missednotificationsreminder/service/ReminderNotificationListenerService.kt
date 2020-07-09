@@ -1,5 +1,6 @@
 package com.app.missednotificationsreminder.service
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -31,9 +32,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.lifecycleScope
 import com.app.missednotificationsreminder.R
-import com.app.missednotificationsreminder.binding.util.BindableBoolean
-import com.app.missednotificationsreminder.binding.util.BindableObject
-import com.app.missednotificationsreminder.binding.util.RxBindingUtils
 import com.app.missednotificationsreminder.di.Injector.Companion.obtain
 import com.app.missednotificationsreminder.di.qualifiers.*
 import com.app.missednotificationsreminder.service.data.model.NotificationData
@@ -41,21 +39,21 @@ import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEve
 import com.app.missednotificationsreminder.service.event.RemindEvents
 import com.app.missednotificationsreminder.service.util.PhoneStateUtils
 import com.app.missednotificationsreminder.util.TimeUtils
+import com.app.missednotificationsreminder.util.asFlow
 import com.app.missednotificationsreminder.util.event.Event
 import com.app.missednotificationsreminder.util.event.RxEventBus
+import com.app.missednotificationsreminder.util.flow.ambWith
 import com.evernote.android.job.JobManager
 import com.evernote.android.job.JobRequest
 import com.f2prateek.rx.preferences.Preference
 import dagger.android.AndroidInjector
 import dagger.android.ContributesAndroidInjector
-import rx.*
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
-import rx.subscriptions.CompositeSubscription
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -66,6 +64,8 @@ import javax.inject.Inject
  *
  * @author Eugene Popovich
  */
+@FlowPreview
+@ExperimentalCoroutinesApi
 class ReminderNotificationListenerService : AbstractReminderNotificationListenerService(), LifecycleOwner {
     private val mDispatcher = ServiceLifecycleDispatcher(this)
 
@@ -183,17 +183,17 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     /**
      * Current ringer mode value holder
      */
-    private val ringerMode = BindableObject<Int>()
+    private val ringerMode = MutableStateFlow<Int>(-1)
 
     /**
      * Current DND mode enabled value holder
      */
-    private val dndEnabled = BindableBoolean(false)
+    private val dndEnabled = MutableStateFlow(false)
 
     /**
      * Current ready state value holder
      */
-    private val ready = BindableBoolean(false)
+    private val ready = MutableStateFlow(false)
 
     /**
      * The pending intent sent when dismiss notification is cancelled.
@@ -225,14 +225,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     private val active = AtomicBoolean()
 
     /**
-     * Composite subscription used to handle subscriptions added in this service
-     */
-    private val subscriptions = CompositeSubscription()
-
-    /**
      * Field used to store reference to the timer subscription used when the wake lock option is specified
      */
-    private var timerSubscription: Subscription? = null
+    private var timerJob: Job? = null
 
     /**
      * Receiver used to handle actions from the pending intent used for periodical alarms
@@ -252,7 +247,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      * Observer used to handle DND mode changes events
      */
     private val zenModeObserver by lazy {
-        ZenModeObserver(handler)
+        ZenModeObserver(Handler(Looper.getMainLooper()))
     }
 
     /**
@@ -275,16 +270,6 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     @Volatile
     private var initializing = true
 
-    /**
-     * The handler used to process various service related messages
-     */
-    private val handler = Handler(Looper.getMainLooper())
-
-    /**
-     * The scheduler which runs jobs in the `mHandler`
-     */
-    private val scheduler = AndroidSchedulers.from(handler.looper)
-
     @CallSuper
     override fun onCreate() {
         mDispatcher.onServicePreSuperOnCreate()
@@ -299,6 +284,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         return super.onBind(intent)
     }
 
+    @Suppress("DEPRECATION")
     @CallSuper
     override fun onStart(intent: Intent?, startId: Int) {
         mDispatcher.onServicePreSuperOnStart()
@@ -316,15 +302,18 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         initialize()
     }
 
+    @SuppressLint("LogNotTimber")
     private fun initialize() {
         // inject dependencies
         val appGraph: AndroidInjector<Any>? = obtain(applicationContext)
         if (appGraph == null) {
+            // Timber is not yet initialized here
             Log.e("ReminderService", "application is not available")
-            handler.postDelayed({
+            lifecycleScope.launch {
+                delay(1000)
                 Log.w("ReminderService", "Initialize: one more try")
                 initialize()
-            }, 1000)
+            }
             return
         }
         appGraph.inject(this)
@@ -346,118 +335,120 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         registerReceiver(stopRemindersReceiver, IntentFilter(STOP_REMINDERS_INTENT_ACTION))
 
         // initialize preferences changes listeners
-        subscriptions.add(
-                reminderEnabled.asObservable()
-                        .skip(1) // skip initial value emitted right after the subscription
-                        .filter { enabled: Boolean? -> enabled } // if reminder enabled
-                        .filter { ready.get() }
-                        .observeOn(scheduler)
-                        .subscribe { b: Boolean? -> checkWakingConditions() })
-        subscriptions.add(
-                reminderEnabled.asObservable()
-                        .skip(1) // skip initial value emitted right after the subscription
-                        .filter { enabled: Boolean? -> !enabled!! } // if reminder disabled
-                        .observeOn(scheduler)
-                        .subscribe { b: Boolean? -> stopWaking() })
-        subscriptions.add(
-                Observable.merge(
-                        Arrays.asList(
-                                reminderInterval.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Reminder interval changed") }
-                                        .map { true },
-                                limitReminderRepeats.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Limit reminder repeats changed") }
-                                        .map { true },
-                                createDismissNotification.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Create dismiss notification changed") }
-                                        .map { true },
-                                createDismissNotificationImmediately.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Create dismiss notification immediately changed") }
-                                        .map { true },
-                                reminderRepeats.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Reminder repeats changed") }
-                                        .map { true },
-                                forceWakeLock.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Force WakeLock changed") }
-                                        .map { true },
-                                selectedApplications.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Selected applications changed") }
-                                        .map { true },
-                                ignorePersistentNotifications.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Ignore persistent notifications changed") }
-                                        .map { true },
-                                respectPhoneCalls.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Respect phone calls changed") },
-                                respectRingerMode.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Respect ringer mode changed") },
-                                remindWhenScreenIsOn.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Remind when screen is on changed") },
-                                schedulerEnabled.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Scheduler enabled changed") }
-                                        .map { true },
-                                schedulerMode.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Scheduler mode changed") }
-                                        .map { true },
-                                schedulerRangeBegin.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Scheduler range begin changed") }
-                                        .map { true },
-                                schedulerRangeEnd.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Scheduler range end changed") }
-                                        .map { true },
-                                vibrate.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Vibrate changed") },
-                                vibrationPattern.asObservable()
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { Timber.d("Vibration pattern changed") },
-                                RxBindingUtils
-                                        .valueChanged(ringerMode)
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { v -> Timber.d("Ringer mode changed to %d", v) }
-                                        .filter { respectRingerMode.get() }
-                                        .map { true },
-                                RxBindingUtils
-                                        .valueChanged(dndEnabled)
-                                        .skip(1) // skip initial value emitted right after the subscription
-                                        .doOnNext { v -> Timber.d("DND mode changed to %b", v) }
-                                        .filter { respectRingerMode.get() }))
-                        .filter { ready.get() }
-                        .observeOn(scheduler)
-                        .subscribe {
-                            // restart alarm with new conditions if necessary
-                            stopWaking()
-                            checkWakingConditions()
-                        })
+        reminderEnabled
+                .asFlow()
+                .drop(1) // skip initial value emitted right after the subscription
+                .filter { it } // if reminder enabled
+                .filter { ready.value }
+                .onEach { checkWakingConditions() }
+                .launchIn(lifecycleScope)
+
+        reminderEnabled
+                .asFlow()
+                .drop(1) // skip initial value emitted right after the subscription
+                .filter { !it } // if reminder disabled
+                .onEach { stopWaking() }
+                .launchIn(lifecycleScope)
+        flowOf(
+                reminderInterval.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Reminder interval changed") }
+                        .map { true },
+                limitReminderRepeats.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Limit reminder repeats changed") }
+                        .map { true },
+                createDismissNotification.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Create dismiss notification changed") }
+                        .map { true },
+                createDismissNotificationImmediately.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Create dismiss notification immediately changed") }
+                        .map { true },
+                reminderRepeats.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Reminder repeats changed") }
+                        .map { true },
+                forceWakeLock.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Force WakeLock changed") }
+                        .map { true },
+                selectedApplications.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Selected applications changed") }
+                        .map { true },
+                ignorePersistentNotifications.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Ignore persistent notifications changed") }
+                        .map { true },
+                respectPhoneCalls.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Respect phone calls changed") },
+                respectRingerMode.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Respect ringer mode changed") },
+                remindWhenScreenIsOn.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Remind when screen is on changed") },
+                schedulerEnabled.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Scheduler enabled changed") }
+                        .map { true },
+                schedulerMode.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Scheduler mode changed") }
+                        .map { true },
+                schedulerRangeBegin.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Scheduler range begin changed") }
+                        .map { true },
+                schedulerRangeEnd.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Scheduler range end changed") }
+                        .map { true },
+                vibrate.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Vibrate changed") },
+                vibrationPattern.asFlow()
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { Timber.d("Vibration pattern changed") },
+                ringerMode
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { v -> Timber.d("Ringer mode changed to %d", v) }
+                        .filter { respectRingerMode.get()!! }
+                        .map { true },
+                dndEnabled
+                        .drop(1) // skip initial value emitted right after the subscription
+                        .onEach { v -> Timber.d("DND mode changed to %b", v) }
+                        .filter { respectRingerMode.get()!! })
+                .flattenMerge()
+                .filter { ready.value }
+                .onEach {
+                    // restart alarm with new conditions if necessary
+                    stopWaking()
+                    checkWakingConditions()
+                }
+                .launchIn(lifecycleScope)
         // await for the service become ready event to send check waking conditions command
-        subscriptions.add(RxBindingUtils.valueChanged(ready)
+        ready
                 .filter { it }
-                .take(1)
-                .observeOn(scheduler)
-                .doOnNext { checkWakingConditions() }
-                .subscribe { actualizeNotificationData() })
+                .onEach {
+                    checkWakingConditions()
+                    actualizeNotificationData()
+                }
+                .launchIn(lifecycleScope)
         // monitor for the remind events sent via event bus
-        subscriptions.add(mEventBus.toObserverable()
+        mEventBus.toObserverable()
+                .asFlow()
                 .filter { event -> event === RemindEvents.REMIND }
-                .subscribe { pendingIntentReceiver.onReceive(applicationContext, Intent()) })
-        subscriptions.add(mEventBus.toObserverable()
+                .onEach { pendingIntentReceiver.onReceive(applicationContext, Intent()) }
+                .launchIn(lifecycleScope)
+        mEventBus.toObserverable()
+                .asFlow()
                 .filter { event: Event -> event === RemindEvents.GET_CURRENT_NOTIFICATIONS_DATA }
-                .observeOn(scheduler)
-                .subscribe { mEventBus.send(NotificationsUpdatedEvent(notificationsData)) })
+                .onEach { mEventBus.send(NotificationsUpdatedEvent(notificationsData)) }
+                .launchIn(lifecycleScope)
         initializing = false
     }
 
@@ -477,15 +468,15 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             }
             if (respectRingerMode.get()!!) {
                 // if ringer mode should be respected
-                if (ringerMode.get() == AudioManager.RINGER_MODE_SILENT) {
+                if (ringerMode.value == AudioManager.RINGER_MODE_SILENT) {
                     Timber.d("checkWakingConditions: respecting silent mode, skipping")
                     return
                 }
-                if (dndEnabled.get()) {
+                if (dndEnabled.value) {
                     Timber.d("checkWakingConditions: respecting DND mode, skipping")
                     return
                 }
-                if (ringerMode.get() == AudioManager.RINGER_MODE_VIBRATE && !vibrate.get()!!) {
+                if (ringerMode.value == AudioManager.RINGER_MODE_VIBRATE && !vibrate.get()!!) {
                     Timber.d("checkWakingConditions: respecting vibrate mode while vibration is not enabled, skipping")
                     return
                 }
@@ -544,6 +535,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     /**
      * Schedule wakeup alarm for the sound notification pending intent
      */
+    @SuppressLint("TimberArgCount")
     private fun scheduleNextWakeup(repeating: Boolean) {
         var scheduledTime: Long = 0
         if (limitReminderRepeats.get()!! && remainingRepeats-- <= 0) {
@@ -589,11 +581,11 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         Timber.d("scheduleNextWakup: called")
         if (wakeLock != null) {
             // use the manual timer action to trigger pending intent receiver instead instead of alarm manager
-            timerSubscription = Observable
-                    .just(true)
-                    .delay(timeOffset, TimeUnit.MILLISECONDS)
-                    .doOnNext { Timber.d("Wake from subscription") }
-                    .subscribe { pendingIntentReceiver.onReceive(applicationContext, Intent()) }
+            timerJob = lifecycleScope.launch {
+                delay(timeOffset)
+                Timber.d("Wake from subscription")
+                pendingIntentReceiver.onReceive(applicationContext, Intent())
+            }
         } else {
             JobRequest.Builder(RemindJob.TAG)
                     .setExact(timeOffset)
@@ -608,9 +600,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     private fun stopWaking() {
         Timber.d("stopWaking() called")
         stopWaking(false)
-        timerSubscription?.run {
-            unsubscribe()
-            timerSubscription = null
+        timerJob?.run {
+            cancel()
+            timerJob = null
         }
         // cancel any pending remind jobs
         JobManager.instance().cancelAllForTag(RemindJob.TAG)
@@ -665,12 +657,10 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         applicationContext.contentResolver.unregisterContentObserver(zenModeObserver)
         // unregister dismiss notification receiver
         unregisterReceiver(stopRemindersReceiver)
-        handler.removeCallbacksAndMessages(null)
-        subscriptions.unsubscribe()
     }
 
     override fun onNotificationPosted(notificationData: NotificationData) {
-        handler.post {
+        lifecycleScope.launch {
             Timber.d("onNotificationPosted: %s", notificationData)
             val existingElement = existingElement(notificationData)
             if (existingElement != null) {
@@ -681,7 +671,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             if (!initializing) {
                 mEventBus.send(NotificationsUpdatedEvent(notificationsData))
             }
-            if (ready.get() && selectedApplications.get()!!.contains(notificationData.packageName)) {
+            if (ready.value && selectedApplications.get()!!.contains(notificationData.packageName)) {
                 // check waking conditions only if notification has been posted for the monitored application to prevent
                 // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
                 // monitored app
@@ -709,7 +699,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     }
 
     override fun onNotificationRemoved(notificationData: NotificationData) {
-        handler.post {
+        lifecycleScope.launch {
             Timber.d("onNotificationRemoved: %s", notificationData)
             if (!availableNotifications.remove(notificationData)) {
                 Timber.w("onNotificationRemoved: removal failed")
@@ -726,7 +716,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
 
     override fun onReady() {
         Timber.d("onReady")
-        ready.set(true)
+        ready.value = true
     }
 
     /**
@@ -745,7 +735,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      * @param ignoreOngoing whether the ongoing notifications should be ignored
      * @return true if notification for at least one package is found, false otherwise
      */
-    fun checkNotificationForAtLeastOnePackageExists(packages: Collection<String>, ignoreOngoing: Boolean): Boolean {
+    private fun checkNotificationForAtLeastOnePackageExists(packages: Collection<String>, ignoreOngoing: Boolean): Boolean {
         // Remove notifications that were already cancelled to avoid memory leaks.
         val copy: List<NotificationData> = ArrayList(ignoredNotifications)
         for (ignoredNotification in copy) {
@@ -796,7 +786,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
          * Called when ringer mode is updated
          */
         private fun ringerModeUpdated() {
-            ringerMode.set(audioManager.ringerMode)
+            ringerMode.value = audioManager.ringerMode
         }
 
         init {
@@ -824,7 +814,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             try {
                 val zenMode = Settings.Global.getInt(contentResolver, "zen_mode")
                 Timber.d("zenModeUpdated: %d", zenMode)
-                dndEnabled.set(zenMode != DND_OFF)
+                dndEnabled.value = zenMode != DND_OFF
             } catch (e: SettingNotFoundException) {
                 Timber.e(e)
             }
@@ -852,7 +842,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         /**
          * The reminder subscription
          */
-        private val reminderSubscription = CompositeSubscription()
+        private var reminderSubscription: Job? = null
 
         /**
          * Reference to the current device wake lock used while vibrator is active
@@ -860,57 +850,40 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         var vibrationWakeLock: WakeLock? = null
 
         override fun onReceive(context: Context, intent: Intent) {
-            handler.post {
+            reminderSubscription = lifecycleScope.launch {
                 Timber.d("onReceive: current thread %1\$s", Thread.currentThread().name)
                 if (!active.get()) {
                     Timber.w("onReceive: Invalid service activity state, stopping reminder")
                     stopWaking(true)
-                    return@post
+                    return@launch
                 }
                 if (!remindWhenScreenIsOn.get()!! && isScreenOn(applicationContext)) {
                     Timber.d("onReceive: The screen is on and remind when screen is on is not specified, skip notification")
                 } else if (PhoneStateUtils.isCallActive(applicationContext) && respectPhoneCalls.get()!!) {
                     Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification")
                 } else {
-                    Timber.d("onReceive: The screen is off, notify")
-                    interruptReminderIfActive()
-                    val playbackCompleted = playReminderCompletable()
-                    val vibrationCompletedAtLeastOnce: Completable
-                    // Start without a delay
-                    // Each element then alternates between vibrate, sleep, vibrate, sleep...
-                    if (vibrate.get()!! && (!respectRingerMode.get()!! || ringerMode.get() != AudioManager.RINGER_MODE_SILENT)) {
-                        // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
-                        val pattern = parseVibrationPattern(vibrationPattern.get()!!)
-                        vibrationCompletedAtLeastOnce = Single.fromCallable {
-                            var vibrationDuration: Long = 0
-                            for (step in pattern) {
-                                vibrationDuration += step
-                            }
-                            vibrationWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                                    "MissedNotificationsReminder:VIBRATOR_LOCK").apply { acquire(2 * vibrationDuration) }
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0))
-                            } else {
-                                @Suppress("DEPRECATION")
-                                vibrator.vibrate(pattern, 0)
-                            }
-                            Timber.d("Minimum vibration duration: %d", vibrationDuration)
-                            vibrationDuration
+                    try {
+                        Timber.d("onReceive: The screen is off, notify")
+                        interruptReminderIfActive()
+                        val playbackCompleted = async { playReminder() }
+                        // Start without a delay
+                        // Each element then alternates between vibrate, sleep, vibrate, sleep...
+                        val vibrationCompletedAtLeastOnce = if (vibrate.get()!! && (!respectRingerMode.get()!! || ringerMode.value != AudioManager.RINGER_MODE_SILENT)) {
+                            // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
+                            async { vibrateAtLeastOnce(vibrationPattern.get()!!) }
+                        } else {
+                            async {}
                         }
-                                .flatMapCompletable { vibrationDuration -> Completable.timer(vibrationDuration, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) }
-                                .doOnError { t -> Timber.e(t) }
-                                .onErrorComplete()
-                                .doOnCompleted { Timber.d("Minimum vibration completed") }
-                    } else {
-                        vibrationCompletedAtLeastOnce = Completable.complete()
+                        // await for both playback and minimum vibration duration to complete
+                        playbackCompleted.await()
+                        vibrationCompletedAtLeastOnce.await()
+                        reminderCompleted()
+                        Timber.d("Reminder completed")
+                    } finally {
+                        if (coroutineContext[Job]?.isCancelled != false) {
+                            cancelVibrator()
+                        }
                     }
-                    // await for both playback and minimum vibration duration to complete
-                    reminderSubscription.add(Completable.merge(
-                            playbackCompleted,
-                            vibrationCompletedAtLeastOnce)
-                            .doOnCompleted { reminderCompleted() }
-                            .doOnUnsubscribe { cancelVibrator() }
-                            .subscribe { Timber.d("Reminder completed") })
                 }
             }
         }
@@ -938,73 +911,96 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             }
         }
 
-        private fun playReminderCompletable(): Completable {
-            return Observable.amb(
-                    Completable.timer(5, TimeUnit.SECONDS)
-                            .andThen(Observable.error(Error("onReceive: media player initializes too long, didn't receive onComplete for 5 seconds."))),
-                    Observable.create({ emitter: Emitter<Any> ->
-                        try {
-                            mediaPlayer.reset()
-                            // use alternative stream if respect ringer mode is disabled
-                            val streamType = if (respectRingerMode.get()!!) AudioManager.STREAM_NOTIFICATION else AudioManager.STREAM_ALARM
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                mediaPlayer.setAudioAttributes(AudioAttributes.Builder()
-                                        .setLegacyStreamType(streamType)
-                                        .build())
-                            } else {
-                                @Suppress("DEPRECATION")
-                                mediaPlayer.setAudioStreamType(streamType)
-                            }
-                            if (respectRingerMode.get()!! && (ringerMode.get() == AudioManager.RINGER_MODE_VIBRATE || ringerMode.get() == AudioManager.RINGER_MODE_SILENT)) {
-                                // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
-                                mediaPlayer.setVolume(0f, 0f)
-                            } else {
-                                mediaPlayer.setVolume(1f, 1f)
-                            }
-                            mediaPlayer.setOnErrorListener { mp, what, extra ->
-                                Timber.e("MediaPlayer error %1\$d %2\$d", what, extra)
-                                emitter.onError(Error(String.format("MediaPlayer error %1\$d %2\$d", what, extra)))
-                                false
-                            }
-                            mediaPlayer.setOnCompletionListener {
-                                Timber.d("completion")
-                                emitter.onCompleted()
-                            }
-                            emitter.setCancellation {
-                                Timber.d("cancellation 1")
-                                if (mediaPlayer.isPlaying) {
-                                    mediaPlayer.stop()
-                                }
-                                mediaPlayer.setOnCompletionListener(null)
-                                mediaPlayer.setOnErrorListener(null)
-                                mediaPlayer.setOnPreparedListener(null)
-                            }
-                            // get the selected notification sound URI
-                            val ringtone = reminderRingtone.get()
-                            if (TextUtils.isEmpty(ringtone)) {
-                                Timber.w("The reminder ringtone is not specified. Skip playing")
-                                emitter.onCompleted()
-                            } else {
-                                Timber.d("onReceive: ringtone %1\$s", ringtone)
-                                val notification = Uri.parse(ringtone)
-                                mediaPlayer.setOnPreparedListener {
-                                    Timber.d("MediaPlayer prepared")
-                                    mediaPlayer.start()
-                                    emitter.onNext(notification)
-                                }
-                                mediaPlayer.setDataSource(applicationContext, notification)
-                                mediaPlayer.prepareAsync()
-                            }
-                        } catch (ex: Exception) {
-                            Timber.e(ex)
-                            emitter.onError(ex)
+        private suspend fun vibrateAtLeastOnce(rawPattern: String) {
+            try {
+                var vibrationDuration: Long = 0
+                val pattern = parseVibrationPattern(rawPattern)
+                for (step in pattern) {
+                    vibrationDuration += step
+                }
+                vibrationWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                        "MissedNotificationsReminder:VIBRATOR_LOCK").apply { acquire(2 * vibrationDuration) }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(pattern, 0)
+                }
+                Timber.d("Minimum vibration duration: %d", vibrationDuration)
+                delay(vibrationDuration)
+                Timber.d("Minimum vibration completed")
+            } catch (ex: Exception) {
+                Timber.e(ex)
+            }
+        }
+
+        private suspend fun playReminder() {
+            callbackFlow<Any> {
+                try {
+                    mediaPlayer.reset()
+                    // use alternative stream if respect ringer mode is disabled
+                    val streamType = if (respectRingerMode.get()!!) AudioManager.STREAM_NOTIFICATION else AudioManager.STREAM_ALARM
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        mediaPlayer.setAudioAttributes(AudioAttributes.Builder()
+                                .setLegacyStreamType(streamType)
+                                .build())
+                    } else {
+                        @Suppress("DEPRECATION")
+                        mediaPlayer.setAudioStreamType(streamType)
+                    }
+                    if (respectRingerMode.get()!! && (ringerMode.value == AudioManager.RINGER_MODE_VIBRATE || ringerMode.value == AudioManager.RINGER_MODE_SILENT)) {
+                        // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
+                        mediaPlayer.setVolume(0f, 0f)
+                    } else {
+                        mediaPlayer.setVolume(1f, 1f)
+                    }
+                    mediaPlayer.setOnErrorListener { _, what, extra ->
+                        Timber.e("MediaPlayer error %1\$d %2\$d", what, extra)
+                        close(Error(String.format("MediaPlayer error %1\$d %2\$d", what, extra)))
+                        false
+                    }
+                    mediaPlayer.setOnCompletionListener {
+                        Timber.d("completion")
+                        close()
+                    }
+                    // get the selected notification sound URI
+                    val ringtone = reminderRingtone.get()
+                    if (TextUtils.isEmpty(ringtone)) {
+                        Timber.w("The reminder ringtone is not specified. Skip playing")
+                        close()
+                    } else {
+                        Timber.d("onReceive: ringtone %1\$s", ringtone)
+                        val notification = Uri.parse(ringtone)
+                        mediaPlayer.setOnPreparedListener {
+                            Timber.d("MediaPlayer prepared")
+                            mediaPlayer.start()
+                            offer(notification)
                         }
-                    }, Emitter.BackpressureMode.NONE))
-                    .share()
-                    .toCompletable()
-                    .doOnError { t: Throwable? -> Timber.e(t) }
-                    .onErrorComplete()
-                    .doOnCompleted { Timber.d("Playback completed") }
+                        mediaPlayer.setDataSource(applicationContext, notification)
+                        mediaPlayer.prepareAsync()
+                    }
+                } catch (ex: Exception) {
+                    Timber.e(ex)
+                    close(ex)
+                }
+                awaitClose {
+                    Timber.d("playReminder: close")
+                    if (mediaPlayer.isPlaying) {
+                        mediaPlayer.stop()
+                    }
+                    mediaPlayer.setOnCompletionListener(null)
+                    mediaPlayer.setOnErrorListener(null)
+                    mediaPlayer.setOnPreparedListener(null)
+                }
+            }
+                    .ambWith(flow {
+                        delay(5000)
+                        throw Error("onReceive: media player initializes too long, didn't receive onComplete for 5 seconds.")
+                    })
+                    .catch { t: Throwable? -> Timber.e(t) }
+                    .onCompletion { Timber.d("Playback completed") }
+                    .launchIn(lifecycleScope)
+                    .join()
         }
 
         private fun parseVibrationPattern(rawPattern: String): LongArray {
@@ -1047,7 +1043,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
          * Interrupt previously started reminder if it is active
          */
         fun interruptReminderIfActive() {
-            reminderSubscription.clear()
+            reminderSubscription?.cancel()
         }
     }
 
@@ -1057,7 +1053,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      */
     internal inner class StopRemindersReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            handler.post {
+            lifecycleScope.launch {
                 Timber.d("dismiss notification cancelled")
                 ignoreAllCurrentNotifications()
                 stopWaking()
