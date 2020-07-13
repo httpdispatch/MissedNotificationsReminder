@@ -16,8 +16,8 @@
             type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
 
         <variable
-            name="model"
-            type="com.app.missednotificationsreminder.settings.ApplicationsSettingsViewModel"/>
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.applicationssettings.ApplicationsSettingsViewState&gt;"/>
     </data>
 
     <androidx.cardview.widget.CardView
@@ -58,59 +58,63 @@
                         style="@style/Label"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@{model != null &amp;&amp; model.ignorePersistentNotifications.get() ? @string/ignore_persistent_notifications_enabled : @string/ignore_persistent_notifications_disabled}"/>
+                        android:text="@{viewState.ignorePersistentNotifications ? @string/ignore_persistent_notifications_enabled : @string/ignore_persistent_notifications_disabled}"/>
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textOff="@string/ignore_persistent_notifications_disabled"
                         android:textOn="@string/ignore_persistent_notifications_enabled"
-                        tools:binding="@{model.ignorePersistentNotifications}"/>
+                        android:checked="@{viewState.ignorePersistentNotifications}"
+                        android:onCheckedChanged="@{(v, checked) -> fragment.ignorePersistentNotificationsChanged(checked)}"/>
 
                     <TextView
                         style="@style/Label"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@{model != null &amp;&amp; model.remindWhenScreenIsOn.get() ? @string/remind_when_screen_is_on_enabled : @string/remind_when_screen_is_on_disabled}"/>
+                        android:text="@{viewState.remindWhenScreenIsOn ? @string/remind_when_screen_is_on_enabled : @string/remind_when_screen_is_on_disabled}"/>
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textOff="@string/remind_when_screen_is_on_disabled"
                         android:textOn="@string/remind_when_screen_is_on_enabled"
-                        tools:binding="@{model.remindWhenScreenIsOn}"/>
+                        android:checked="@{viewState.remindWhenScreenIsOn}"
+                        android:onCheckedChanged="@{(v, checked) -> fragment.remindWhenScreenIsOnChanged(checked)}"/>
 
                     <TextView
                         style="@style/Label"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@{model != null &amp;&amp; model.respectPhoneCalls.get() ? @string/respect_phone_calls_enabled : @string/respect_phone_calls_disabled}"/>
+                        android:text="@{viewState.respectPhoneCalls ? @string/respect_phone_calls_enabled : @string/respect_phone_calls_disabled}"/>
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textOff="@string/respect_phone_calls_disabled"
                         android:textOn="@string/respect_phone_calls_enabled"
-                        tools:binding="@{model.respectPhoneCalls}"/>
+                        android:checked="@{viewState.respectPhoneCalls}"
+                        android:onCheckedChanged="@{(v, checked) -> fragment.respectPhoneCallsChanged(checked)}"/>
 
                     <TextView
                         style="@style/Label"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@{model != null &amp;&amp; model.respectRingerMode.get() ? @string/respect_ringer_mode_enabled : @string/respect_ringer_mode_disabled}"/>
+                        android:text="@{viewState.respectRingerMode ? @string/respect_ringer_mode_enabled : @string/respect_ringer_mode_disabled}"/>
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textOff="@string/respect_ringer_mode_disabled"
                         android:textOn="@string/respect_ringer_mode_enabled"
-                        tools:binding="@{model.respectRingerMode}"/>
+                        android:checked="@{viewState.respectRingerMode}"
+                        android:onCheckedChanged="@{(v, checked) -> fragment.respectRingerModeChanged(checked)}"/>
                 </LinearLayout>
 
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="@{fragment::onSelectApplicationsButtonClicked}"
+                    android:onClick="@{v -> fragment.onSelectApplicationsButtonClicked()}"
                     android:text="@string/settings_applications_select_button"/>
 
             </LinearLayout>

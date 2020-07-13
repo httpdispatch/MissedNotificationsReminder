@@ -4,30 +4,46 @@ import android.content.ActivityNotFoundException
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.fragment.findNavController
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.databinding.SettingsViewBinding
+import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
-import com.app.missednotificationsreminder.settings.sound.SoundFragment
+import com.app.missednotificationsreminder.settings.applicationssettings.ApplicationsSettingsViewModel
+import com.app.missednotificationsreminder.settings.applicationssettings.ApplicationsSettingsViewStatePartialChanges
 import com.app.missednotificationsreminder.settings.reminder.ReminderFragment
 import com.app.missednotificationsreminder.settings.scheduler.SchedulerFragment
+import com.app.missednotificationsreminder.settings.sound.SoundFragment
 import com.app.missednotificationsreminder.settings.vibration.VibrationFragment
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel
 import com.app.missednotificationsreminder.util.BatteryUtils
 import com.jakewharton.u2020.data.LumberYard
 import com.jakewharton.u2020.ui.logs.LogsDialog
+import dagger.Binds
 import dagger.android.ContributesAndroidInjector
+import dagger.multibindings.IntoMap
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import timber.log.Timber
 import javax.inject.Inject
 
 /**
  * Fragment which displays other settings view
- *
- * @author Eugene Popovich
  */
+@ExperimentalCoroutinesApi
+@FlowPreview
 class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val applicationsSettingsModel by viewModels<ApplicationsSettingsViewModel> { viewModelFactory }
+
     @Inject
     lateinit var _model: SettingsViewModel
 
@@ -53,13 +69,18 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
     }
 
     private fun init() {
+        // Set the lifecycle owner to the lifecycle of the view
+        mBinding.lifecycleOwner = this.viewLifecycleOwner
+
         mBinding.model = model
+        mBinding.applicationsSettingsViewState = applicationsSettingsModel.viewState.asLiveData()
         mBinding.fragment = this
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         mBinding.model = null
+        mBinding.applicationsSettingsViewState = null
         mBinding.fragment = null
     }
 
@@ -102,10 +123,21 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
      *
      * @param v
      */
-    fun onSelectApplicationsButtonClicked(v: View?) {
+    fun onSelectApplicationsButtonClicked() {
         findNavController().navigate(ActionOnlyNavDirections(R.id.action_settingsFragment_to_applicationsSelectionFragment))
     }
 
+    fun ignorePersistentNotificationsChanged(checked: Boolean) =
+            applicationsSettingsModel.process(ApplicationsSettingsViewStatePartialChanges.IgnorePersistentNotificationsChange(checked))
+
+    fun respectPhoneCallsChanged(checked: Boolean) =
+            applicationsSettingsModel.process(ApplicationsSettingsViewStatePartialChanges.RespectPhoneCallsChange(checked))
+
+    fun respectRingerModeChanged(checked: Boolean) =
+            applicationsSettingsModel.process(ApplicationsSettingsViewStatePartialChanges.RespectRingerModeChange(checked))
+
+    fun remindWhenScreenIsOnChanged(checked: Boolean) =
+            applicationsSettingsModel.process(ApplicationsSettingsViewStatePartialChanges.RemindWhenScreenIsOnChange(checked))
 
     /**
      * Method which is called when the manage access button is clicked. It launches the system
@@ -155,6 +187,13 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
                     SoundFragment.Module::class,
                     VibrationFragment.Module::class])
         abstract fun contribute(): SettingsFragment
+
+
+        @FlowPreview
+        @Binds
+        @IntoMap
+        @ViewModelKey(ApplicationsSettingsViewModel::class)
+        internal abstract fun bindViewModel(viewmodel: ApplicationsSettingsViewModel): ViewModel
     }
 
     @dagger.Module

@@ -14,6 +14,10 @@
         <variable
             name="model"
             type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
+
+        <variable
+            name="applicationsSettingsViewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.applicationssettings.ApplicationsSettingsViewState&gt;" />
     </data>
 
     <androidx.core.widget.NestedScrollView
@@ -46,7 +50,7 @@
                     layout="@layout/settings_view_card_apps"
                     tools:fragment="@{fragment}"
                     tools:parentModel="@{model}"
-                    tools:model="@{model.applicationsSettingsModel}"/>
+                    tools:viewState="@{applicationsSettingsViewState}"/>
 
                 <androidx.legacy.widget.Space
                     android:layout_width="match_parent"

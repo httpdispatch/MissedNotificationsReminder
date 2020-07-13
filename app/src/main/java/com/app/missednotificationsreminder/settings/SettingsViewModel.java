@@ -64,14 +64,9 @@ public class SettingsViewModel extends BaseViewModel {
      * The vibrator instance
      */
     final Vibrator mVibrator;
-    /**
-     * The nested applications settings view model
-     */
-    public final ApplicationsSettingsViewModel applicationsSettingsModel;
 
-    @Inject public SettingsViewModel(ApplicationsSettingsViewModel applicationsSettingsModel, Vibrator vibrator) {
+    @Inject public SettingsViewModel(Vibrator vibrator) {
         mVibrator = vibrator;
-        this.applicationsSettingsModel = applicationsSettingsModel;
     }
 
     /**
@@ -133,15 +128,8 @@ public class SettingsViewModel extends BaseViewModel {
 
     /**
      * Data binding method used to determine whether to display battery optimization settings
-     *
-     * @return
      */
     public boolean isBatteryOptimizationSettingsVisible() {
         return BatteryUtils.isBatteryOptimizationSettingsAvailable();
-    }
-
-    @Override public void shutdown() {
-        super.shutdown();
-        applicationsSettingsModel.shutdown();
     }
 }
