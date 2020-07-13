@@ -37,7 +37,7 @@
                 android:orientation="vertical">
 
                 <include
-                    layout="@layout/settings_view_card_access"
+                    layout="@layout/view_settings_card_access"
                     tools:fragment="@{fragment}"
                     tools:model="@{model}"/>
 
@@ -47,7 +47,7 @@
                     android:visibility="@{TextUtils.isEmpty(model.missingPermissions.get()) ? View.GONE : View.VISIBLE}"/>
 
                 <include
-                    layout="@layout/settings_view_permissions"
+                    layout="@layout/view_settings_permissions"
                     tools:fragment="@{fragment}"
                     tools:model="@{model}"/>
 
@@ -57,7 +57,7 @@
                     android:visibility="@{model.isBatteryOptimizationSettingsVisible ? View.VISIBLE : View.GONE}"/>
 
                 <include
-                    layout="@layout/settings_view_battery_optimization"
+                    layout="@layout/view_settings_battery_optimization"
                     tools:fragment="@{fragment}"
                     tools:model="@{model}"/>
 
@@ -73,7 +73,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <include layout="@layout/settings_view_card_reminder"/>
+                <include layout="@layout/view_settings_card_reminder"/>
 
                 <androidx.legacy.widget.Space
                     android:layout_width="match_parent"
@@ -81,7 +81,7 @@
                     android:visibility="@{model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
 
                 <include
-                    layout="@layout/settings_view_card_scheduler"
+                    layout="@layout/view_settings_card_scheduler"
                     tools:model="@{model}"/>
 
             </LinearLayout>
@@ -97,7 +97,7 @@
                 android:orientation="vertical">
 
                 <include
-                    layout="@layout/settings_view_card_apps"
+                    layout="@layout/view_settings_card_apps"
                     tools:fragment="@{fragment}"
                     tools:parentModel="@{model}"
                     tools:viewState="@{applicationsSettingsViewState}"/>
@@ -108,7 +108,7 @@
                     android:visibility="@{model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
 
                 <include
-                    layout="@layout/settings_view_card_sound"
+                    layout="@layout/view_settings_card_sound"
                     tools:model="@{model}"/>
 
                 <androidx.legacy.widget.Space
@@ -117,7 +117,7 @@
                     android:visibility="@{model != null &amp;&amp; model.advancedSettingsVisible.get() &amp;&amp; model.vibrationSettingsVisible.get() ? View.VISIBLE : View.GONE}"/>
 
                 <include
-                    layout="@layout/settings_view_card_vibration"
+                    layout="@layout/view_settings_card_vibration"
                     tools:model="@{model}"/>
 
             </LinearLayout>

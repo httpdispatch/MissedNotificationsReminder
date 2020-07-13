@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.app.missednotificationsreminder.binding.util.BindableObject;
-import com.app.missednotificationsreminder.databinding.SchedulerViewBinding;
+import com.app.missednotificationsreminder.databinding.FragmentSchedulerBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 import com.app.missednotificationsreminder.util.TimeUtils;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -24,7 +24,7 @@ import dagger.android.ContributesAndroidInjector;
 public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerViewModel> {
 
     @Inject SchedulerViewModel model;
-    SchedulerViewBinding mBinding;
+    FragmentSchedulerBinding mBinding;
 
     @Override public SchedulerViewModel getModel() {
         return model;
@@ -34,7 +34,7 @@ public class SchedulerFragment extends CommonFragmentWithViewModel<SchedulerView
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        mBinding = SchedulerViewBinding.inflate(inflater, container, false);
+        mBinding = FragmentSchedulerBinding.inflate(inflater, container, false);
         return mBinding.getRoot();
     }
 

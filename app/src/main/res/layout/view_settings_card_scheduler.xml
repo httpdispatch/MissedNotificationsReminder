@@ -44,7 +44,7 @@
                     android:name="com.app.missednotificationsreminder.settings.scheduler.SchedulerFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout="@layout/scheduler_view"/>
+                    tools:layout="@layout/fragment_scheduler"/>
             </FrameLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -11,7 +11,7 @@ import androidx.lifecycle.asLiveData
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.fragment.findNavController
 import com.app.missednotificationsreminder.R
-import com.app.missednotificationsreminder.databinding.SettingsViewBinding
+import com.app.missednotificationsreminder.databinding.FragmentSettingsBinding
 import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
@@ -49,7 +49,7 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
 
     @Inject
     lateinit var lumberYard: LumberYard
-    lateinit var mBinding: SettingsViewBinding
+    lateinit var mBinding: FragmentSettingsBinding
 
     override fun getModel(): SettingsViewModel {
         return _model
@@ -58,7 +58,7 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        mBinding = SettingsViewBinding.inflate(inflater, container, false)
+        mBinding = FragmentSettingsBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
         return mBinding.root
     }

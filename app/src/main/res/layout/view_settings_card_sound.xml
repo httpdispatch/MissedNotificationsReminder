@@ -4,6 +4,7 @@
         tools:context=".settings.MainActivity">
 
     <data>
+
         <import type="android.view.View"/>
 
         <variable
@@ -15,7 +16,7 @@
         style="@style/SettingsCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{model != null &amp;&amp; model.advancedSettingsVisible.get() &amp;&amp; model.vibrationSettingsVisible.get() ? View.VISIBLE : View.GONE}">
+        android:visibility="@{model.advancedSettingsVisible != null &amp;&amp; model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,25 +27,19 @@
                 style="@style/CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_vibration"/>
+                android:text="@string/settings_sound"/>
 
             <View
                 style="@style/CardTitleSeparator"
                 android:layout_width="match_parent"
                 android:layout_height="1dip"/>
 
-            <FrameLayout
-                style="@style/CardContent"
+            <fragment
+                android:id="@+id/sound_fragment"
+                android:name="com.app.missednotificationsreminder.settings.sound.SoundFragment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <fragment
-                    android:id="@+id/vibration_fragment"
-                    android:name="com.app.missednotificationsreminder.settings.vibration.VibrationFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:layout="@layout/vibration_view"/>
-            </FrameLayout>
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_sound"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

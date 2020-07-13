@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.app.missednotificationsreminder.R;
-import com.app.missednotificationsreminder.databinding.SoundViewBinding;
+import com.app.missednotificationsreminder.databinding.FragmentSoundBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 
 import javax.inject.Inject;
@@ -30,7 +30,7 @@ public class SoundFragment extends CommonFragmentWithViewModel<SoundViewModel> {
     static final int SELECT_RINGTONE_REQUEST_CODE = 0;
 
     @Inject SoundViewModel model;
-    SoundViewBinding mBinding;
+    FragmentSoundBinding mBinding;
 
     @Override public SoundViewModel getModel() {
         return model;
@@ -40,7 +40,7 @@ public class SoundFragment extends CommonFragmentWithViewModel<SoundViewModel> {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        mBinding = SoundViewBinding.inflate(inflater, container, false);
+        mBinding = FragmentSoundBinding.inflate(inflater, container, false);
         return mBinding.getRoot();
     }
 

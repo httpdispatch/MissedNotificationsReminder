@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.app.missednotificationsreminder.databinding.VibrationViewBinding;
+import com.app.missednotificationsreminder.databinding.FragmentVibrationBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ import dagger.android.ContributesAndroidInjector;
  */
 public class VibrationFragment extends CommonFragmentWithViewModel<VibrationViewModel> {
     @Inject VibrationViewModel model;
-    VibrationViewBinding mBinding;
+    FragmentVibrationBinding mBinding;
 
     @Override public VibrationViewModel getModel() {
         return model;
@@ -29,7 +29,7 @@ public class VibrationFragment extends CommonFragmentWithViewModel<VibrationView
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        mBinding = VibrationViewBinding.inflate(inflater, container, false);
+        mBinding = FragmentVibrationBinding.inflate(inflater, container, false);
         return mBinding.getRoot();
     }
 

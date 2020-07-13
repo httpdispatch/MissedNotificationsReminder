@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.missednotificationsreminder.R
-import com.app.missednotificationsreminder.databinding.ApplicationsSelectionViewBinding
+import com.app.missednotificationsreminder.databinding.FragmentApplicationsSelectionBinding
 import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
@@ -31,8 +31,8 @@ import javax.inject.Inject
  *
  * @author Eugene Popovich
  */
-class ApplicationsSelectionFragment : CommonFragmentWithViewBinding<ApplicationsSelectionViewBinding>(
-        R.layout.applications_selection_view) {
+class ApplicationsSelectionFragment : CommonFragmentWithViewBinding<FragmentApplicationsSelectionBinding>(
+        R.layout.fragment_applications_selection) {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 

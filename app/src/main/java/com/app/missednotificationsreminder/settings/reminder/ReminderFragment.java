@@ -5,8 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.app.missednotificationsreminder.databinding.FragmentReminderBinding;
 import com.app.missednotificationsreminder.settings.SettingsViewModel;
-import com.app.missednotificationsreminder.databinding.ReminderViewBinding;
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ public class ReminderFragment extends CommonFragmentWithViewModel<ReminderViewMo
     @Inject
     ReminderViewModel model;
     @Inject SettingsViewModel parentModel;
-    ReminderViewBinding mBinding;
+    FragmentReminderBinding mBinding;
 
     @Override public ReminderViewModel getModel() {
         return model;
@@ -33,7 +33,7 @@ public class ReminderFragment extends CommonFragmentWithViewModel<ReminderViewMo
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        mBinding = ReminderViewBinding.inflate(inflater, container, false);
+        mBinding = FragmentReminderBinding.inflate(inflater, container, false);
         return mBinding.getRoot();
     }
 

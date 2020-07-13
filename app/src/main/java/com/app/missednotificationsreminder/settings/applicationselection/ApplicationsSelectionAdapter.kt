@@ -7,7 +7,7 @@ import androidx.core.util.ObjectsCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
-import com.app.missednotificationsreminder.databinding.ApplicationSelectableItemViewBinding
+import com.app.missednotificationsreminder.databinding.ItemSelectableApplicationBinding
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
 import com.squareup.picasso.Picasso
@@ -16,7 +16,6 @@ import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -66,7 +65,7 @@ class ApplicationsSelectionAdapter @Inject constructor(
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
         val inflater = LayoutInflater.from(viewGroup.context)
-        val binding = ApplicationSelectableItemViewBinding.inflate(inflater, viewGroup, false)
+        val binding = ItemSelectableApplicationBinding.inflate(inflater, viewGroup, false)
         return ViewHolder(binding)
     }
 
@@ -85,7 +84,7 @@ class ApplicationsSelectionAdapter @Inject constructor(
     /**
      * View holder implementation for this adapter
      */
-    inner class ViewHolder(var binding: ApplicationSelectableItemViewBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(var binding: ItemSelectableApplicationBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bindTo(item: ApplicationItem) {
             binding.model = ApplicationItemViewModel(item,
                     picasso,

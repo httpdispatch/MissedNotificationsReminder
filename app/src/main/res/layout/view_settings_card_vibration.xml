@@ -4,13 +4,18 @@
         tools:context=".settings.MainActivity">
 
     <data>
+        <import type="android.view.View"/>
 
+        <variable
+            name="model"
+            type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
     </data>
 
     <androidx.cardview.widget.CardView
         style="@style/SettingsCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="@{model != null &amp;&amp; model.advancedSettingsVisible.get() &amp;&amp; model.vibrationSettingsVisible.get() ? View.VISIBLE : View.GONE}">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,7 +26,7 @@
                 style="@style/CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_reminder"/>
+                android:text="@string/settings_vibration"/>
 
             <View
                 style="@style/CardTitleSeparator"
@@ -34,11 +39,11 @@
                 android:layout_height="wrap_content">
 
                 <fragment
-                    android:id="@+id/reminder_fragment"
-                    android:name="com.app.missednotificationsreminder.settings.reminder.ReminderFragment"
+                    android:id="@+id/vibration_fragment"
+                    android:name="com.app.missednotificationsreminder.settings.vibration.VibrationFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout="@layout/reminder_view"/>
+                    tools:layout="@layout/fragment_vibration"/>
             </FrameLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

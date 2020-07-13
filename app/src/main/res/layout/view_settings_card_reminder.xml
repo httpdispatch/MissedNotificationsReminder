@@ -5,18 +5,12 @@
 
     <data>
 
-        <import type="android.view.View"/>
-
-        <variable
-            name="model"
-            type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
     </data>
 
     <androidx.cardview.widget.CardView
         style="@style/SettingsCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="@{model.advancedSettingsVisible != null &amp;&amp; model.advancedSettingsVisible.get() ? View.VISIBLE : View.GONE}">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,19 +21,25 @@
                 style="@style/CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_sound"/>
+                android:text="@string/settings_reminder"/>
 
             <View
                 style="@style/CardTitleSeparator"
                 android:layout_width="match_parent"
                 android:layout_height="1dip"/>
 
-            <fragment
-                android:id="@+id/sound_fragment"
-                android:name="com.app.missednotificationsreminder.settings.sound.SoundFragment"
+            <FrameLayout
+                style="@style/CardContent"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:layout="@layout/sound_view"/>
+                android:layout_height="wrap_content">
+
+                <fragment
+                    android:id="@+id/reminder_fragment"
+                    android:name="com.app.missednotificationsreminder.settings.reminder.ReminderFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:layout="@layout/fragment_reminder"/>
+            </FrameLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
