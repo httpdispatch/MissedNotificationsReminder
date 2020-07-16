@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.binding.model.BaseViewModel
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.service.data.model.NotificationData
-import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.app.missednotificationsreminder.util.asFlow
 import com.f2prateek.rx.preferences.Preference
@@ -33,10 +32,6 @@ class ApplicationsSelectionViewModel @Inject constructor(
     @ExperimentalCoroutinesApi
     val viewState: StateFlow<ViewState> = _viewState
 
-    init {
-        // initialize data loading
-    }
-
     /**
      * Load the application data to the view
      */
@@ -47,18 +42,18 @@ class ApplicationsSelectionViewModel @Inject constructor(
             Timber.d("loadData: already loading, return")
             return
         }
-        _viewState.value = _viewState.value.copy(loadingStatus = LoadingStatus.Loading)
+        _viewState.apply { value = value.copy(loadingStatus = LoadingStatus.Loading) }
         notificationDataObservable
                 .asFlow()
                 .take(1)
                 .map { ApplicationsSelectionAdapter.getNotificationCountData(it) }
                 .map { notificationsCountInfo ->
-                    val result: MutableList<ApplicationItem> = ArrayList()
+                    val result: MutableList<ApplicationItemViewState> = ArrayList()
                     val packages = packageManager.getInstalledPackages(0)
                     val selectedApplications = selectedApplicationsPref.get() ?: emptySet()
                     for (packageInfo in packages) {
                         val selected = selectedApplications.contains(packageInfo.packageName)
-                        result.add(ApplicationItem(
+                        result.add(ApplicationItemViewState(
                                 checked = selected,
                                 applicationName = packageInfo.applicationInfo.loadLabel(packageManager),
                                 packageName = packageInfo.packageName,
@@ -74,16 +69,16 @@ class ApplicationsSelectionViewModel @Inject constructor(
                 .flowOn(Dispatchers.IO)
                 .catch { t ->
                     Timber.e(t, "Unexpected error")
-                    _viewState.value = _viewState.value.copy(loadingStatus = LoadingStatus.Error)
+                    _viewState.apply { value = value.copy(loadingStatus = LoadingStatus.Error) }
                 }
                 .onEach {
-                    _viewState.value = _viewState.value.copy(loadingStatus = LoadingStatus.NotStarted, data = it)
+                    _viewState.apply { value = value.copy(loadingStatus = LoadingStatus.NotStarted, data = it) }
                 }
                 .launchIn(viewModelScope)
     }
 }
 
-data class ViewState(val loadingStatus: LoadingStatus, val data: List<ApplicationItem>)
+data class ViewState(val loadingStatus: LoadingStatus, val data: List<ApplicationItemViewState>)
 
 sealed class LoadingStatus {
     object NotStarted : LoadingStatus()

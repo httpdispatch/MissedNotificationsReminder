@@ -1,12 +1,11 @@
 package com.app.missednotificationsreminder.settings.applicationselection
 
-import android.view.View
 import com.app.missednotificationsreminder.binding.model.BaseViewModel
-import com.app.missednotificationsreminder.binding.util.BindableBoolean
-import com.app.missednotificationsreminder.binding.util.RxBindingUtils
-import com.app.missednotificationsreminder.settings.applicationselection.data.model.ApplicationItem
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.RequestCreator
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 
 /**
@@ -14,91 +13,41 @@ import timber.log.Timber
  *
  * @property applicationItem                        the current application item
  * @property picasso
- * @property applicationCheckedStateChangedListener the listener to subscribe to the on checked
  * state changed event
  */
+@ExperimentalCoroutinesApi
 class ApplicationItemViewModel(
-        private val applicationItem: ApplicationItem,
-        private val picasso: Picasso,
-        private val applicationCheckedStateChangedListener: ApplicationCheckedStateChangedListener) : BaseViewModel() {
-    /**
-     * Data binding field to store application checked state
-     */
-    val checked = BindableBoolean()
-
-    /**
-     * Get the application name
-     *
-     * @return
-     */
-    val name: CharSequence
-        get() {
-            Timber.d("getName for %1\$s", toString())
-            return applicationItem.applicationName
-        }
-
-    /**
-     * Get the application description
-     *
-     * @return
-     */
-    val description: String
-        get() {
-            Timber.d("getDescription for %1\$s", toString())
-            return applicationItem.packageName
-        }
+        private val applicationItem: ApplicationItemViewState,
+        private val picasso: Picasso) : BaseViewModel() {
+    private val _viewState = MutableStateFlow(applicationItem)
+    val viewState: StateFlow<ApplicationItemViewState> = _viewState
 
     /**
      * Get the application icon request
      *
      * @return
      */
-    val icon: RequestCreator
-        get() {
-            Timber.d("getIcon for %1\$s", toString())
-            return picasso.load(applicationItem.iconUri)
-                    .fit()
-        }
-
-    fun hasActiveNotifications(): Boolean {
-        return applicationItem.activeNotifications > 0
+    val icon: RequestCreator by lazy {
+        Timber.d("getIcon for %1\$s", toString())
+        picasso.load(applicationItem.iconUri)
+                .fit()
     }
 
-    fun activeNotifications(): String {
-        return applicationItem.activeNotifications.toString()
+    fun process(event: ApplicationItemViewStatePartialChanges) {
+        Timber.d("process() called: with event=${event}")
+        _viewState.value = event.reduce(_viewState.value)
     }
 
     /**
      * Reverse checked state. Called when the application item clicked. Method binded directly in
      * the layout xml
-     *
-     * @param v
      */
-    fun onItemClicked(v: View?) {
+    fun onItemClicked() {
         Timber.d("onItemClicked for %1\$s", toString())
-        checked.set(!checked.get())
+        process(ApplicationItemViewStatePartialChanges.CheckedStateChange(!_viewState.value.checked))
     }
 
     override fun toString(): String {
-        return String.format("%1\$s(checked=%2\$b, package=%3\$s)", javaClass.kotlin.simpleName, checked.get(), applicationItem.packageName)
+        return "ApplicationItemViewModel: state = ${_viewState.value}"
     }
-
-    init {
-        Timber.d("Constructor")
-        checked.set(applicationItem.checked)
-        monitor(RxBindingUtils
-                .valueChanged(checked)
-                .skip(1) // skip the current value processing, which is passed automatically
-                .subscribe { value: Boolean ->
-                    Timber.d("Checked property changed for %1\$s", toString())
-                    this.applicationCheckedStateChangedListener.onApplicationCheckedStateChanged(this.applicationItem, value)
-                })
-    }
-}
-
-/**
- * The interface subscribers to the onApplicationCheckedStateChanged event should implement
- */
-interface ApplicationCheckedStateChangedListener {
-    fun onApplicationCheckedStateChanged(applicationItem: ApplicationItem, checked: Boolean)
 }

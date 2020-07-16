@@ -8,6 +8,9 @@
         <variable
             name="model"
             type="com.app.missednotificationsreminder.settings.applicationselection.ApplicationItemViewModel"/>
+        <variable
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.applicationselection.ApplicationItemViewState&gt;"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,7 +19,7 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:onClick="@{model::onItemClicked}"
+        android:onClick="@{() -> model.onItemClicked()}"
         android:padding="@dimen/default_widget_interval"
         android:focusable="true">
 
@@ -24,7 +27,7 @@
             android:id="@+id/selected_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="@{model.checked}"
+            android:checked="@{viewState.checked}"
             android:clickable="false"
             android:duplicateParentState="true"
             android:focusable="false"
@@ -52,7 +55,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="@{model.name}"
+            android:text="@{viewState.name}"
             android:textAppearance="?android:attr/textAppearanceMedium"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintTop_toTopOf="parent"
@@ -66,7 +69,7 @@
             android:layout_marginStart="@dimen/default_widget_interval"
             android:ellipsize="end"
             android:maxLines="3"
-            android:text="@{model.description}"
+            android:text="@{viewState.description}"
             android:textAppearance="?android:attr/textAppearanceSmall"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintTop_toBottomOf="@id/name"
@@ -77,11 +80,11 @@
             android:id="@+id/counter"
             android:layout_width="16sp"
             android:layout_height="16sp"
-            android:text="@{model.activeNotifications}"
+            android:text="@{viewState.activeNotificationsInfo}"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:background="?colorError"
             android:gravity="center"
-            android:visibility="@{model.hasActiveNotifications}"
+            android:visibility="@{viewState.hasActiveNotifications}"
             app:layout_constraintEnd_toEndOf="@+id/icon"
             app:layout_constraintBottom_toBottomOf="@+id/icon"
             tools:text="2" />
