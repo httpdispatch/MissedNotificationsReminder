@@ -7,7 +7,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:4.0.0")
+        classpath("com.android.tools.build:gradle:4.0.1")
         classpath(kotlin("gradle-plugin", version = Constants.KOTLIN_VERSION))
     }
     // Exclude the lombok version that the android plugin depends on.
