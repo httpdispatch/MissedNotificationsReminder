@@ -7,8 +7,8 @@
             name="fragment"
             type="com.app.missednotificationsreminder.settings.sound.SoundFragment" />
         <variable
-            name="model"
-            type="com.app.missednotificationsreminder.settings.sound.SoundViewModel"/>
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.sound.SoundViewState&gt;"/>
     </data>
 
     <LinearLayout
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="@{model.currentRingtoneName}"
+                android:text="@{viewState.ringtoneName}"
                 android:textAppearance="?android:attr/textAppearanceSmall"/>
         </LinearLayout>
 
