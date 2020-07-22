@@ -1,7 +1,9 @@
 package com.app.missednotificationsreminder.settings.applicationssettings
 
-sealed class ApplicationsSettingsViewStatePartialChanges {
-    abstract fun reduce(previousState: ApplicationsSettingsViewState): ApplicationsSettingsViewState
+import com.app.missednotificationsreminder.binding.model.ViewStatePartialChanges
+
+sealed class ApplicationsSettingsViewStatePartialChanges :
+        ViewStatePartialChanges<ApplicationsSettingsViewState> {
 
     data class IgnorePersistentNotificationsChange(private val newValue: Boolean) : ApplicationsSettingsViewStatePartialChanges() {
         override fun reduce(previousState: ApplicationsSettingsViewState): ApplicationsSettingsViewState {

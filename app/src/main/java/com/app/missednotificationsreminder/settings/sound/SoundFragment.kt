@@ -49,8 +49,8 @@ class SoundFragment : CommonFragmentWithViewBinding<FragmentSoundBinding>(
     }
 
     private fun init() {
-        // Set the lifecycle owner to the lifecycle of the view
         viewDataBinding.apply {
+            // Set the lifecycle owner to the lifecycle of the view
             lifecycleOwner = viewLifecycleOwner
             fragment = this@SoundFragment
             viewState = viewModel.viewState.asLiveData()
@@ -94,7 +94,7 @@ class SoundFragment : CommonFragmentWithViewBinding<FragmentSoundBinding>(
     @dagger.Module
     abstract class Module {
         @ContributesAndroidInjector
-        abstract fun contribute(): SoundFragment?
+        abstract fun contribute(): SoundFragment
 
         @Binds
         @IntoMap

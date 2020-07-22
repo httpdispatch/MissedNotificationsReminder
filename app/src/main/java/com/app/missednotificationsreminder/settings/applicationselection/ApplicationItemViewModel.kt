@@ -1,11 +1,9 @@
 package com.app.missednotificationsreminder.settings.applicationselection
 
-import com.app.missednotificationsreminder.binding.model.BaseViewModel
+import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.RequestCreator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 
 /**
@@ -18,9 +16,7 @@ import timber.log.Timber
 @ExperimentalCoroutinesApi
 class ApplicationItemViewModel(
         private val applicationItem: ApplicationItemViewState,
-        private val picasso: Picasso) : BaseViewModel() {
-    private val _viewState = MutableStateFlow(applicationItem)
-    val viewState: StateFlow<ApplicationItemViewState> = _viewState
+        private val picasso: Picasso) : BaseViewStateModel<ApplicationItemViewState, ApplicationItemViewStatePartialChanges>(applicationItem) {
 
     /**
      * Get the application icon request
@@ -31,11 +27,6 @@ class ApplicationItemViewModel(
         Timber.d("getIcon for %1\$s", toString())
         picasso.load(applicationItem.iconUri)
                 .fit()
-    }
-
-    fun process(event: ApplicationItemViewStatePartialChanges) {
-        Timber.d("process() called: with event=${event}")
-        _viewState.value = event.reduce(_viewState.value)
     }
 
     /**

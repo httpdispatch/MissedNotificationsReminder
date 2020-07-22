@@ -3,7 +3,8 @@ package com.app.missednotificationsreminder.settings.applicationselection
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
-import com.app.missednotificationsreminder.binding.model.BaseViewModel
+import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
+import com.app.missednotificationsreminder.binding.model.ViewStatePartialChanges
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
@@ -19,18 +20,13 @@ import javax.inject.Inject
 
 /**
  * The view model for the applications selection view
- *
- * @author Eugene Popovich
  */
+@ExperimentalCoroutinesApi
 class ApplicationsSelectionViewModel @Inject constructor(
         @param:SelectedApplications private val selectedApplicationsPref: Preference<Set<String>>,
         private val notificationDataObservable: Observable<List<NotificationData>>,
-        private val packageManager: PackageManager) : BaseViewModel() {
-    @ExperimentalCoroutinesApi
-    private val _viewState = MutableStateFlow(ViewState(LoadingStatus.NotStarted, Collections.emptyList()))
-
-    @ExperimentalCoroutinesApi
-    val viewState: StateFlow<ViewState> = _viewState
+        private val packageManager: PackageManager) :
+        BaseViewStateModel<ViewState, ViewStatePartialChanges<ViewState>>(ViewState(LoadingStatus.NotStarted, Collections.emptyList())) {
 
     /**
      * Load the application data to the view
