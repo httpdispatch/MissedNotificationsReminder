@@ -66,6 +66,7 @@ public class SettingsViewModel extends BaseViewModel {
     final Vibrator mVibrator;
 
     @Inject public SettingsViewModel(Vibrator vibrator) {
+        Timber.d("SettingsViewModel: init");
         mVibrator = vibrator;
     }
 

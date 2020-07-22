@@ -177,6 +177,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES_VERSION}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.COROUTINES_VERSION}")
+    implementation("com.github.akarnokd:kotlin-flow-extensions:0.0.5")
 
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")

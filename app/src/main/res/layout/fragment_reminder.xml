@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
-        <import type="android.view.View"/>
+        <import type="android.view.View" />
 
         <variable
             name="parentModel"
-            type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
+            type="com.app.missednotificationsreminder.settings.SettingsViewModel" />
 
         <variable
-            name="model"
-            type="com.app.missednotificationsreminder.settings.reminder.ReminderViewModel"/>
+            name="viewModel"
+            type="com.app.missednotificationsreminder.settings.reminder.ReminderViewModel" />
+
+        <variable
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.reminder.ReminderViewState&gt;" />
     </data>
 
     <LinearLayout
@@ -24,53 +29,57 @@
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{model.enabled.get() ? @string/reminder_enabled : @string/reminder_disabled}"
-            tools:text="@string/reminder_enabled"/>
+            android:text="@{viewState.reminderEnabled ? @string/reminder_enabled : @string/reminder_disabled}"
+            tools:text="@string/reminder_enabled" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="@{viewState.reminderEnabled}"
+            android:onCheckedChanged="@{(v, checked) -> viewModel.reminderEnabledChanged(checked)}"
             android:textOff="@string/reminder_disabled"
-            android:textOn="@string/reminder_enabled"
-            tools:binding="@{model.enabled}"/>
+            android:textOn="@string/reminder_enabled" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:error="@{model.intervalError}">
+            app:error="@{viewState.intervalError}">
 
             <EditText
                 android:id="@+id/intervalName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="@{model.enabled}"
+                android:afterTextChanged="@{s -> viewModel.intervalMinutesChanged(s.toString())}"
+                android:enabled="@{viewState.reminderEnabled}"
                 android:hint="@string/reminder_interval_hint"
                 android:inputType="numberDecimal"
-                tools:binding="@{model.interval}"/>
+                android:text="@{viewState.intervalMinutesString}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <SeekBar
             android:id="@+id/intervalSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="@{model.enabled}"
-            android:max="@{model.maxIntervalSeekBarValue}"
-            tools:binding="@{model.seekInterval}"/>
+            android:enabled="@{viewState.reminderEnabled}"
+            android:max="@{viewState.maxIntervalSeekBarValue}"
+            android:onProgressChanged="@{(v, progress, fromUser) -> viewModel.seekIntervalChanged(progress, fromUser)}"
+            android:progress="@{viewState.seekInterval}" />
 
         <TextView
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{model.limitReminderRepeats.get() ? @string/limit_reminder_repeats_enabled : @string/limit_reminder_repeats_disabled}"
-            tools:text="@string/limit_reminder_repeats_enabled"/>
+            android:text="@{viewState.limitReminderRepeats ? @string/limit_reminder_repeats_enabled : @string/limit_reminder_repeats_disabled}"
+            tools:text="@string/limit_reminder_repeats_enabled" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="@{model.enabled}"
+            android:checked="@{viewState.limitReminderRepeats}"
+            android:enabled="@{viewState.reminderEnabled}"
+            android:onCheckedChanged="@{(v, checked) -> viewModel.limitReminderRepeatsChanged(checked)}"
             android:textOff="@string/limit_reminder_repeats_disabled"
-            android:textOn="@string/limit_reminder_repeats_enabled"
-            tools:binding="@{model.limitReminderRepeats}"/>
+            android:textOn="@string/limit_reminder_repeats_enabled" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -80,70 +89,75 @@
                 android:id="@+id/repeatsName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="@{safeUnbox(model.enabled.get()) &amp;&amp; safeUnbox(model.limitReminderRepeats.get())}"
+                android:afterTextChanged="@{s -> viewModel.repeatsChanged(s.toString())}"
+                android:enabled="@{viewState.reminderEnabled &amp;&amp; viewState.limitReminderRepeats}"
                 android:hint="@string/reminder_repeats_hint"
                 android:inputType="number"
-                tools:binding="@{model.repeats}"/>
+                android:text="@{viewState.repeatsString}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <SeekBar
             android:id="@+id/repeatsSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="@{safeUnbox(model.enabled.get()) &amp;&amp; safeUnbox(model.limitReminderRepeats.get())}"
-            android:max="@{model.maxRepeats - model.minRepeats}"
-            tools:binding="@{model.seekRepeats}"/>
+            android:enabled="@{viewState.reminderEnabled &amp;&amp; viewState.limitReminderRepeats}"
+            android:max="@{viewState.maxRepeats - viewState.minRepeats}"
+            android:onProgressChanged="@{(v, progress, fromUser) -> viewModel.seekRepeatsChanged(progress, fromUser)}"
+            android:progress="@{viewState.seekRepeats}" />
 
         <TextView
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{safeUnbox(model.createDismissNotification.get()) ? @string/create_dismiss_notification_enabled : @string/create_dismiss_notification_disabled }"
+            android:text="@{viewState.createDismissNotification ? @string/create_dismiss_notification_enabled : @string/create_dismiss_notification_disabled }"
             android:visibility="@{parentModel.advancedSettingsVisible}"
-            tools:text="@string/create_dismiss_notification_enabled"/>
+            tools:text="@string/create_dismiss_notification_enabled" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="@{model.enabled}"
+            android:checked="@{viewState.createDismissNotification}"
+            android:enabled="@{viewState.reminderEnabled}"
+            android:onCheckedChanged="@{(v, checked) -> viewModel.createDismissNotificationChanged(checked)}"
             android:textOff="@string/create_dismiss_notification_disabled"
             android:textOn="@string/create_dismiss_notification_enabled"
-            android:visibility="@{parentModel.advancedSettingsVisible}"
-            tools:binding="@{model.createDismissNotification}"/>
+            android:visibility="@{parentModel.advancedSettingsVisible}" />
 
         <TextView
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{safeUnbox(model.createDismissNotificationImmediately.get()) ? @string/create_dismiss_notification_immediately_enabled : @string/create_dismiss_notification_immediately_disabled }"
+            android:text="@{viewState.createDismissNotificationImmediately ? @string/create_dismiss_notification_immediately_enabled : @string/create_dismiss_notification_immediately_disabled }"
             android:visibility="@{parentModel.advancedSettingsVisible}"
-            tools:text="@string/create_dismiss_notification_immediately_enabled"/>
+            tools:text="@string/create_dismiss_notification_immediately_enabled" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="@{safeUnbox(model.enabled.get()) &amp;&amp; safeUnbox(model.createDismissNotification.get())}"
+            android:checked="@{viewState.createDismissNotificationImmediately}"
+            android:enabled="@{viewState.reminderEnabled &amp;&amp; viewState.createDismissNotification}"
+            android:onCheckedChanged="@{(v, checked) -> viewModel.createDismissNotificationImmediatelyChanged(checked)}"
             android:textOff="@string/create_dismiss_notification_disabled"
             android:textOn="@string/create_dismiss_notification_enabled"
-            android:visibility="@{parentModel.advancedSettingsVisible}"
-            tools:binding="@{model.createDismissNotificationImmediately}"/>
+            android:visibility="@{parentModel.advancedSettingsVisible}" />
 
         <TextView
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{model.forceWakeLock.get() ? @string/wakelock_enabled : @string/wakelock_disabled}"
-            android:visibility="@{parentModel.advancedSettingsVisible.get() || model.forceWakeLock.get() ? View.VISIBLE : View.GONE}"
-            tools:text="@string/wakelock_enabled"/>
+            android:text="@{viewState.forceWakeLock ? @string/wakelock_enabled : @string/wakelock_disabled}"
+            android:visibility="@{parentModel.advancedSettingsVisible.get() || viewState.forceWakeLock ? View.VISIBLE : View.GONE}"
+            tools:text="@string/wakelock_enabled" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="@{model.interval.get() &lt; model.maxIntervalForWakeLock}"
+            android:checked="@{viewState.forceWakeLock}"
+            android:enabled="@{viewState.intervalSeconds &lt; viewState.maxIntervalForWakeLock}"
+            android:onCheckedChanged="@{(v, checked) -> viewModel.forceWakeLockChanged(checked)}"
             android:textOff="@string/wakelock_disabled"
             android:textOn="@string/wakelock_enabled"
-            android:visibility="@{parentModel.advancedSettingsVisible.get() || model.forceWakeLock.get() ? View.VISIBLE : View.GONE}"
-            tools:binding="@{model.forceWakeLock}"/>
+            android:visibility="@{parentModel.advancedSettingsVisible.get() || viewState.forceWakeLock ? View.VISIBLE : View.GONE}" />
 
     </LinearLayout>
 </layout>

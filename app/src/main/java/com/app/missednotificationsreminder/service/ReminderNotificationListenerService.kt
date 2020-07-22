@@ -319,7 +319,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         appGraph.inject(this)
         // TODO workaround for updated interval measurements
         if (reminderInterval.get()!! < reminderIntervalMinimum) {
-            reminderInterval.set(TimeUtils.minutesToSeconds(reminderInterval.get()!!.toFloat()))
+            reminderInterval.set(TimeUtils.minutesToSeconds(reminderInterval.get()!!.toDouble()))
         }
 
         // initialize broadcast receiver
