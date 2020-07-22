@@ -51,10 +51,10 @@ suspend fun <T : Any, P : Any> MutableStateFlow<T>.bindWithPreferences(
             launch {
                 Timber.d("bindWithPreferences: job1 start")
                 stateFlow
-                        .drop(1)
                         .map { stateToPreference(it) }
                         .distinctUntilChanged()
-                        .onEach { Timber.d("bindWithPreferences: value $it") }
+                        .drop(1)
+                        .onEach { Timber.d("bindWithPreferences: ${preference.key()} value $it") }
                         .debounce(100)
                         .collect { preference.set(it) }
                 Timber.d("bindWithPreferences: job1 end")
