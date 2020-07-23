@@ -61,8 +61,6 @@ import javax.inject.Inject
  * The service to monitor all status bar notifications. It performs periodical sound notification depend on whether
  * there are available notifications from applications which matches user selected applications. The notification interval
  * is also specified by the user in the corresponding window.
- *
- * @author Eugene Popovich
  */
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -1003,16 +1001,6 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                     .join()
         }
 
-        private fun parseVibrationPattern(rawPattern: String): LongArray {
-            // This code assumes the pattern string matches regexp \d+(\s*,\s*\d+)*
-            val components = rawPattern.split("\\s*,\\s*".toRegex()).toTypedArray()
-            val parsedPattern = LongArray(components.size)
-            for (i in components.indices) {
-                parsedPattern[i] = components[i].toLong()
-            }
-            return parsedPattern
-        }
-
         /**
          * Is the screen of the device on.
          *
@@ -1084,5 +1072,15 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
          * generate this notification and there could be only one of them, it is a constant.
          */
         const val DISMISS_NOTIFICATION_ID = 42
+
+        fun parseVibrationPattern(rawPattern: String): LongArray {
+            // This code assumes the pattern string matches regexp \d+(\s*,\s*\d+)*
+            val components = rawPattern.split("\\s*,\\s*".toRegex()).toTypedArray()
+            val parsedPattern = LongArray(components.size)
+            for (i in components.indices) {
+                parsedPattern[i] = components[i].toLong()
+            }
+            return parsedPattern
+        }
     }
 }
