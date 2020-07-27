@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
             name="fragment"
             type="com.app.missednotificationsreminder.settings.scheduler.SchedulerFragment" />
+
         <variable
-            name="model"
-            type="com.app.missednotificationsreminder.settings.scheduler.SchedulerViewModel"/>
+            name="viewModel"
+            type="com.app.missednotificationsreminder.settings.scheduler.SchedulerViewModel" />
+
+        <variable
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.scheduler.SchedulerViewState&gt;" />
     </data>
 
     <LinearLayout
@@ -20,28 +26,30 @@
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{model.enabled.get() ? @string/scheduler_enabled : @string/scheduler_disabled}"/>
+            android:text="@{viewState.enabled ? @string/scheduler_enabled : @string/scheduler_disabled}" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="@{viewState.enabled}"
+            android:onCheckedChanged="@{(v, checked) -> viewModel.enabledChanged(checked)}"
             android:textOff="@string/scheduler_disabled"
-            android:textOn="@string/scheduler_enabled"
-            app:binding="@{model.enabled}"/>
+            android:textOn="@string/scheduler_enabled" />
 
         <TextView
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{model.mode.get() ? @string/scheduler_working_period : @string/scheduler_disabled_period}"/>
+            android:text="@{viewState.mode ? @string/scheduler_working_period : @string/scheduler_disabled_period}" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="@{model.enabled}"
+            android:checked="@{viewState.mode}"
+            android:enabled="@{viewState.enabled}"
+            android:onCheckedChanged="@{(v, checked) -> viewModel.modeChanged(checked)}"
             android:textOff="@string/scheduler_disabled_period"
-            android:textOn="@string/scheduler_working_period"
-            app:binding="@{model.mode}"/>
+            android:textOn="@string/scheduler_working_period" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -51,53 +59,50 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:error="@{model.beginError}">
+                android:layout_weight="1">
 
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:enabled="@{model.enabled}"
+                    android:enabled="@{viewState.enabled}"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:hint="@string/scheduler_begin_hint"
                     android:inputType="none"
                     android:onClick="@{fragment::onBeginClicked}"
-                    app:binding="@{model.beginTime}"/>
+                    android:text="@{viewState.beginTime}" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:error="@{model.endError}">
+                android:layout_weight="1">
 
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:enabled="@{model.enabled}"
+                    android:enabled="@{viewState.enabled}"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:hint="@string/scheduler_end_hint"
                     android:inputType="none"
                     android:onClick="@{fragment::onEndClicked}"
-                    app:binding="@{model.endTime}"/>
+                    android:text="@{viewState.endTime}" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-        <FrameLayout style="@style/RangeBarContainer">
-
-            <com.appyvet.rangebar.RangeBar
-                android:id="@+id/rangeBar"
-                style="@style/RangeBar"
-                android:layout_width="match_parent"
-                android:enabled="@{model.enabled}"
-                app:bindingLeft="@{model.rangeBegin}"
-                app:bindingRight="@{model.rangeEnd}"
-                app:tickEnd="@{model.maximum}"
-                app:tickInterval="@{model.interval}"
-                app:tickStart="@{model.minimum}"/>
-        </FrameLayout>
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/rangeBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="@{viewState.enabled}"
+            app:labelBehavior="gone"
+            android:stepSize="1"
+            android:valueFrom="@{viewState.minimum}"
+            android:valueTo="@{viewState.maximum}"
+            app:leftIndex="@{viewState.begin}"
+            app:rightIndex="@{viewState.end}"
+            app:onRangeChanged="@{viewModel::onRangeChanged}"/>
 
     </LinearLayout>
 </layout>

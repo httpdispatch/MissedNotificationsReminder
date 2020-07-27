@@ -224,7 +224,6 @@ dependencies {
 
     implementation("com.f2prateek.rx.preferences:rx-preferences:1.0.2")
 
-    implementation("com.appyvet:materialrangebar:1.3")
     implementation("com.wdullaer:materialdatetimepicker:4.2.3")
 
     implementation("com.evernote:android-job:1.4.2")
