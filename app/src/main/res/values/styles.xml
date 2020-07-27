@@ -1,10 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds" tools:ignore="NewApi">true</item>
+        <item name="colorPrimaryDark">#455A64</item>
+        <item name="colorPrimary">#607D8B</item>
     </style>
 
     <style name="ToolbarCardWrapper" parent="CardView">
@@ -16,20 +18,17 @@
         <item name="cardCornerRadius">0dip</item>
     </style>
 
-    <style name="BaseToolbar" parent="Widget.AppCompat.Toolbar">
+    <style name="BaseToolbar" parent="Widget.MaterialComponents.Toolbar">
         <item name="android:background">?attr/colorPrimaryDark</item>
         <item name="android:minHeight">?attr/actionBarSize</item>
         <item name="theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
     </style>
 
-    <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-    </style>
+    <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title"></style>
 
-    <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
-    </style>
+    <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle"></style>
 
-    <style name="SettingsCard" parent="CardView">
-    </style>
+    <style name="SettingsCard" parent="CardView"></style>
 
     <style name="CardTitle" parent="TextAppearance.AppCompat.Medium">
         <item name="android:padding">@dimen/default_widget_interval</item>
@@ -46,10 +45,8 @@
     </style>
 
     <!-- same label as in TextInputLayout-->
-    <style name="BaseLabel" parent="TextAppearance.AppCompat.Small">
+    <style name="BaseLabel" parent="TextAppearance.AppCompat.Caption">
         <item name="android:paddingLeft">4dip</item>
-        <item name="android:textColor">?android:textColorPrimary</item>
-        <item name="android:textSize">12sp</item>
     </style>
 
     <style name="RangeBarContainer">

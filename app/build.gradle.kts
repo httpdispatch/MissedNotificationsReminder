@@ -187,10 +187,11 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("com.google.android.material:material:1.1.0")
-    implementation("androidx.activity:activity-ktx:1.2.0-alpha06")
-    implementation("androidx.fragment:fragment-ktx:1.3.0-alpha06")
+    implementation("androidx.activity:activity-ktx:1.2.0-alpha07")
+    implementation("androidx.fragment:fragment-ktx:1.3.0-alpha07")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE_VERSION}")
     implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE_VERSION}")
+    implementation("com.google.android.material:material:1.3.0-alpha02")
 
     implementation("com.jakewharton.timber:timber:4.7.1")
     implementation("androidx.navigation:navigation-fragment-ktx:2.3.0")

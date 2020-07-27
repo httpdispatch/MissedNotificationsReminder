@@ -4,6 +4,5 @@
     </style>
 
     <style name="Label" parent="BaseLabel">
-        <item name="android:alpha">@dimen/hint_alpha_material_light</item>
     </style>
 </resources>
