@@ -56,14 +56,17 @@
                 android:text="@{viewState.intervalMinutesString}" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <SeekBar
+        <com.google.android.material.slider.Slider
             android:id="@+id/intervalSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="@{viewState.reminderEnabled}"
-            android:max="@{viewState.maxIntervalSeekBarValue}"
-            android:onProgressChanged="@{(v, progress, fromUser) -> viewModel.seekIntervalChanged(progress, fromUser)}"
-            android:progress="@{viewState.seekInterval}" />
+            android:stepSize="1"
+            android:value="@{viewState.seekInterval}"
+            android:valueFrom="0"
+            android:valueTo="@{viewState.maxIntervalSeekBarValue}"
+            app:labelBehavior="gone"
+            app:onProgressChanged="@{viewModel::seekIntervalChanged}" />
 
         <TextView
             style="@style/Label"
@@ -96,14 +99,17 @@
                 android:text="@{viewState.repeatsString}" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <SeekBar
+        <com.google.android.material.slider.Slider
             android:id="@+id/repeatsSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="@{viewState.reminderEnabled &amp;&amp; viewState.limitReminderRepeats}"
-            android:max="@{viewState.maxRepeats - viewState.minRepeats}"
-            android:onProgressChanged="@{(v, progress, fromUser) -> viewModel.seekRepeatsChanged(progress, fromUser)}"
-            android:progress="@{viewState.seekRepeats}" />
+            android:stepSize="1"
+            android:value="@{viewState.seekRepeats}"
+            android:valueFrom="0"
+            android:valueTo="@{viewState.maxRepeats - viewState.minRepeats}"
+            app:labelBehavior="gone"
+            app:onProgressChanged="@{viewModel::seekRepeatsChanged}" />
 
         <TextView
             style="@style/Label"

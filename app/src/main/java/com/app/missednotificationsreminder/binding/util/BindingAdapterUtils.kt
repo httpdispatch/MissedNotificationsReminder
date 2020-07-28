@@ -4,6 +4,7 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.app.missednotificationsreminder.R
 import com.google.android.material.slider.RangeSlider
+import com.google.android.material.slider.Slider
 import com.squareup.picasso.RequestCreator
 import timber.log.Timber
 
@@ -52,4 +53,23 @@ fun onRangeChanged(view: RangeSlider,
 
 interface RangeChangedListener {
     fun rangeChanged(left: Int, right: Int, fromUser: Boolean)
+}
+
+@BindingAdapter("onProgressChanged")
+fun onProgressChanged(view: Slider,
+                      progressChanged: ProgressChangedListener) {
+    var listener = view.getTag(R.id.binded) as Slider.OnChangeListener?
+    if (listener != null) {
+        view.removeOnChangeListener(listener)
+    }
+    listener = Slider.OnChangeListener { slider, _, fromUser ->
+        progressChanged.onChanged(slider.value.toInt(), fromUser)
+    }
+    view.addOnChangeListener(listener)
+    view.setTag(R.id.binded, listener)
+}
+
+
+interface ProgressChangedListener {
+    fun onChanged(value: Int, fromUser: Boolean)
 }
