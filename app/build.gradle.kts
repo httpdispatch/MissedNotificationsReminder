@@ -201,7 +201,7 @@ dependencies {
     debugImplementation("com.jakewharton.scalpel:scalpel:1.1.2")
     implementation("com.jakewharton.threetenabp:threetenabp:1.2.4")
     implementation("com.squareup.okio:okio:2.6.0")
-    debugImplementation("com.mattprecious.telescope:telescope:2.2.0@aar")
+    debugImplementation("com.mattprecious.telescope:telescope:2.2.0")
 
     // Dagger
     implementation("com.google.dagger:dagger:${Versions.DAGGER}")

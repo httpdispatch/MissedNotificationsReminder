@@ -1,8 +1,11 @@
 package com.app.missednotificationsreminder.binding.util
 
+import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.app.missednotificationsreminder.R
+import com.app.missednotificationsreminder.util.doOnApplyWindowInsets
 import com.google.android.material.slider.RangeSlider
 import com.google.android.material.slider.Slider
 import com.squareup.picasso.RequestCreator
@@ -72,4 +75,68 @@ fun onProgressChanged(view: Slider,
 
 interface ProgressChangedListener {
     fun onChanged(value: Int, fromUser: Boolean)
+}
+
+@BindingAdapter(value = [
+    "paddingLeftSystemWindowInsets",
+    "paddingTopSystemWindowInsets",
+    "paddingRightSystemWindowInsets",
+    "paddingBottomSystemWindowInsets",
+    "marginLeftSystemWindowInsets",
+    "marginTopSystemWindowInsets",
+    "marginRightSystemWindowInsets",
+    "marginBottomSystemWindowInsets"
+], requireAll = false)
+fun addSystemInsets(view: View,
+                    applyLeftPadding: Boolean,
+                    applyTopPadding: Boolean,
+                    applyRightPadding: Boolean,
+                    applyBottomPadding: Boolean,
+                    applyLeftMargin: Boolean,
+                    applyTopMargin: Boolean,
+                    applyRightMargin: Boolean,
+                    applyBottomMargin: Boolean) {
+    if (view.getTag(R.id.system_insets_binded) != null) {
+        // already binded;
+        return
+    }
+    view.setTag(R.id.system_insets_binded, true)
+    view.doOnApplyWindowInsets { _, insets, initialPadding, initialMargins ->
+        if (applyTopPadding || applyBottomPadding || applyLeftPadding || applyRightPadding) {
+            view.setPadding(initialPadding.left + if (applyLeftPadding) insets.systemWindowInsetLeft else 0,
+                    initialPadding.top + if (applyTopPadding) insets.systemWindowInsetTop else 0,
+                    initialPadding.right + if (applyRightPadding) insets.systemWindowInsetRight else 0,
+                    initialPadding.bottom + if (applyBottomPadding) insets.systemWindowInsetBottom else 0)
+        }
+        if (applyTopMargin || applyBottomMargin || applyLeftMargin || applyRightMargin) {
+            val layoutParams = view.layoutParams as MarginLayoutParams
+            if (applyLeftMargin) {
+                val newValue: Int = initialMargins.left + insets.systemWindowInsetLeft
+                if (layoutParams.leftMargin != newValue) {
+                    layoutParams.leftMargin = newValue
+                }
+            }
+            if (applyTopMargin) {
+                val newValue: Int = initialMargins.top + insets.systemWindowInsetTop
+                if (layoutParams.topMargin != newValue) {
+                    layoutParams.topMargin = newValue
+                }
+            }
+            if (applyRightMargin) {
+                val newValue: Int = initialMargins.right + insets.systemWindowInsetRight
+                if (layoutParams.rightMargin != newValue) {
+                    layoutParams.rightMargin = newValue
+                }
+            }
+            if (applyBottomMargin) {
+                val newValue: Int = initialMargins.bottom + insets.systemWindowInsetBottom
+                if (layoutParams.bottomMargin != newValue) {
+                    layoutParams.bottomMargin = newValue
+                }
+            }
+            view.layoutParams = layoutParams
+            // required for some android versions
+            view.parent.requestLayout()
+        }
+    }
 }

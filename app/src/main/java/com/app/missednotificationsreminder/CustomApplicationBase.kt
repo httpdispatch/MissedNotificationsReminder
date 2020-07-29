@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.multidex.MultiDex
 import com.app.missednotificationsreminder.service.ReminderServiceJobCreator
 import com.app.missednotificationsreminder.ui.ActivityHierarchyServer
+import com.app.missednotificationsreminder.ui.activity.common.CommonActivityLifecycleCallback
 import com.evernote.android.job.JobManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.jakewharton.u2020.data.LumberYard
@@ -43,6 +44,7 @@ abstract class CustomApplicationBase : DaggerApplication() {
         AndroidThreeTen.init(this)
         registerActivityLifecycleCallbacks(activityHierarchyServer)
         JobManager.create(this).addJobCreator(ReminderServiceJobCreator())
+        registerActivityLifecycleCallbacks(CommonActivityLifecycleCallback())
     }
 
     private class CrashReportingTree : DebugTree() {
