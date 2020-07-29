@@ -14,6 +14,7 @@ import com.app.missednotificationsreminder.ui.fragment.common.ActivityStateAcces
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import dagger.android.support.DaggerAppCompatActivity;
 import timber.log.Timber;
 
@@ -149,7 +150,7 @@ public class CommonFragmentActivity extends DaggerAppCompatActivity implements
      *
      * @return
      */
-    public ViewGroup getRootContainer() {
+    @NonNull public ViewGroup getRootContainer() {
         return mContainer;
     }
 

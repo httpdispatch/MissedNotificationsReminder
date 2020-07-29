@@ -24,7 +24,7 @@ class MainActivity : CommonFragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        rootContainer.addView(binding.root)
         setSupportActionBar(binding.toolbar)
 
         val navController: NavController = findNavController(R.id.nav_host_fragment)
