@@ -12,7 +12,7 @@ import androidx.databinding.ViewDataBinding
 
 open class CommonFragmentWithViewBinding<T : ViewDataBinding>(
         @LayoutRes val layoutId: Int,
-        val clearBindingOnViewDestroyed: Boolean = true) : CommonFragment() {
+        private val clearBindingOnViewDestroyed: Boolean = true) : CommonFragment() {
     private var _binding: T? = null
 
     // This property is only valid between onCreateView and

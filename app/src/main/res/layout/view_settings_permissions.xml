@@ -12,15 +12,15 @@
             name="fragment"
             type="com.app.missednotificationsreminder.settings.SettingsFragment" />
         <variable
-            name="model"
-            type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.SettingsViewState&gt;"/>
     </data>
 
     <androidx.cardview.widget.CardView
         style="@style/SettingsCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="@{TextUtils.isEmpty(model.missingPermissions.get()) ? View.GONE : View.VISIBLE}">
+        android:visibility="@{TextUtils.isEmpty(viewState.missingPermissions) ? View.GONE : View.VISIBLE}">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,7 +47,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{@string/settings_permissions_required(model.missingPermissions.get())}"
+                    android:text="@{@string/settings_permissions_required(viewState.missingPermissions)}"
                     tools:text="@string/settings_permissions_required"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="?colorError"/>

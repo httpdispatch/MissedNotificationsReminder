@@ -3,13 +3,14 @@ package com.app.missednotificationsreminder.settings.reminder
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.databinding.FragmentReminderBinding
 import com.app.missednotificationsreminder.di.ViewModelKey
-import com.app.missednotificationsreminder.settings.SettingsViewModel
+import com.app.missednotificationsreminder.settings.SettingsViewState
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewBinding
 import dagger.Binds
 import dagger.android.ContributesAndroidInjector
@@ -30,7 +31,7 @@ class ReminderFragment : CommonFragmentWithViewBinding<FragmentReminderBinding>(
     private val viewModel by viewModels<ReminderViewModel> { viewModelFactory }
 
     @Inject
-    lateinit var parentModel: SettingsViewModel
+    lateinit var parentViewState: LiveData<SettingsViewState>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,7 +42,7 @@ class ReminderFragment : CommonFragmentWithViewBinding<FragmentReminderBinding>(
         viewDataBinding.apply {
             // Set the lifecycle owner to the lifecycle of the view
             lifecycleOwner = viewLifecycleOwner
-            parentModel = this@ReminderFragment.parentModel
+            parentViewState = this@ReminderFragment.parentViewState
             viewModel = this@ReminderFragment.viewModel
             viewState = this@ReminderFragment.viewModel.viewState.asLiveData()
         }

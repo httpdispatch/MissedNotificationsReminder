@@ -23,7 +23,13 @@ allprojects {
         jcenter()
     }
 }
-
+// Kotlin DSL
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
+    kotlinOptions.freeCompilerArgs += listOf(
+            "-Xopt-in=kotlin.RequiresOptIn",
+            "-Xopt-in=kotlin.OptIn"
+    )
+}
 tasks.register<Delete>("clean").configure {
     delete(rootProject.buildDir)
 }

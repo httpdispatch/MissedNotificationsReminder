@@ -62,8 +62,7 @@ import javax.inject.Inject
  * there are available notifications from applications which matches user selected applications. The notification interval
  * is also specified by the user in the corresponding window.
  */
-@FlowPreview
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class ReminderNotificationListenerService : AbstractReminderNotificationListenerService(), LifecycleOwner {
     private val mDispatcher = ServiceLifecycleDispatcher(this)
 

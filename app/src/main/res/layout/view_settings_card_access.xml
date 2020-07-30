@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".settings.MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".settings.MainActivity">
 
     <data>
 
-        <import type="android.view.View"/>
+        <import type="android.view.View" />
 
         <variable
             name="fragment"
             type="com.app.missednotificationsreminder.settings.SettingsFragment" />
 
         <variable
-            name="model"
-            type="com.app.missednotificationsreminder.settings.SettingsViewModel"/>
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.SettingsViewState&gt;" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -30,12 +30,12 @@
                 style="@style/CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_access_title"/>
+                android:text="@string/settings_access_title" />
 
             <View
                 style="@style/CardTitleSeparator"
                 android:layout_width="match_parent"
-                android:layout_height="1dip"/>
+                android:layout_height="1dip" />
 
             <LinearLayout
                 style="@style/CardContent"
@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/settings_access_enabled"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:visibility="@{model != null&amp;&amp;model.accessInitialized.get()&amp;&amp;model.accessEnabled.get() ? View.VISIBLE :View.GONE}"/>
+                    android:visibility="@{viewState.accessInitialized &amp;&amp; viewState.accessEnabled ? View.VISIBLE :View.GONE}" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -56,7 +56,7 @@
                     android:text="@string/settings_acess_disabled"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="?colorError"
-                    android:visibility="@{model != null&amp;&amp;model.accessInitialized.get()&amp;&amp;!model.accessEnabled.get() ? View.VISIBLE :View.GONE}"/>
+                    android:visibility="@{viewState.accessInitialized &amp;&amp; !viewState.accessEnabled ? View.VISIBLE :View.GONE}" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -68,7 +68,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:onClick="@{fragment::onManageAccessButtonPressed}"
-                        android:text="@string/settings_access_manage"/>
+                        android:text="@string/settings_access_manage" />
                 </LinearLayout>
 
             </LinearLayout>

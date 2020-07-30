@@ -2,12 +2,14 @@ package com.app.missednotificationsreminder.settings
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.*
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.fragment.findNavController
 import com.app.missednotificationsreminder.R
@@ -21,11 +23,12 @@ import com.app.missednotificationsreminder.settings.reminder.ReminderFragment
 import com.app.missednotificationsreminder.settings.scheduler.SchedulerFragment
 import com.app.missednotificationsreminder.settings.sound.SoundFragment
 import com.app.missednotificationsreminder.settings.vibration.VibrationFragment
-import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewModel
+import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewBinding
 import com.app.missednotificationsreminder.util.BatteryUtils
 import com.jakewharton.u2020.data.LumberYard
 import com.jakewharton.u2020.ui.logs.LogsDialog
 import dagger.Binds
+import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,29 +41,30 @@ import javax.inject.Inject
  */
 @ExperimentalCoroutinesApi
 @FlowPreview
-class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
+class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(R.layout.fragment_settings) {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val applicationsSettingsModel by viewModels<ApplicationsSettingsViewModel> { viewModelFactory }
-
-    @Inject
-    lateinit var _model: SettingsViewModel
+    private val viewModel by viewModels<SettingsViewModel> { viewModelFactory }
 
     @Inject
     lateinit var lumberYard: LumberYard
-    lateinit var mBinding: FragmentSettingsBinding
 
-    override fun getModel(): SettingsViewModel {
-        return _model
-    }
+    private var scrollPosition: Int = 0
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        super.onCreateView(inflater, container, savedInstanceState)
-        mBinding = FragmentSettingsBinding.inflate(inflater, container, false)
+    private val grantRequiredPermissions =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()
+            ) { result ->
+                result.filterValues { false }
+                        .keys
+                        .joinToString(", ")
+                        .run { viewModel.process(SettingsViewStatePartialChanges.MissingPermissionsChanged(this)) }
+            }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,27 +73,27 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
     }
 
     private fun init() {
-        // Set the lifecycle owner to the lifecycle of the view
-        mBinding.lifecycleOwner = this.viewLifecycleOwner
-
-        mBinding.model = model
-        mBinding.applicationsSettingsViewState = applicationsSettingsModel.viewState.asLiveData()
-        mBinding.fragment = this
+        viewDataBinding.apply {
+            // Set the lifecycle owner to the lifecycle of the view
+            lifecycleOwner = viewLifecycleOwner
+            fragment = this@SettingsFragment
+            viewState = viewModel.viewState.asLiveData()
+            applicationsSettingsViewState = applicationsSettingsModel.viewState.asLiveData()
+            lifecycleScope.launchWhenResumed { scroll.scrollTo(0, scrollPosition) }
+        }
     }
 
     override fun onDestroyView() {
+        scrollPosition = viewDataBinding.scroll.scrollY
         super.onDestroyView()
-        mBinding.model = null
-        mBinding.applicationsSettingsViewState = null
-        mBinding.fragment = null
     }
 
     override fun onResume() {
         super.onResume()
-        model.checkServiceEnabled(activity)
-        model.checkBatteryOptimizationDisabled(activity)
-        model.checkPermissions(activity)
-        model.checkVibrationAvailable()
+        viewModel.checkServiceEnabled(requireActivity())
+        viewModel.checkBatteryOptimizationDisabled(requireActivity())
+        viewModel.checkPermissions(requireActivity())
+        viewModel.checkVibrationAvailable()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -99,14 +103,14 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.advanceSettingsVisible).isChecked = model.advancedSettingsVisible.get()
+        menu.findItem(R.id.advanceSettingsVisible).isChecked = viewModel.viewState.value.advancedSettingsVisible
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.advanceSettingsVisible) {
             // toggle menu item state and the related data binding value
             item.isChecked = !item.isChecked
-            model.advancedSettingsVisible.set(item.isChecked)
+            viewModel.process(SettingsViewStatePartialChanges.AdvancedSettingsVisibleChanged(item.isChecked))
             true
         } else if (item.itemId == R.id.showLog) {
             LogsDialog(ContextThemeWrapper(context, R.style.AppTheme), lumberYard).show()
@@ -119,7 +123,7 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
 
     /**
      * Method which is called when the select applications button is clicked. It launches the
-     * [applications selection activity][ApplicationsSelectionFragment]
+     * applications selection fragment
      *
      * @param v
      */
@@ -173,7 +177,7 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
      */
     fun onGrantPermissionsPressed(v: View?) {
         Timber.d("onGrantPermissionsPressed")
-        model.grantRequiredPermissions(activity)
+        grantRequiredPermissions.launch(SettingsViewModel.REQUIRED_PERMISSIONS.toTypedArray())
     }
 
     @dagger.Module
@@ -188,15 +192,25 @@ class SettingsFragment : CommonFragmentWithViewModel<SettingsViewModel?>() {
                     VibrationFragment.Module::class])
         abstract fun contribute(): SettingsFragment
 
+        @FlowPreview
+        @Binds
+        @IntoMap
+        @ViewModelKey(SettingsViewModel::class)
+        internal abstract fun bindViewModel(viewModel: SettingsViewModel): ViewModel
 
         @FlowPreview
         @Binds
         @IntoMap
         @ViewModelKey(ApplicationsSettingsViewModel::class)
-        internal abstract fun bindViewModel(viewmodel: ApplicationsSettingsViewModel): ViewModel
+        internal abstract fun bindApplicationSettingsViewModel(viewModel: ApplicationsSettingsViewModel): ViewModel
     }
 
     @dagger.Module
     class ModuleExt {
+
+        @Provides
+        fun provideSettingsViewState(fragment: SettingsFragment): LiveData<SettingsViewState> {
+            return fragment.viewModel.viewState.asLiveData()
+        }
     }
 }
