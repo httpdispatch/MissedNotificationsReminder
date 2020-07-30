@@ -2,17 +2,19 @@ package com.app.missednotificationsreminder.settings.sound
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
 import com.app.missednotificationsreminder.binding.util.bindWithPreferences
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone
 import com.f2prateek.rx.preferences.Preference
-import com.tbruyelle.rxpermissions.RxPermissions
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -44,9 +46,14 @@ class SoundViewModel @Inject constructor(
             }
         }
         viewState
+                .distinctUntilChanged { previous, next -> previous.ringtone == next.ringtone }
                 .onEach { viewState ->
-                    if (RxPermissions.getInstance(context).isGranted(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        val ringtoneName = viewState.ringtone.takeIf { it.isNotEmpty() }
+                    if (ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE
+                            ) == PackageManager.PERMISSION_GRANTED) {
+                        val ringtoneName = viewState.ringtone
+                                .takeIf { it.isNotEmpty() }
                                 ?.let { Uri.parse(it) }
                                 ?.let { RingtoneManager.getRingtone(context, it) }
                                 ?.getTitle(context)
