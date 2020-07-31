@@ -2,17 +2,15 @@ package com.app.missednotificationsreminder.settings
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.fragment.findNavController
 import com.app.missednotificationsreminder.R
+import com.app.missednotificationsreminder.data.model.NightMode
 import com.app.missednotificationsreminder.databinding.FragmentSettingsBinding
 import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
@@ -33,6 +31,10 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -81,6 +83,11 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
             applicationsSettingsViewState = applicationsSettingsModel.viewState.asLiveData()
             lifecycleScope.launchWhenResumed { scroll.scrollTo(0, scrollPosition) }
         }
+        viewModel.viewState
+                .map { it.nightMode }
+                .distinctUntilChanged()
+                .onEach { AppCompatDelegate.setDefaultNightMode(it.nightModeId) }
+                .launchIn(lifecycleScope)
     }
 
     override fun onDestroyView() {
@@ -103,20 +110,39 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.advanceSettingsVisible).isChecked = viewModel.viewState.value.advancedSettingsVisible
+        menu.findItem(R.id.advanced_settings_visible).isChecked = viewModel.viewState.value.advancedSettingsVisible
+        when (viewModel.viewState.value.nightMode) {
+            NightMode.FOLLOW_SYSTEM -> menu.findItem(R.id.night_mode_follow_system).isChecked = true
+            NightMode.YES -> menu.findItem(R.id.night_mode_yes).isChecked = true
+            NightMode.NO -> menu.findItem(R.id.night_mode_no).isChecked = true
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.advanceSettingsVisible) {
-            // toggle menu item state and the related data binding value
-            item.isChecked = !item.isChecked
-            viewModel.process(SettingsViewStatePartialChanges.AdvancedSettingsVisibleChanged(item.isChecked))
-            true
-        } else if (item.itemId == R.id.showLog) {
-            LogsDialog(ContextThemeWrapper(context, R.style.AppTheme), lumberYard).show()
-            true
-        } else {
-            super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.advanced_settings_visible -> {
+                // toggle menu item state and the related data binding value
+                item.isChecked = !item.isChecked
+                viewModel.process(SettingsViewStatePartialChanges.AdvancedSettingsVisibleChanged(item.isChecked))
+                true
+            }
+            R.id.show_log -> {
+                LogsDialog(ContextThemeWrapper(context, R.style.AppTheme), lumberYard).show()
+                true
+            }
+            R.id.night_mode_follow_system -> {
+                viewModel.process(SettingsViewStatePartialChanges.NightModeChanged(NightMode.FOLLOW_SYSTEM))
+                true
+            }
+            R.id.night_mode_yes -> {
+                viewModel.process(SettingsViewStatePartialChanges.NightModeChanged(NightMode.YES))
+                true
+            }
+            R.id.night_mode_no -> {
+                viewModel.process(SettingsViewStatePartialChanges.NightModeChanged(NightMode.NO))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -124,8 +150,6 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
     /**
      * Method which is called when the select applications button is clicked. It launches the
      * applications selection fragment
-     *
-     * @param v
      */
     fun onSelectApplicationsButtonClicked() {
         findNavController().navigate(ActionOnlyNavDirections(R.id.action_settingsFragment_to_applicationsSelectionFragment))

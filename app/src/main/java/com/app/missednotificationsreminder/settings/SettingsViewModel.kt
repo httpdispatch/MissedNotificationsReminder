@@ -5,12 +5,17 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Vibrator
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
+import com.app.missednotificationsreminder.binding.util.bindWithPreferences
+import com.app.missednotificationsreminder.data.model.NightMode
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.util.BatteryUtils
+import com.f2prateek.rx.preferences.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -18,7 +23,8 @@ import javax.inject.Inject
  * The view model for the settings view
  */
 @ExperimentalCoroutinesApi
-class SettingsViewModel @Inject constructor(private val vibrator: Vibrator) :
+class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
+                                            private val nightMode: Preference<NightMode>) :
         BaseViewStateModel<SettingsViewState, SettingsViewStatePartialChanges>(SettingsViewState()) {
 
     /**
@@ -77,5 +83,14 @@ class SettingsViewModel @Inject constructor(private val vibrator: Vibrator) :
 
     init {
         Timber.d("SettingsViewModel: init")
+        viewModelScope.launch {
+            launch {
+                _viewState.bindWithPreferences(nightMode,
+                        { newValue, vs ->
+                            SettingsViewStatePartialChanges.NightModeChanged(newValue).reduce(vs)
+                        },
+                        { it.nightMode })
+            }
+        }
     }
 }

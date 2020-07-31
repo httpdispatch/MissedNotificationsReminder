@@ -30,7 +30,7 @@
 
     <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle" />
 
-    <style name="SettingsCard" parent="CardView" />
+    <style name="SettingsCard" parent="Widget.MaterialComponents.CardView" />
 
     <style name="CardTitle" parent="TextAppearance.AppCompat.Medium">
         <item name="android:padding">@dimen/default_widget_interval</item>

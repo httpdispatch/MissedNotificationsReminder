@@ -1,5 +1,6 @@
 package com.app.missednotificationsreminder.settings
 
+import com.app.missednotificationsreminder.data.model.NightMode
 import com.app.missednotificationsreminder.util.BatteryUtils
 
 data class SettingsViewState(
@@ -8,7 +9,8 @@ data class SettingsViewState(
         val batteryOptimizationDisabled: Boolean = false,
         val advancedSettingsVisible: Boolean = false,
         val vibrationSettingsAvailable: Boolean = false,
-        val missingPermissions: String = "") {
+        val missingPermissions: String = "",
+        val nightMode: NightMode = NightMode.FOLLOW_SYSTEM) {
     /**
      * Data binding method used to determine whether to display battery optimization settings
      */

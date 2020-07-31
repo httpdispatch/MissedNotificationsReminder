@@ -59,4 +59,8 @@
     <string name="dismiss_notification_text">Видаліть це повідомлення, щоб зупинити нагадування</string>
     <string name="dismiss_notification_title">Нагадування активні</string>
     <string name="menu_show_logs">Показати логи</string>
+    <string name="menu_night_mode">Темна тема</string>
+    <string name="menu_night_mode_follow_system">Відповідно системим налаштуванням</string>
+    <string name="menu_night_yes">Ввімкнена</string>
+    <string name="menu_night_mode_no">Вимкнута</string>
 </resources>

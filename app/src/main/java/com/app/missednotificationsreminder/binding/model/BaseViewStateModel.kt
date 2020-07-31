@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 open class BaseViewStateModel<
         VIEW_STATE,
         PARTIAL_CHANGES : ViewStatePartialChanges<VIEW_STATE>>(

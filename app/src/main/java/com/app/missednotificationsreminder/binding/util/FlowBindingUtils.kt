@@ -34,8 +34,7 @@ suspend fun <T : Any> MutableStateFlow<T>.bindWithPreferences(preference: Prefer
  * @param preferenceToStateReducer the reducer of the state value using preference value
  * @param stateToPreference The transformer of the state value to the preference value
  **/
-@FlowPreview
-@ExperimentalCoroutinesApi
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 suspend fun <T : Any, P : Any> MutableStateFlow<T>.bindWithPreferences(
         preference: Preference<P>,
         preferenceToStateReducer: (P, T) -> T,

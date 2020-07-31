@@ -1,6 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="AppTheme" parent="AppTheme.Base">
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+        <item name="colorOnPrimary">?android:textColorSecondary</item>
+        <item name="colorSurface">#263137</item>
     </style>
 
     <style name="Toolbar" parent="BaseToolbar">

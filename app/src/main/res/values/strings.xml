@@ -17,8 +17,12 @@
     <string name="settings_applications_select_title">Applications to monitor
         for missed notifications</string>
     <string name="settings_applications_select_button">Select Applications</string>
-    <string name="menu_advanced_settings_visible">Show advanced settings</string>
-    <string name="menu_show_logs">Show logs</string>
+    <string name="menu_advanced_settings_visible">Show Advanced Settings</string>
+    <string name="menu_show_logs">Show Logs</string>
+    <string name="menu_night_mode">Dark Mode</string>
+    <string name="menu_night_mode_follow_system">Follow System</string>
+    <string name="menu_night_yes">Enabled</string>
+    <string name="menu_night_mode_no">Disabled</string>
 
     <!-- Permissions settings -->
     <string name="settings_permissions_required">The following permissions are required for the app work: \"%1$s\". Please allow them.</string>

@@ -87,4 +87,8 @@
     <string name="create_dismiss_notification_immediately_enabled">監視対象アプリが通知を投稿した直後に追加の通知を作成します</string>
     <string name="dismiss_notification_title">リマインダがアクティブです。</string>
     <string name="dismiss_notification_text">この通知を閉じて、リマインダーを停止します。</string>
+    <string name="menu_night_mode">ダークモード</string>
+    <string name="menu_night_mode_follow_system">システムをフォロー</string>
+    <string name="menu_night_yes">有効</string>
+    <string name="menu_night_mode_no">無効</string>
 </resources>

@@ -84,7 +84,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 app:paddingBottomSystemWindowInsets="@{true}"
-                tools:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                tools:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:background="?colorSurface"/>
         </com.app.missednotificationsreminder.ui.widget.misc.BetterViewAnimator>
     </LinearLayout>
 </layout>

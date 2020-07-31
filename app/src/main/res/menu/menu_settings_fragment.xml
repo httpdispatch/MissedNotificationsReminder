@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/advanceSettingsVisible"
+        android:id="@+id/advanced_settings_visible"
         android:checkable="true"
-        app:showAsAction="never"
-        android:title="@string/menu_advanced_settings_visible"/>
+        android:title="@string/menu_advanced_settings_visible"
+        app:showAsAction="never" />
     <item
-        android:id="@+id/showLog"
+        android:id="@+id/show_log"
         android:checkable="false"
-        app:showAsAction="never"
-        android:title="@string/menu_show_logs"/>
+        android:title="@string/menu_show_logs"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/night_mode"
+        android:checkable="false"
+        android:title="@string/menu_night_mode"
+        app:showAsAction="never">
+        <menu>
+            <group
+                android:id="@+id/night_mode_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/night_mode_follow_system"
+                    android:title="@string/menu_night_mode_follow_system" />
+                <item
+                    android:id="@+id/night_mode_yes"
+                    android:title="@string/menu_night_yes" />
+                <item
+                    android:id="@+id/night_mode_no"
+                    android:title="@string/menu_night_mode_no" />
+            </group>
+        </menu>
+    </item>
 </menu>

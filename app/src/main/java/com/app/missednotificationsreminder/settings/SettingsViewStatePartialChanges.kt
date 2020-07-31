@@ -1,6 +1,7 @@
 package com.app.missednotificationsreminder.settings
 
 import com.app.missednotificationsreminder.binding.model.ViewStatePartialChanges
+import com.app.missednotificationsreminder.data.model.NightMode
 
 sealed class SettingsViewStatePartialChanges : ViewStatePartialChanges<SettingsViewState> {
 
@@ -32,6 +33,12 @@ sealed class SettingsViewStatePartialChanges : ViewStatePartialChanges<SettingsV
     data class AdvancedSettingsVisibleChanged(private val newValue: Boolean) : SettingsViewStatePartialChanges() {
         override fun reduce(previousState: SettingsViewState): SettingsViewState {
             return previousState.copy(advancedSettingsVisible = newValue)
+        }
+    }
+
+    data class NightModeChanged(private val newValue: NightMode) : SettingsViewStatePartialChanges() {
+        override fun reduce(previousState: SettingsViewState): SettingsViewState {
+            return previousState.copy(nightMode = newValue)
         }
     }
 }

@@ -88,5 +88,9 @@
     <!-- Dismiss notification -->
     <string name="dismiss_notification_title">Herinneringen zijn ingeschakeld</string>
     <string name="dismiss_notification_text">Verwerp deze melding om herinneringen uit te schakelen.</string>
+    <string name="menu_night_mode">Donkere modus</string>
+    <string name="menu_night_mode_follow_system">Volg Systeem</string>
+    <string name="menu_night_yes">Ingeschakeld</string>
+    <string name="menu_night_mode_no">Gehandicapt</string>
 
 </resources>

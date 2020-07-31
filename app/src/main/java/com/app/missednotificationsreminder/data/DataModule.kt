@@ -8,6 +8,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Vibrator
 import com.app.missednotificationsreminder.R
+import com.app.missednotificationsreminder.data.model.NightMode
 import com.app.missednotificationsreminder.di.qualifiers.*
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEvent
@@ -79,6 +80,12 @@ class DataModule {
     @ReminderIntervalDefault
     fun provideReminderIntervalDefault(@ForApplication context: Context): Int {
         return context.resources.getInteger(R.integer.reminderIntervalDefault)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNightMode(prefs: RxSharedPreferences): Preference<NightMode> {
+        return prefs.getEnum("NIGHT_MODE", NightMode.FOLLOW_SYSTEM, NightMode::class.java)
     }
 
     @Provides
