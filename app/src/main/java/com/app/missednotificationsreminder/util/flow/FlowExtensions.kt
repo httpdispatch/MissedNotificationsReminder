@@ -16,3 +16,7 @@ fun <T> Iterable<Flow<T>>.amb(): Flow<T> = FlowAmb<T>(this@amb)
  */
 @FlowPreview
 fun <T> Flow<T>.ambWith(other: Flow<T>): Flow<T> = FlowAmb(listOf(this@ambWith, other))
+
+@FlowPreview
+fun <T> Flow<T>.bufferTimeout(duration: Long, size: Int = Int.MAX_VALUE): Flow<List<T>> =
+        FlowBufferTimeout(this@bufferTimeout, size, duration)

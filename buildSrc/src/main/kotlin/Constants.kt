@@ -7,6 +7,6 @@ object Constants {
 
 object Versions {
     const val DAGGER = "2.28"
-    const val COROUTINES_VERSION = "1.3.7"
+    const val COROUTINES_VERSION = "1.3.8"
     const val LIFECYCLE_VERSION = "2.2.0"
 }
