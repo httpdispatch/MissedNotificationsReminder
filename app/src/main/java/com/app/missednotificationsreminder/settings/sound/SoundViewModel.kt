@@ -11,7 +11,7 @@ import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
 import com.app.missednotificationsreminder.binding.util.bindWithPreferences
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication
 import com.app.missednotificationsreminder.di.qualifiers.ReminderRingtone
-import com.f2prateek.rx.preferences.Preference
+import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.distinctUntilChanged

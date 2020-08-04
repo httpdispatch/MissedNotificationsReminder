@@ -17,7 +17,6 @@ import com.app.missednotificationsreminder.BuildConfig;
 import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.databinding.DebugViewContentBinding;
 import com.app.missednotificationsreminder.di.Injector;
-import com.f2prateek.rx.preferences.Preference;
 import com.jakewharton.u2020.data.AnimationSpeed;
 import com.jakewharton.u2020.data.LumberYard;
 import com.jakewharton.u2020.data.PicassoDebugging;
@@ -29,6 +28,7 @@ import com.jakewharton.u2020.ui.logs.LogsDialog;
 import com.jakewharton.u2020.util.Strings;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.StatsSnapshot;
+import com.tfcporciuncula.flow.Preference;
 
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -108,28 +108,28 @@ public final class DebugView extends FrameLayout {
     mBinding.debugUiPixelGrid.setChecked(gridEnabled);
     mBinding.debugUiPixelRatio.setEnabled(gridEnabled);
     mBinding.debugUiPixelGrid.setOnCheckedChangeListener((buttonView, isChecked) -> {
-      Timber.d("Setting pixel grid overlay enabled to " + isChecked);
+      Timber.d("Setting pixel grid overlay enabled to %s", isChecked);
       pixelGridEnabled.set(isChecked);
       mBinding.debugUiPixelRatio.setEnabled(isChecked);
     });
 
     mBinding.debugUiPixelRatio.setChecked(pixelRatioEnabled.get());
     mBinding.debugUiPixelRatio.setOnCheckedChangeListener((buttonView, isChecked) -> {
-      Timber.d("Setting pixel scale overlay enabled to " + isChecked);
+      Timber.d("Setting pixel scale overlay enabled to %s", isChecked);
       pixelRatioEnabled.set(isChecked);
     });
 
     mBinding.debugUiScalpel.setChecked(scalpelEnabled.get());
     mBinding.debugUiScalpelWireframe.setEnabled(scalpelEnabled.get());
     mBinding.debugUiScalpel.setOnCheckedChangeListener((buttonView, isChecked) -> {
-      Timber.d("Setting scalpel interaction enabled to " + isChecked);
+      Timber.d("Setting scalpel interaction enabled to %s", isChecked);
       scalpelEnabled.set(isChecked);
       mBinding.debugUiScalpelWireframe.setEnabled(isChecked);
     });
 
     mBinding.debugUiScalpelWireframe.setChecked(scalpelWireframeEnabled.get());
     mBinding.debugUiScalpelWireframe.setOnCheckedChangeListener((buttonView, isChecked) -> {
-      Timber.d("Setting scalpel wireframe enabled to " + isChecked);
+      Timber.d("Setting scalpel wireframe enabled to %s", isChecked);
       scalpelWireframeEnabled.set(isChecked);
     });
     mBinding.debugLogsShow.setOnClickListener(view -> new LogsDialog(new ContextThemeWrapper(getContext(), R.style.AppTheme), lumberYard).show());

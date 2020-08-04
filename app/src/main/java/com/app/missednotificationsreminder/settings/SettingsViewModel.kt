@@ -12,7 +12,7 @@ import com.app.missednotificationsreminder.data.model.NightMode
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.util.BatteryUtils
-import com.f2prateek.rx.preferences.Preference
+import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch

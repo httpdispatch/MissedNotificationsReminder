@@ -45,7 +45,7 @@ import com.app.missednotificationsreminder.util.event.RxEventBus
 import com.app.missednotificationsreminder.util.flow.ambWith
 import com.evernote.android.job.JobManager
 import com.evernote.android.job.JobRequest
-import com.f2prateek.rx.preferences.Preference
+import com.tfcporciuncula.flow.Preference
 import dagger.android.AndroidInjector
 import dagger.android.ContributesAndroidInjector
 import kotlinx.coroutines.*
@@ -315,8 +315,8 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         }
         appGraph.inject(this)
         // TODO workaround for updated interval measurements
-        if (reminderInterval.get()!! < reminderIntervalMinimum) {
-            reminderInterval.set(TimeUtils.minutesToSeconds(reminderInterval.get()!!.toDouble()))
+        if (reminderInterval.get() < reminderIntervalMinimum) {
+            reminderInterval.set(TimeUtils.minutesToSeconds(reminderInterval.get().toDouble()))
         }
 
         // initialize broadcast receiver
@@ -413,12 +413,12 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 ringerMode
                         .drop(1) // skip initial value emitted right after the subscription
                         .onEach { v -> Timber.d("Ringer mode changed to %d", v) }
-                        .filter { respectRingerMode.get()!! }
+                        .filter { respectRingerMode.get() }
                         .map { true },
                 dndEnabled
                         .drop(1) // skip initial value emitted right after the subscription
                         .onEach { v -> Timber.d("DND mode changed to %b", v) }
-                        .filter { respectRingerMode.get()!! })
+                        .filter { respectRingerMode.get() })
                 .flattenMerge()
                 .filter { ready.value }
                 .onEach {
@@ -459,11 +459,11 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 Timber.d("checkWakingConditions: already active, skipping")
                 return
             }
-            if (!reminderEnabled.get()!!) {
+            if (!reminderEnabled.get()) {
                 Timber.d("checkWakingConditions: disabled, skipping")
                 return
             }
-            if (respectRingerMode.get()!!) {
+            if (respectRingerMode.get()) {
                 // if ringer mode should be respected
                 if (ringerMode.value == AudioManager.RINGER_MODE_SILENT) {
                     Timber.d("checkWakingConditions: respecting silent mode, skipping")
@@ -473,18 +473,18 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                     Timber.d("checkWakingConditions: respecting DND mode, skipping")
                     return
                 }
-                if (ringerMode.value == AudioManager.RINGER_MODE_VIBRATE && !vibrate.get()!!) {
+                if (ringerMode.value == AudioManager.RINGER_MODE_VIBRATE && !vibrate.get()) {
                     Timber.d("checkWakingConditions: respecting vibrate mode while vibration is not enabled, skipping")
                     return
                 }
             }
-            val schedule = checkNotificationForAtLeastOnePackageExists(selectedApplications.get()!!, ignorePersistentNotifications.get()!!)
+            val schedule = checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())
             if (schedule) {
                 Timber.d("checkWakingConditions: there are notifications from selected applications. Scheduling reminder")
                 // remember active state
                 active.set(true)
-                if (limitReminderRepeats.get()!!) {
-                    remainingRepeats = reminderRepeats.get()!!
+                if (limitReminderRepeats.get()) {
+                    remainingRepeats = reminderRepeats.get()
                 }
                 scheduleNextWakeup(false)
             } else {
@@ -535,32 +535,32 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     @SuppressLint("TimberArgCount")
     private fun scheduleNextWakeup(repeating: Boolean) {
         var scheduledTime: Long = 0
-        if (limitReminderRepeats.get()!! && remainingRepeats-- <= 0) {
+        if (limitReminderRepeats.get() && remainingRepeats-- <= 0) {
             Timber.d("scheduleNextWakeup: ran out of reminder repeats, stopping")
             stopWaking()
             return
         }
-        if (createDismissNotification.get()!! && (repeating || createDismissNotificationImmediately.get()!!)) {
+        if (createDismissNotification.get() && (repeating || createDismissNotificationImmediately.get())) {
             createDismissNotification()
         }
-        if (schedulerEnabled.get()!!) {
+        if (schedulerEnabled.get()) {
             // if custom scheduler is enabled
             scheduledTime = TimeUtils.getScheduledTime(
-                    if (schedulerMode.get()!!) TimeUtils.SchedulerMode.WORKING_PERIOD else TimeUtils.SchedulerMode.NON_WORKING_PERIOD,
-                    schedulerRangeBegin.get()!!, schedulerRangeEnd.get()!!,
-                    System.currentTimeMillis() + reminderInterval.get()!! * TimeUtils.MILLIS_IN_SECOND)
+                    if (schedulerMode.get()) TimeUtils.SchedulerMode.WORKING_PERIOD else TimeUtils.SchedulerMode.NON_WORKING_PERIOD,
+                    schedulerRangeBegin.get(), schedulerRangeEnd.get(),
+                    System.currentTimeMillis() + reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND)
         }
         if (scheduledTime == 0L) {
             Timber.d("scheduleNextWakup: Schedule reminder for %1\$d seconds",
                     reminderInterval.get())
-            if (forceWakeLock.get()!! && wakeLock == null) {
+            if (forceWakeLock.get() && wakeLock == null) {
                 // if wakelock workaround should be used
                 Timber.d("scheduleNextWakup: force wake lock")
                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                         ReminderNotificationListenerService::class.java.simpleName)
                         .apply { acquire() }
             }
-            scheduleNextWakeupForOffset(reminderInterval.get()!! * TimeUtils.MILLIS_IN_SECOND.toLong())
+            scheduleNextWakeupForOffset(reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND.toLong())
         } else {
             Timber.d("scheduleNextWakup: Schedule reminder for time %1\$tY-%1\$tm-%1\$td %1\$tH:%1\$tM:%1\$tS",
                     Date(scheduledTime))
@@ -668,13 +668,13 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             if (!initializing) {
                 mEventBus.send(NotificationsUpdatedEvent(notificationsData))
             }
-            if (ready.value && selectedApplications.get()!!.contains(notificationData.packageName)) {
+            if (ready.value && selectedApplications.get().contains(notificationData.packageName)) {
                 // check waking conditions only if notification has been posted for the monitored application to prevent
                 // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
                 // monitored app
-                if (limitReminderRepeats.get()!!) {
+                if (limitReminderRepeats.get()) {
                     // reset reminder repeats such as new important notification has arrived
-                    remainingRepeats = reminderRepeats.get()!!
+                    remainingRepeats = reminderRepeats.get()
                 }
                 if (!initializing) {
                     checkWakingConditions()
@@ -704,7 +704,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             if (!initializing) {
                 mEventBus.send(NotificationsUpdatedEvent(notificationsData))
             }
-            if (active.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get()!!, ignorePersistentNotifications.get()!!)) {
+            if (active.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
                 // stop alarm if there are no more notifications to update
                 stopWaking()
             }
@@ -854,9 +854,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                     stopWaking(true)
                     return@launch
                 }
-                if (!remindWhenScreenIsOn.get()!! && isScreenOn(applicationContext)) {
+                if (!remindWhenScreenIsOn.get() && isScreenOn(applicationContext)) {
                     Timber.d("onReceive: The screen is on and remind when screen is on is not specified, skip notification")
-                } else if (PhoneStateUtils.isCallActive(applicationContext) && respectPhoneCalls.get()!!) {
+                } else if (PhoneStateUtils.isCallActive(applicationContext) && respectPhoneCalls.get()) {
                     Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification")
                 } else {
                     try {
@@ -865,9 +865,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                         val playbackCompleted = async { playReminder() }
                         // Start without a delay
                         // Each element then alternates between vibrate, sleep, vibrate, sleep...
-                        val vibrationCompletedAtLeastOnce = if (vibrate.get()!! && (!respectRingerMode.get()!! || ringerMode.value != AudioManager.RINGER_MODE_SILENT)) {
+                        val vibrationCompletedAtLeastOnce = if (vibrate.get() && (!respectRingerMode.get() || ringerMode.value != AudioManager.RINGER_MODE_SILENT)) {
                             // if vibration is turned on and phone is not in silent mode or respect ringer mode option is disabled
-                            async { vibrateAtLeastOnce(vibrationPattern.get()!!) }
+                            async { vibrateAtLeastOnce(vibrationPattern.get()) }
                         } else {
                             async {}
                         }
@@ -936,7 +936,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 try {
                     mediaPlayer.reset()
                     // use alternative stream if respect ringer mode is disabled
-                    val streamType = if (respectRingerMode.get()!!) AudioManager.STREAM_NOTIFICATION else AudioManager.STREAM_ALARM
+                    val streamType = if (respectRingerMode.get()) AudioManager.STREAM_NOTIFICATION else AudioManager.STREAM_ALARM
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         mediaPlayer.setAudioAttributes(AudioAttributes.Builder()
                                 .setLegacyStreamType(streamType)
@@ -945,7 +945,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                         @Suppress("DEPRECATION")
                         mediaPlayer.setAudioStreamType(streamType)
                     }
-                    if (respectRingerMode.get()!! && (ringerMode.value == AudioManager.RINGER_MODE_VIBRATE || ringerMode.value == AudioManager.RINGER_MODE_SILENT)) {
+                    if (respectRingerMode.get() && (ringerMode.value == AudioManager.RINGER_MODE_VIBRATE || ringerMode.value == AudioManager.RINGER_MODE_SILENT)) {
                         // mute sound explicitly for silent ringer modes because some user claims that sound is not muted on their devices in such cases
                         mediaPlayer.setVolume(0f, 0f)
                     } else {

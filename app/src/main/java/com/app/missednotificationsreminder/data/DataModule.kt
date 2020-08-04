@@ -16,11 +16,12 @@ import com.app.missednotificationsreminder.service.event.RemindEvents
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.app.missednotificationsreminder.util.event.Event
 import com.app.missednotificationsreminder.util.event.RxEventBus
-import com.f2prateek.rx.preferences.Preference
-import com.f2prateek.rx.preferences.RxSharedPreferences
 import com.squareup.picasso.Picasso
+import com.tfcporciuncula.flow.FlowSharedPreferences
+import com.tfcporciuncula.flow.Preference
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import rx.Completable
 import rx.Observable
 import rx.Scheduler
@@ -34,6 +35,7 @@ import javax.inject.Singleton
  * The Dagger dependency injection module for the data layer
  */
 @Module
+@OptIn(ExperimentalCoroutinesApi::class)
 class DataModule {
     @Provides
     @Singleton
@@ -57,8 +59,8 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideRxSharedPreferences(prefs: SharedPreferences): RxSharedPreferences {
-        return RxSharedPreferences.create(prefs)
+    fun provideFlowSharedPreferences(prefs: SharedPreferences): FlowSharedPreferences {
+        return FlowSharedPreferences(prefs)
     }
 
     @Provides
@@ -84,29 +86,29 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideNightMode(prefs: RxSharedPreferences): Preference<NightMode> {
-        return prefs.getEnum("NIGHT_MODE", NightMode.FOLLOW_SYSTEM, NightMode::class.java)
+    fun provideNightMode(prefs: FlowSharedPreferences): Preference<NightMode> {
+        return prefs.getEnum("NIGHT_MODE", NightMode.FOLLOW_SYSTEM)
     }
 
     @Provides
     @Singleton
     @LimitReminderRepeats
-    fun provideLimitReminderRepeats(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideLimitReminderRepeats(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean("LIMIT_REMINDER_REPEATS", false)
     }
 
     @Provides
     @Singleton
     @ReminderInterval
-    fun provideReminderInterval(prefs: RxSharedPreferences, @ReminderIntervalDefault reminderIntervalDefault: Int): Preference<Int> {
-        return prefs.getInteger("REMINDER_INTERVAL", reminderIntervalDefault)
+    fun provideReminderInterval(prefs: FlowSharedPreferences, @ReminderIntervalDefault reminderIntervalDefault: Int): Preference<Int> {
+        return prefs.getInt("REMINDER_INTERVAL", reminderIntervalDefault)
     }
 
     @Provides
     @Singleton
     @ReminderRepeats
-    fun provideReminderRepeats(prefs: RxSharedPreferences, @ReminderRepeatsDefault reminderRepeatsDefault: Int): Preference<Int> {
-        return prefs.getInteger("REMINDER_REPEATS", reminderRepeatsDefault)
+    fun provideReminderRepeats(prefs: FlowSharedPreferences, @ReminderRepeatsDefault reminderRepeatsDefault: Int): Preference<Int> {
+        return prefs.getInt("REMINDER_REPEATS", reminderRepeatsDefault)
     }
 
     @Provides
@@ -133,28 +135,28 @@ class DataModule {
     @Provides
     @Singleton
     @CreateDismissNotification
-    fun provideCreateDismissNotification(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideCreateDismissNotification(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean("CREATE_DISMISS_NOTIFICATION", true)
     }
 
     @Provides
     @Singleton
     @CreateDismissNotificationImmediately
-    fun provideCreateDismissNotificationImmediately(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideCreateDismissNotificationImmediately(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean("CREATE_DISMISS_NOTIFICATION_IMMEDIATELY", true)
     }
 
     @Provides
     @Singleton
     @ForceWakeLock
-    fun provideForceWakeLock(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideForceWakeLock(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean(ForceWakeLock::class.java.simpleName, false)
     }
 
     @Provides
     @Singleton
     @ReminderRingtone
-    fun provideReminderRingtone(prefs: RxSharedPreferences): Preference<String> {
+    fun provideReminderRingtone(prefs: FlowSharedPreferences): Preference<String> {
         val defaultRingtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         return prefs.getString("REMINDER_RINGTONE", defaultRingtone?.toString() ?: "")
     }
@@ -162,7 +164,7 @@ class DataModule {
     @Provides
     @Singleton
     @Vibrate
-    fun provideVibrate(prefs: RxSharedPreferences, vibrator: Vibrator): Preference<Boolean> {
+    fun provideVibrate(prefs: FlowSharedPreferences, vibrator: Vibrator): Preference<Boolean> {
         return prefs.getBoolean(Vibrate::class.java.simpleName, vibrator.hasVibrator())
     }
 
@@ -176,63 +178,63 @@ class DataModule {
     @Provides
     @Singleton
     @VibrationPattern
-    fun provideVibrationPattern(prefs: RxSharedPreferences, @VibrationPatternDefault vibrationPatternDefault: String?): Preference<String> {
+    fun provideVibrationPattern(prefs: FlowSharedPreferences, @VibrationPatternDefault vibrationPatternDefault: String): Preference<String> {
         return prefs.getString("VIBRATION_PATTERN", vibrationPatternDefault)
     }
 
     @Provides
     @Singleton
     @SelectedApplications
-    fun provideSelectedApplications(prefs: RxSharedPreferences): Preference<Set<String>> {
+    fun provideSelectedApplications(prefs: FlowSharedPreferences): Preference<Set<String>> {
         return prefs.getStringSet("SELECTED_APPLICATIONS")
     }
 
     @Provides
     @Singleton
     @IgnorePersistentNotifications
-    fun provideIgnorePersistentNotifications(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideIgnorePersistentNotifications(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean(IgnorePersistentNotifications::class.java.name, true)
     }
 
     @Provides
     @Singleton
     @RespectPhoneCalls
-    fun provideRespectPhoneCalls(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideRespectPhoneCalls(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean(RespectPhoneCalls::class.java.name, true)
     }
 
     @Provides
     @Singleton
     @RespectRingerMode
-    fun provideRespectRingerMode(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideRespectRingerMode(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean(RespectRingerMode::class.java.name, true)
     }
 
     @Provides
     @Singleton
     @RemindWhenScreenIsOn
-    fun provideRemindWhenScreenIsOn(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideRemindWhenScreenIsOn(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean(RemindWhenScreenIsOn::class.java.name, true)
     }
 
     @Provides
     @Singleton
     @ReminderEnabled
-    fun provideReminderEnabled(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideReminderEnabled(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean("REMINDER_ENABLED", true)
     }
 
     @Provides
     @Singleton
     @SchedulerEnabled
-    fun provideSchedulerEnabled(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideSchedulerEnabled(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean("SCHEDULER_ENABLED", false)
     }
 
     @Provides
     @Singleton
     @SchedulerMode
-    fun provideSchedulerMode(prefs: RxSharedPreferences): Preference<Boolean> {
+    fun provideSchedulerMode(prefs: FlowSharedPreferences): Preference<Boolean> {
         return prefs.getBoolean("SCHEDULER_MODE", true)
     }
 
@@ -267,15 +269,15 @@ class DataModule {
     @Provides
     @Singleton
     @SchedulerRangeBegin
-    fun provideSchedulerRangeBegin(prefs: RxSharedPreferences, @SchedulerRangeDefaultBegin schedulerRangeDefaultBegin: Int): Preference<Int> {
-        return prefs.getInteger("SCHEDULER_RANGE_BEGIN", schedulerRangeDefaultBegin)
+    fun provideSchedulerRangeBegin(prefs: FlowSharedPreferences, @SchedulerRangeDefaultBegin schedulerRangeDefaultBegin: Int): Preference<Int> {
+        return prefs.getInt("SCHEDULER_RANGE_BEGIN", schedulerRangeDefaultBegin)
     }
 
     @Provides
     @Singleton
     @SchedulerRangeEnd
-    fun provideSchedulerRangeEnd(prefs: RxSharedPreferences, @SchedulerRangeDefaultEnd schedulerRangeDefaultEnd: Int): Preference<Int> {
-        return prefs.getInteger("SCHEDULER_RANGE_END", schedulerRangeDefaultEnd)
+    fun provideSchedulerRangeEnd(prefs: FlowSharedPreferences, @SchedulerRangeDefaultEnd schedulerRangeDefaultEnd: Int): Preference<Int> {
+        return prefs.getInt("SCHEDULER_RANGE_END", schedulerRangeDefaultEnd)
     }
 
     @Provides

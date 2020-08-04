@@ -7,7 +7,7 @@ import com.app.missednotificationsreminder.di.qualifiers.IgnorePersistentNotific
 import com.app.missednotificationsreminder.di.qualifiers.RemindWhenScreenIsOn
 import com.app.missednotificationsreminder.di.qualifiers.RespectPhoneCalls
 import com.app.missednotificationsreminder.di.qualifiers.RespectRingerMode
-import com.f2prateek.rx.preferences.Preference
+import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect

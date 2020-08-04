@@ -13,7 +13,7 @@ import com.app.missednotificationsreminder.di.qualifiers.Vibrate
 import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.util.coroutines.debounce
-import com.f2prateek.rx.preferences.Preference
+import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*

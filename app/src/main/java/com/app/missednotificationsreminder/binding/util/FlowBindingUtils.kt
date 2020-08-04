@@ -2,8 +2,7 @@ package com.app.missednotificationsreminder.binding.util
 
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.asLiveData
-import com.app.missednotificationsreminder.util.asFlow
-import com.f2prateek.rx.preferences.Preference
+import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.coroutineScope
@@ -41,10 +40,10 @@ suspend fun <T : Any, P : Any> MutableStateFlow<T>.bindWithPreferences(
         stateToPreference: (T) -> P) {
     try {
         coroutineScope {
-            Timber.d("bindWithPreferences: start for ${preference.key()}")
+            Timber.d("bindWithPreferences: start for $preference")
             val stateFlow = this@bindWithPreferences
             // set the initial value from preferences
-            stateFlow.value = preferenceToStateReducer(preference.get()!!, stateFlow.value)
+            stateFlow.value = preferenceToStateReducer(preference.get(), stateFlow.value)
             // subscribe preferences to the mutable state flow changing events to save the modified
             // values
             launch {
@@ -53,7 +52,7 @@ suspend fun <T : Any, P : Any> MutableStateFlow<T>.bindWithPreferences(
                         .map { stateToPreference(it) }
                         .distinctUntilChanged()
                         .drop(1)
-                        .onEach { Timber.d("bindWithPreferences: ${preference.key()} value $it") }
+                        .onEach { Timber.d("bindWithPreferences: $preference value $it") }
                         .debounce(100)
                         .collect { preference.set(it) }
                 Timber.d("bindWithPreferences: job1 end")

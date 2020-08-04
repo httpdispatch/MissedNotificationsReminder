@@ -9,7 +9,7 @@ import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.app.missednotificationsreminder.util.asFlow
-import com.f2prateek.rx.preferences.Preference
+import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -46,7 +46,7 @@ class ApplicationsSelectionViewModel @Inject constructor(
                 .map { notificationsCountInfo ->
                     val result: MutableList<ApplicationItemViewState> = ArrayList()
                     val packages = packageManager.getInstalledPackages(0)
-                    val selectedApplications = selectedApplicationsPref.get() ?: emptySet()
+                    val selectedApplications = selectedApplicationsPref.get()
                     for (packageInfo in packages) {
                         val selected = selectedApplications.contains(packageInfo.packageName)
                         result.add(ApplicationItemViewState(

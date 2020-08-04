@@ -14,8 +14,8 @@ import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.ui.widget.recyclerview.LifecycleAdapter
 import com.app.missednotificationsreminder.ui.widget.recyclerview.LifecycleViewHolder
 import com.app.missednotificationsreminder.util.asFlow
-import com.f2prateek.rx.preferences.Preference
 import com.squareup.picasso.Picasso
+import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -125,7 +125,7 @@ class ApplicationsSelectionAdapter @Inject constructor(
                         Timber.d("Update selected application value %1\$s to %2\$b", applicationItem.packageName, applicationItem.checked)
                         // for sure we may use if condition here instead of concatenation of 2 observables. Just wanted to achieve
                         // same result with RxJava usage.
-                        (selectedApplications.get() ?: emptySet())
+                        selectedApplications.get()
                                 .let {
                                     val updatedSet = it.toMutableSet()
                                     if (updatedSet.contains(applicationItem.packageName))

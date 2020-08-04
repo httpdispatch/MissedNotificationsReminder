@@ -6,7 +6,7 @@ import com.app.missednotificationsreminder.binding.util.bindWithPreferences
 import com.app.missednotificationsreminder.di.qualifiers.*
 import com.app.missednotificationsreminder.util.TimeUtils
 import com.app.missednotificationsreminder.util.coroutines.debounce
-import com.f2prateek.rx.preferences.Preference
+import com.tfcporciuncula.flow.Preference
 import hu.akarnokd.kotlin.flow.publish
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -80,8 +80,8 @@ class ReminderViewModel @Inject constructor(
                         { it.forceWakeLock })
             }
             // workaround for updated interval measurements
-            if (reminderInterval.get()!! < minInterval) {
-                reminderInterval.set(TimeUtils.minutesToSeconds(reminderInterval.get()!!.toDouble()))
+            if (reminderInterval.get() < minInterval) {
+                reminderInterval.set(TimeUtils.minutesToSeconds(reminderInterval.get().toDouble()))
             }
             launch {
                 _viewState.bindWithPreferences(reminderInterval,
