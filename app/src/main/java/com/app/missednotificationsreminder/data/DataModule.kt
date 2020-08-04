@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Vibrator
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.data.model.NightMode
@@ -15,20 +14,19 @@ import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEve
 import com.app.missednotificationsreminder.service.event.RemindEvents
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.app.missednotificationsreminder.util.event.Event
-import com.app.missednotificationsreminder.util.event.RxEventBus
+import com.app.missednotificationsreminder.util.event.FlowEventBus
 import com.squareup.picasso.Picasso
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import com.tfcporciuncula.flow.Preference
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import rx.Completable
-import rx.Observable
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import rx.Scheduler
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
@@ -297,24 +295,23 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideEventBus(): RxEventBus {
-        return RxEventBus()
+    fun provideEventBus(): FlowEventBus {
+        return FlowEventBus()
     }
 
+    @FlowPreview
     @Provides
-    @Singleton
-    fun provideNotificationDataObservable(eventBus: RxEventBus): Observable<List<NotificationData>> {
-        Timber.d("provideNotificationDataObservable() called with: eventBus = %s",
+    fun provideNotificationDataFlow(eventBus: FlowEventBus): Flow<List<NotificationData>> {
+        Timber.d("provideNotificationDataFlow() called with: eventBus = %s",
                 eventBus)
-        return eventBus.toObserverable()
-                .filter { event: Event? -> event is NotificationsUpdatedEvent }
+        return eventBus.toFlow()
+                .filter { event: Event -> event is NotificationsUpdatedEvent }
                 .map { event: Event -> (event as NotificationsUpdatedEvent).notifications }
-                .startWith(emptyList<NotificationData>())
-                .mergeWith(Completable.fromAction { eventBus.send(RemindEvents.GET_CURRENT_NOTIFICATIONS_DATA) }.toObservable())
-                .replay(1)
-                .refCount()
-                .doOnNext { data: List<NotificationData?> -> Timber.d("notificationDataObservable: %d", data.size) }
-                .debounce(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+                .onStart {
+                    emit(emptyList<NotificationData>())
+                    eventBus.send(RemindEvents.GET_CURRENT_NOTIFICATIONS_DATA)
+                }
+                .onEach { data: List<NotificationData> -> Timber.d("notificationDataFlow: %d", data.size) }
+                .debounce(500)
     }
-
 }

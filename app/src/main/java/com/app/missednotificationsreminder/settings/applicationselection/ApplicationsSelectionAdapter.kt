@@ -1,6 +1,5 @@
 package com.app.missednotificationsreminder.settings.applicationselection
 
-import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.asLiveData
@@ -13,13 +12,11 @@ import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.ui.widget.recyclerview.LifecycleAdapter
 import com.app.missednotificationsreminder.ui.widget.recyclerview.LifecycleViewHolder
-import com.app.missednotificationsreminder.util.asFlow
 import com.squareup.picasso.Picasso
 import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
-import rx.Observable
 import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import javax.inject.Inject
@@ -31,7 +28,7 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 class ApplicationsSelectionAdapter @Inject constructor(
         @param:SelectedApplications private val selectedApplications: Preference<Set<String>>,
-        notificationDataObservable: Observable<List<NotificationData>>,
+        notificationDataFlow: Flow<@JvmSuppressWildcards List<NotificationData>>,
         private val picasso: Picasso) : LifecycleAdapter<ApplicationsSelectionAdapter.ViewHolder>() {
     private val subscription = CompositeSubscription()
     private val data = SortedList(ApplicationItemViewState::class.java, object : SortedListAdapterCallback<ApplicationItemViewState>(this) {
@@ -148,7 +145,7 @@ class ApplicationsSelectionAdapter @Inject constructor(
 
     init {
         setHasStableIds(false)
-        notificationDataObservable.asFlow()
+        notificationDataFlow
                 .conflate()
                 .onEach { notificationData ->
                     val notificationsCountInfo = getNotificationCountData(notificationData)

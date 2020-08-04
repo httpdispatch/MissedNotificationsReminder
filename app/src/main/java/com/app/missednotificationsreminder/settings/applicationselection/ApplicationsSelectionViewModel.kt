@@ -8,12 +8,10 @@ import com.app.missednotificationsreminder.binding.model.ViewStatePartialChanges
 import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
-import com.app.missednotificationsreminder.util.asFlow
 import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import rx.Observable
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -24,7 +22,7 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 class ApplicationsSelectionViewModel @Inject constructor(
         @param:SelectedApplications private val selectedApplicationsPref: Preference<Set<String>>,
-        private val notificationDataObservable: Observable<List<NotificationData>>,
+        private val notificationDataFlow: Flow<@JvmSuppressWildcards List<NotificationData>>,
         private val packageManager: PackageManager) :
         BaseViewStateModel<ViewState, ViewStatePartialChanges<ViewState>>(ViewState(LoadingStatus.NotStarted, Collections.emptyList())) {
 
@@ -39,8 +37,7 @@ class ApplicationsSelectionViewModel @Inject constructor(
             return
         }
         _viewState.apply { value = value.copy(loadingStatus = LoadingStatus.Loading) }
-        notificationDataObservable
-                .asFlow()
+        notificationDataFlow
                 .take(1)
                 .map { ApplicationsSelectionAdapter.getNotificationCountData(it) }
                 .map { notificationsCountInfo ->

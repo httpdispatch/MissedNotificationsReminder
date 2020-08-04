@@ -39,9 +39,8 @@ import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEve
 import com.app.missednotificationsreminder.service.event.RemindEvents
 import com.app.missednotificationsreminder.service.util.PhoneStateUtils
 import com.app.missednotificationsreminder.util.TimeUtils
-import com.app.missednotificationsreminder.util.asFlow
 import com.app.missednotificationsreminder.util.event.Event
-import com.app.missednotificationsreminder.util.event.RxEventBus
+import com.app.missednotificationsreminder.util.event.FlowEventBus
 import com.app.missednotificationsreminder.util.flow.ambWith
 import com.evernote.android.job.JobManager
 import com.evernote.android.job.JobRequest
@@ -147,7 +146,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     lateinit var vibrationPattern: Preference<String>
 
     @Inject
-    lateinit var mEventBus: RxEventBus
+    lateinit var mEventBus: FlowEventBus
 
     /**
      * List to store currently active notifications data
@@ -436,13 +435,11 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 }
                 .launchIn(lifecycleScope)
         // monitor for the remind events sent via event bus
-        mEventBus.toObserverable()
-                .asFlow()
+        mEventBus.toFlow()
                 .filter { event -> event === RemindEvents.REMIND }
                 .onEach { pendingIntentReceiver.onReceive(applicationContext, Intent()) }
                 .launchIn(lifecycleScope)
-        mEventBus.toObserverable()
-                .asFlow()
+        mEventBus.toFlow()
                 .filter { event: Event -> event === RemindEvents.GET_CURRENT_NOTIFICATIONS_DATA }
                 .onEach { mEventBus.send(NotificationsUpdatedEvent(notificationsData)) }
                 .launchIn(lifecycleScope)
@@ -890,7 +887,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             actualizeNotificationData()
             cancelVibrator()
             // notify listeners about reminder completion
-            mEventBus.send(RemindEvents.REMINDER_COMPLETED)
+            lifecycleScope.launch {
+                mEventBus.send(RemindEvents.REMINDER_COMPLETED)
+            }
         }
 
         private fun cancelVibrator() {

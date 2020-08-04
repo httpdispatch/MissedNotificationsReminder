@@ -101,7 +101,7 @@ public abstract class AbstractReminderNotificationListenerService extends Notifi
         long when = sbn.getNotification().when;
         for (NotificationData notificationData : snapshotNotifications) {
             ExtendedNotificationData extendedNotificationData = (ExtendedNotificationData) notificationData;
-            if (extendedNotificationData.id.equals(key) && extendedNotificationData.when == when) {
+            if (extendedNotificationData.getId().equals(key) && extendedNotificationData.when == when) {
                 result = extendedNotificationData;
                 break;
             }
