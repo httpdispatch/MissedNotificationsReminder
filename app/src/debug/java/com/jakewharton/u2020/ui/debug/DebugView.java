@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -16,7 +18,6 @@ import com.app.missednotificationsreminder.R;
 import com.app.missednotificationsreminder.databinding.DebugViewContentBinding;
 import com.app.missednotificationsreminder.di.Injector;
 import com.f2prateek.rx.preferences.Preference;
-import com.jakewharton.rxbinding.widget.RxAdapterView;
 import com.jakewharton.u2020.data.AnimationSpeed;
 import com.jakewharton.u2020.data.LumberYard;
 import com.jakewharton.u2020.data.PicassoDebugging;
@@ -86,14 +87,20 @@ public final class DebugView extends FrameLayout {
     mBinding.debugUiAnimationSpeed.setSelection(
         AnimationSpeedAdapter.getPositionForValue(animationSpeedValue));
 
-    RxAdapterView.itemSelections(mBinding.debugUiAnimationSpeed)
-        .map(speedAdapter::getItem)
-        .filter(item -> item != animationSpeed.get())
-        .subscribe(selected -> {
+    mBinding.debugUiAnimationSpeed.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        int selected = speedAdapter.getItem(position);
+        if(selected != animationSpeed.get()){
           Timber.d("Setting animation speed to %sx", selected);
           animationSpeed.set(selected);
           applyAnimationSpeed(selected);
-        });
+        }
+      }
+
+      @Override public void onNothingSelected(AdapterView<?> parent) {
+
+      }
+    });
     // Ensure the animation speed value is always applied across app restarts.
     post(() -> applyAnimationSpeed(animationSpeedValue));
 

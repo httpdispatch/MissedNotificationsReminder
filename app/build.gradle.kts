@@ -218,7 +218,6 @@ dependencies {
 
     implementation("io.reactivex:rxjava:1.3.8")
     implementation("io.reactivex:rxandroid:1.2.1")
-    implementation("com.jakewharton.rxbinding:rxbinding:1.0.1")
 
     implementation("com.f2prateek.rx.preferences:rx-preferences:1.0.2")
 
