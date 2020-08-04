@@ -8,8 +8,7 @@ import timber.log.Timber
 import kotlin.math.abs
 
 sealed class ReminderViewStatePartialChanges : ViewStatePartialChanges<ReminderViewState> {
-    //    abstract fun reduce(previousState: SoundViewState): SoundViewState
-//
+    //
     object ForceUpdate : ReminderViewStatePartialChanges() {
         override fun reduce(previousState: ReminderViewState): ReminderViewState {
             return previousState.copy(forceUpdate = previousState.forceUpdate + 1)
@@ -30,26 +29,38 @@ sealed class ReminderViewStatePartialChanges : ViewStatePartialChanges<ReminderV
             if (previousState.intervalSeconds == newValue) {
                 return previousState
             }
-            val intervalMinutes = TimeUtils.secondsToMinutes(newValue)
+            val correctedNewValue = when {
+                newValue < previousState.minIntervalSeconds -> {
+                    Timber.d("Interval reset to min")
+                    previousState.minIntervalSeconds
+                }
+                newValue > previousState.maxIntervalSeconds -> {
+                    Timber.d("Interval reset to max")
+                    previousState.maxIntervalSeconds
+                }
+                else -> {
+                    newValue
+                }
+            }
+            val intervalMinutes = TimeUtils.secondsToMinutes(correctedNewValue)
             return previousState.copy(
-                    intervalSeconds = newValue,
+                    intervalSeconds = correctedNewValue,
                     intervalMinutes = intervalMinutes,
+                    forceUpdate = previousState.forceUpdate + 1,
                     forceWakeLock = if (newValue > previousState.maxIntervalForWakeLock)
                         false
                     else
                         previousState.forceWakeLock)
                     .let { updatedState ->
-                        newValue
-                                .takeIf { it in previousState.minIntervalSeconds..previousState.maxIntervalSeconds }
-                                ?.let {
+                        correctedNewValue
+                                .let {
                                     (if (it >= ReminderViewModel.preciseMaxValueSeconds)
                                         intervalMinutes + ReminderViewModel.preciseIntervalSeekBarValues
                                     else
                                         intervalMinutes * (ReminderViewModel.preciseIntervalSeekBarValues + 1)).toInt()
                                 }
-                                ?.let { value: Int -> if (value == 0) 0 else value - 1 }
-                                ?.let { SeekIntervalChange(it).reduce(updatedState) }
-                                ?: updatedState
+                                .let { value: Int -> if (value == 0) 0 else value - 1 }
+                                .let { SeekIntervalChange(it).reduce(updatedState) }
                     }
         }
     }
@@ -93,20 +104,30 @@ sealed class ReminderViewStatePartialChanges : ViewStatePartialChanges<ReminderV
             if (previousState.repeats == newValue) {
                 return previousState
             }
+            val correctedNewValue = when {
+                newValue < previousState.minRepeats -> {
+                    Timber.d("Repeats reset to min")
+                    previousState.minRepeats
+                }
+                newValue > previousState.maxRepeats -> {
+                    Timber.d("Repeats reset to max")
+                    previousState.maxRepeats
+                }
+                else -> {
+                    newValue
+                }
+            }
             return previousState.copy(
-                    repeats = newValue)
+                    repeats = correctedNewValue,
+                    forceUpdate = previousState.forceUpdate + 1)
                     .let { updatedState ->
-                        newValue
-                                // Make sure that the value set in the text field is within allowed
-                                // boundaries.
-                                .takeIf { it in previousState.minRepeats..previousState.maxRepeats }
+                        correctedNewValue
                                 // Text field shows an actual number of reminder repetitions, but SeekBar
                                 // can only take a value in [0, max] range, therefore we need to map values
                                 // from [minRepeats, maxRepeats] range into [0, maxRepeats-minRepeats] range
                                 // used by SeekBar.
-                                ?.let { value: Int -> value - previousState.minRepeats }
-                                ?.let { SeekRepeatsChange(it).reduce(updatedState) }
-                                ?: updatedState
+                                .let { value: Int -> value - previousState.minRepeats }
+                                .let { SeekRepeatsChange(it).reduce(updatedState) }
                     }
         }
     }

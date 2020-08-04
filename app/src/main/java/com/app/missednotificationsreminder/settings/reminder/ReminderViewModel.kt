@@ -120,69 +120,6 @@ class ReminderViewModel @Inject constructor(
                         },
                         { it.createDismissNotificationImmediately })
             }
-            // Interval changed flow
-            val intervalChanged = viewState
-                    .map { it.intervalSeconds }
-                    .distinctUntilChanged()
-                    .onEach { Timber.d("Interval value changed: $it") }
-                    .publish { it }
-            // do not allow interval to exceed min and max limits
-            launch {
-                intervalChanged
-                        .filter { it < minInterval }
-                        .map {
-                            Timber.d("Interval reset to min")
-                            minInterval
-                        }
-                        .debounce(1000)
-                        // the value could be changed again within that one millisecond delay
-                        .filter { viewState.value.intervalSeconds < minInterval }
-                        .collect { process(ReminderViewStatePartialChanges.IntervalChange(it)) }
-            }
-            launch {
-                intervalChanged
-                        .filter { it > maxInterval }
-                        .map {
-                            Timber.d("Interval reset to max")
-                            maxInterval
-                        }
-                        .debounce(1000)
-                        // the value could be changed again within that one millisecond delay
-                        .filter { viewState.value.intervalSeconds > maxInterval }
-                        .collect { process(ReminderViewStatePartialChanges.IntervalChange(it)) }
-            }
-            // Prepare repeats changed flow to be able to add all the rules and activate them
-            // together with a call to .connect below.
-            val repeatsChanged = viewState
-                    .map { it.repeats }
-                    .distinctUntilChanged()
-                    .onEach { Timber.d("Repeats value changed: $it") }
-                    .publish { it }
-            // do not allow repeats to exceed min and max limits
-            launch {
-                repeatsChanged
-                        .filter { it < minRepeats }
-                        .map {
-                            Timber.d("Repeats reset to min")
-                            minRepeats
-                        }
-                        .debounce(1000)
-                        // the value could be changed again within that one millisecond delay
-                        .filter { viewState.value.repeats < minRepeats }
-                        .collect { process(ReminderViewStatePartialChanges.RepeatsChange(it)) }
-            }
-            launch {
-                repeatsChanged
-                        .filter { it > maxRepeats }
-                        .map {
-                            Timber.d("Repeats reset to max")
-                            maxRepeats
-                        }
-                        .debounce(1000)
-                        // the value could be changed again within that one millisecond delay
-                        .filter { viewState.value.repeats > maxRepeats }
-                        .collect { process(ReminderViewStatePartialChanges.RepeatsChange(it)) }
-            }
         }
     }
 
