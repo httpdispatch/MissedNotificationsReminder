@@ -17,7 +17,6 @@ import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
-import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -30,7 +29,6 @@ class ApplicationsSelectionAdapter @Inject constructor(
         @param:SelectedApplications private val selectedApplications: Preference<Set<String>>,
         notificationDataFlow: Flow<@JvmSuppressWildcards List<NotificationData>>,
         private val picasso: Picasso) : LifecycleAdapter<ApplicationsSelectionAdapter.ViewHolder>() {
-    private val subscription = CompositeSubscription()
     private val data = SortedList(ApplicationItemViewState::class.java, object : SortedListAdapterCallback<ApplicationItemViewState>(this) {
         override fun compare(t0: ApplicationItemViewState, t1: ApplicationItemViewState): Int {
             if (t0.activeNotifications != t1.activeNotifications) {
@@ -76,7 +74,6 @@ class ApplicationsSelectionAdapter @Inject constructor(
     }
 
     fun shutdown() {
-        subscription.clear()
     }
 
     /**

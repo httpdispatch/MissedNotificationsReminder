@@ -23,9 +23,6 @@ import dagger.Provides
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import rx.Scheduler
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Singleton
 
@@ -35,19 +32,6 @@ import javax.inject.Singleton
 @Module
 @OptIn(ExperimentalCoroutinesApi::class)
 class DataModule {
-    @Provides
-    @Singleton
-    @MainThreadScheduler
-    fun provideMainThreadScheduler(): Scheduler {
-        return AndroidSchedulers.mainThread()
-    }
-
-    @Provides
-    @Singleton
-    @IoThreadScheduler
-    fun provideIoThreadScheduler(): Scheduler {
-        return Schedulers.io()
-    }
 
     @Provides
     @Singleton
