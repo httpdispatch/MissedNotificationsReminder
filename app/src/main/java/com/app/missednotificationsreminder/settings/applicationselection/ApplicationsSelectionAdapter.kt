@@ -122,10 +122,10 @@ class ApplicationsSelectionAdapter @Inject constructor(
                         selectedApplications.get()
                                 .let {
                                     val updatedSet = it.toMutableSet()
-                                    if (updatedSet.contains(applicationItem.packageName))
-                                        updatedSet.remove(applicationItem.packageName)
-                                    else
+                                    if (applicationItem.checked)
                                         updatedSet.add(applicationItem.packageName)
+                                    else
+                                        updatedSet.remove(applicationItem.packageName)
                                     selectedApplications.set(updatedSet.toSet())
                                 }
                     }
