@@ -25,7 +25,6 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.Display
 import androidx.annotation.CallSuper
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Lifecycle
@@ -661,29 +660,27 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         unregisterReceiver(stopRemindersReceiver)
     }
 
-    override fun onNotificationPosted(notificationData: NotificationData) {
-        lifecycleScope.launch {
-            Timber.d("onNotificationPosted: %s", notificationData)
-            val existingElement = existingElement(notificationData)
-            if (existingElement != null) {
-                Timber.d("onNotificationPosted: removing previous %s", existingElement)
-                availableNotifications.remove(existingElement)
+    override suspend fun onNotificationPosted(notificationData: NotificationData) {
+        Timber.d("onNotificationPosted: %s", notificationData)
+        val existingElement = existingElement(notificationData)
+        if (existingElement != null) {
+            Timber.d("onNotificationPosted: removing previous %s", existingElement)
+            availableNotifications.remove(existingElement)
+        }
+        availableNotifications.add(notificationData)
+        if (!initializing) {
+            mEventBus.send(NotificationsUpdatedEvent(notificationsData))
+        }
+        if (ready.value && selectedApplications.get().contains(notificationData.packageName)) {
+            // check waking conditions only if notification has been posted for the monitored application to prevent
+            // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
+            // monitored app
+            if (limitReminderRepeats.get()) {
+                // reset reminder repeats such as new important notification has arrived
+                remainingRepeats = reminderRepeats.get()
             }
-            availableNotifications.add(notificationData)
             if (!initializing) {
-                mEventBus.send(NotificationsUpdatedEvent(notificationsData))
-            }
-            if (ready.value && selectedApplications.get().contains(notificationData.packageName)) {
-                // check waking conditions only if notification has been posted for the monitored application to prevent
-                // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
-                // monitored app
-                if (limitReminderRepeats.get()) {
-                    // reset reminder repeats such as new important notification has arrived
-                    remainingRepeats = reminderRepeats.get()
-                }
-                if (!initializing) {
-                    checkWakingConditions()
-                }
+                checkWakingConditions()
             }
         }
     }
@@ -700,19 +697,17 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         return result
     }
 
-    override fun onNotificationRemoved(notificationData: NotificationData) {
-        lifecycleScope.launch {
-            Timber.d("onNotificationRemoved: %s", notificationData)
-            if (!availableNotifications.remove(notificationData)) {
-                Timber.w("onNotificationRemoved: removal failed")
-            }
-            if (!initializing) {
-                mEventBus.send(NotificationsUpdatedEvent(notificationsData))
-            }
-            if (active.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
-                // stop alarm if there are no more notifications to update
-                stopWaking()
-            }
+    override suspend fun onNotificationRemoved(notificationData: NotificationData) {
+        Timber.d("onNotificationRemoved: %s", notificationData)
+        if (!availableNotifications.remove(notificationData)) {
+            Timber.w("onNotificationRemoved: removal failed")
+        }
+        if (!initializing) {
+            mEventBus.send(NotificationsUpdatedEvent(notificationsData))
+        }
+        if (active.get() && !checkNotificationForAtLeastOnePackageExists(selectedApplications.get(), ignorePersistentNotifications.get())) {
+            // stop alarm if there are no more notifications to update
+            stopWaking()
         }
     }
 
@@ -883,14 +878,12 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             }
         }
 
-        private fun reminderCompleted() {
+        private suspend fun reminderCompleted() {
             scheduleNextWakeup(true)
             actualizeNotificationData()
             cancelVibrator()
             // notify listeners about reminder completion
-            lifecycleScope.launch {
-                mEventBus.send(RemindEvents.REMINDER_COMPLETED)
-            }
+            mEventBus.send(RemindEvents.REMINDER_COMPLETED)
         }
 
         private fun cancelVibrator() {

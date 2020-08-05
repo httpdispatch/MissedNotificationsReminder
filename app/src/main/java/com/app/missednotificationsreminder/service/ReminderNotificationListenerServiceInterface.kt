@@ -12,14 +12,14 @@ interface ReminderNotificationListenerServiceInterface : LifecycleOwner{
      *
      * @param notificationData the posted notification data
      */
-    fun onNotificationPosted(notificationData: NotificationData)
+    suspend fun onNotificationPosted(notificationData: NotificationData)
 
     /**
      * The method which should be called when any notification is removed
      *
      * @param notificationData the removed notification data
      */
-    fun onNotificationRemoved(notificationData: NotificationData)
+    suspend fun onNotificationRemoved(notificationData: NotificationData)
 
     /**
      * The method which should be called when a notification listener service is ready
@@ -44,5 +44,5 @@ interface ReminderNotificationListenerServiceInterface : LifecycleOwner{
     /**
      * Actualize the notification date
      */
-    fun actualizeNotificationData()
+    suspend fun actualizeNotificationData()
 }

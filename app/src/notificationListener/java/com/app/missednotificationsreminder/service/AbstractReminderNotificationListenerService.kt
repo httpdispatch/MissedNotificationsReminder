@@ -5,7 +5,9 @@ import android.os.Build
 import android.os.SystemClock
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import androidx.lifecycle.lifecycleScope
 import com.app.missednotificationsreminder.service.data.model.NotificationData
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 
@@ -21,7 +23,7 @@ abstract class AbstractReminderNotificationListenerService : NotificationListene
         }
     }
 
-    override fun actualizeNotificationData() {
+    override suspend fun actualizeNotificationData() {
         val activeNotifications: Array<StatusBarNotification> =
                 try {
                     activeNotifications
@@ -52,31 +54,35 @@ abstract class AbstractReminderNotificationListenerService : NotificationListene
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (sbn == null) {
-            // fix weird NPE on some devices
-            return
+        lifecycleScope.launch {
+            if (sbn == null) {
+                // fix weird NPE on some devices
+                return@launch
+            }
+            Timber.d("onNotificationPosted: for package %1\$s, key %2\$s, when %3\$s", sbn.packageName, notificationKey(sbn), sbn.notification.`when`)
+            var notificationData: NotificationData? = findNotificationData(sbn)
+            if (notificationData == null) {
+                notificationData = ExtendedNotificationData(sbn)
+            }
+            onNotificationPosted(notificationData)
         }
-        Timber.d("onNotificationPosted: for package %1\$s, key %2\$s, when %3\$s", sbn.packageName, notificationKey(sbn), sbn.notification.`when`)
-        var notificationData: NotificationData? = findNotificationData(sbn)
-        if (notificationData == null) {
-            notificationData = ExtendedNotificationData(sbn)
-        }
-        onNotificationPosted(notificationData)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        if (sbn == null) {
-            // fix weird NPE on some devices
-            return
-        }
-        Timber.d("onNotificationRemoved: for package %1\$s, key %2\$s, when %3\$s", sbn.packageName, notificationKey(sbn), sbn.notification.`when`)
-        val notificationData: NotificationData? = findNotificationData(sbn)
-        if (notificationData == null) {
-            Timber.w("onNotificationRemoved: can't find internal notification data for the status bar notification %s",
-                    notificationKey(sbn))
-        } else {
-            // stop alarm and check whether it should be launched again
-            onNotificationRemoved(notificationData)
+        lifecycleScope.launch {
+            if (sbn == null) {
+                // fix weird NPE on some devices
+                return@launch
+            }
+            Timber.d("onNotificationRemoved: for package %1\$s, key %2\$s, when %3\$s", sbn.packageName, notificationKey(sbn), sbn.notification.`when`)
+            val notificationData: NotificationData? = findNotificationData(sbn)
+            if (notificationData == null) {
+                Timber.w("onNotificationRemoved: can't find internal notification data for the status bar notification %s",
+                        notificationKey(sbn))
+            } else {
+                // stop alarm and check whether it should be launched again
+                onNotificationRemoved(notificationData)
+            }
         }
     }
 
