@@ -1,50 +1,48 @@
-package com.app.missednotificationsreminder.service;
+package com.app.missednotificationsreminder.service
 
-import com.app.missednotificationsreminder.service.data.model.NotificationData;
-
-import java.util.List;
+import androidx.lifecycle.LifecycleOwner
+import com.app.missednotificationsreminder.service.data.model.NotificationData
 
 /**
  * The reminder service interface for basic notification handling functionality
- *
- * @author Eugene Popovich
  */
-public interface ReminderNotificationListenerServiceInterface {
-
+interface ReminderNotificationListenerServiceInterface : LifecycleOwner{
     /**
      * The method which should be called when any new notification is posted
      *
      * @param notificationData the posted notification data
      */
-    void onNotificationPosted(NotificationData notificationData);
+    fun onNotificationPosted(notificationData: NotificationData)
 
     /**
      * The method which should be called when any notification is removed
      *
      * @param notificationData the removed notification data
      */
-    void onNotificationRemoved(NotificationData notificationData);
+    fun onNotificationRemoved(notificationData: NotificationData)
 
     /**
      * The method which should be called when a notification listener service is ready
      */
-    void onReady();
+    fun onReady()
 
     /**
      * Get the currently showing notification data
      *
      * @return
      */
-    List<NotificationData> getNotificationsData();
+    val notificationsData: List<NotificationData>
 
     /**
      * Get the currently ignoring notification data
      * @return
      */
-    List<NotificationData> getIgnoredNotificationsData();
+    val ignoredNotificationsData: List<NotificationData>
+
+    val createDismissNotification: Boolean
 
     /**
      * Actualize the notification date
      */
-    void actualizeNotificationData();
+    fun actualizeNotificationData()
 }

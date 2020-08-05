@@ -25,10 +25,10 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.Display
 import androidx.annotation.CallSuper
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.lifecycleScope
 import com.app.missednotificationsreminder.R
@@ -62,7 +62,7 @@ import javax.inject.Inject
  * is also specified by the user in the corresponding window.
  */
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-class ReminderNotificationListenerService : AbstractReminderNotificationListenerService(), LifecycleOwner {
+class ReminderNotificationListenerService : AbstractReminderNotificationListenerService() {
     private val mDispatcher = ServiceLifecycleDispatcher(this)
 
     @Inject
@@ -87,7 +87,10 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
 
     @Inject
     @CreateDismissNotification
-    lateinit var createDismissNotification: Preference<Boolean>
+    lateinit var createDismissNotificationPref: Preference<Boolean>
+
+    override val createDismissNotification: Boolean
+        get() = createDismissNotificationPref.get()
 
     @Inject
     @CreateDismissNotificationImmediately
@@ -266,18 +269,18 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     @Volatile
     private var initializing = true
 
+    override val notificationsData: List<NotificationData>
+        get() = Collections.unmodifiableList(ArrayList(availableNotifications))
+
+    override val ignoredNotificationsData: List<NotificationData>
+        get() = Collections.unmodifiableList(ArrayList(ignoredNotifications))
+
+
     @CallSuper
     override fun onCreate() {
         mDispatcher.onServicePreSuperOnCreate()
         super.onCreate()
         Timber.d("onCreate")
-    }
-
-    @CallSuper
-    override fun onBind(intent: Intent): IBinder? {
-        mDispatcher.onServicePreSuperOnBind()
-        Timber.d("onBind()")
-        return super.onBind(intent)
     }
 
     @Suppress("DEPRECATION")
@@ -286,6 +289,11 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         mDispatcher.onServicePreSuperOnStart()
         Timber.d("onStart()")
         super.onStart(intent, startId)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        mDispatcher.onServicePreSuperOnStart()
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun getLifecycle(): Lifecycle {
@@ -354,7 +362,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                         .drop(1) // skip initial value emitted right after the subscription
                         .onEach { Timber.d("Limit reminder repeats changed") }
                         .map { true },
-                createDismissNotification.asFlow()
+                createDismissNotificationPref.asFlow()
                         .drop(1) // skip initial value emitted right after the subscription
                         .onEach { Timber.d("Create dismiss notification changed") }
                         .map { true },
@@ -537,7 +545,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             stopWaking()
             return
         }
-        if (createDismissNotification.get() && (repeating || createDismissNotificationImmediately.get())) {
+        if (createDismissNotificationPref.get() && (repeating || createDismissNotificationImmediately.get())) {
             createDismissNotification()
         }
         if (schedulerEnabled.get()) {
@@ -759,14 +767,6 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         return result
     }
 
-    override fun getNotificationsData(): List<NotificationData> {
-        return Collections.unmodifiableList(ArrayList(availableNotifications))
-    }
-
-    override fun getIgnoredNotificationsData(): List<NotificationData> {
-        return Collections.unmodifiableList(ArrayList(ignoredNotifications))
-    }
-
     /**
      * The broadcast receiver for ringer mode changed events
      */
@@ -803,6 +803,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             zenModeUpdated()
         }
 
+        @SuppressLint("NewApi")
         private fun zenModeUpdated() {
             Timber.d("zenModeUpdated() called")
             try {
