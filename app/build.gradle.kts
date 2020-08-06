@@ -182,7 +182,7 @@ dependencies {
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
@@ -216,7 +216,7 @@ dependencies {
 
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    implementation("com.github.tfcporciuncula:flow-preferences:1.3.0")
+    implementation("com.github.tfcporciuncula:flow-preferences:1.3.1")
 
     implementation("com.wdullaer:materialdatetimepicker:4.2.3")
 

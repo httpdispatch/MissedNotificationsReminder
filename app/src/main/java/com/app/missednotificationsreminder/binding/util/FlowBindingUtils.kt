@@ -40,7 +40,7 @@ suspend fun <T : Any, P : Any> MutableStateFlow<T>.bindWithPreferences(
         stateToPreference: (T) -> P) {
     try {
         coroutineScope {
-            Timber.d("bindWithPreferences: start for $preference")
+            Timber.d("bindWithPreferences: start for ${preference.key}")
             val stateFlow = this@bindWithPreferences
             // set the initial value from preferences
             stateFlow.value = preferenceToStateReducer(preference.get(), stateFlow.value)
@@ -52,7 +52,7 @@ suspend fun <T : Any, P : Any> MutableStateFlow<T>.bindWithPreferences(
                         .map { stateToPreference(it) }
                         .distinctUntilChanged()
                         .drop(1)
-                        .onEach { Timber.d("bindWithPreferences: $preference value $it") }
+                        .onEach { Timber.d("bindWithPreferences: ${preference.key} value $it") }
                         .debounce(100)
                         .collect { preference.set(it) }
                 Timber.d("bindWithPreferences: job1 end")
