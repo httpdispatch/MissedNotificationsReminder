@@ -78,7 +78,6 @@
 
     <!-- Applications selection activity -->
     <string name="applications_selection_title">Applications selection</string>
-    <string name="applications_selection_subtitle" translatable="false">@string/app_name</string>
     <!-- Applications selection list -->
     <string name="applications_error_title">Oops!</string>
     <string name="applications_error_message">
