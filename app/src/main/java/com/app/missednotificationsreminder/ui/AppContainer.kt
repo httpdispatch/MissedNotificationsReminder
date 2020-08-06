@@ -19,7 +19,7 @@ interface AppContainer {
          */
         val DEFAULT: AppContainer = object : AppContainer {
             override fun bind(activity: AppCompatActivity): ViewGroup {
-                return activity.findViewById(R.id.content)
+                return activity.findViewById(android.R.id.content)
             }
         }
     }
