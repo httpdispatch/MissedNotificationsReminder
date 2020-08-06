@@ -3,10 +3,9 @@ package com.app.missednotificationsreminder
 import android.content.Context
 import android.util.Log
 import androidx.multidex.MultiDex
-import com.app.missednotificationsreminder.service.ReminderServiceJobCreator
+import androidx.work.Configuration
 import com.app.missednotificationsreminder.ui.ActivityHierarchyServer
 import com.app.missednotificationsreminder.ui.activity.common.CommonActivityLifecycleCallback
-import com.evernote.android.job.JobManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.jakewharton.u2020.data.LumberYard
 import dagger.android.support.DaggerApplication
@@ -19,7 +18,7 @@ import javax.inject.Inject
  *
  * @author Eugene Popovich
  */
-abstract class CustomApplicationBase : DaggerApplication() {
+abstract class CustomApplicationBase : DaggerApplication(), Configuration.Provider {
     @Inject
     lateinit var activityHierarchyServer: ActivityHierarchyServer
 
@@ -43,9 +42,13 @@ abstract class CustomApplicationBase : DaggerApplication() {
         Timber.plant(lumberYard.tree())
         AndroidThreeTen.init(this)
         registerActivityLifecycleCallbacks(activityHierarchyServer)
-        JobManager.create(this).addJobCreator(ReminderServiceJobCreator())
         registerActivityLifecycleCallbacks(CommonActivityLifecycleCallback())
     }
+
+    override fun getWorkManagerConfiguration() =
+            Configuration.Builder()
+                    .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.VERBOSE else Log.WARN)
+                    .build()
 
     private class CrashReportingTree : DebugTree() {
         override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {

@@ -30,6 +30,10 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.lifecycleScope
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import androidx.work.await
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.di.Injector.Companion.obtain
 import com.app.missednotificationsreminder.di.qualifiers.*
@@ -41,8 +45,6 @@ import com.app.missednotificationsreminder.util.TimeUtils
 import com.app.missednotificationsreminder.util.event.Event
 import com.app.missednotificationsreminder.util.event.FlowEventBus
 import com.app.missednotificationsreminder.util.flow.ambWith
-import com.evernote.android.job.JobManager
-import com.evernote.android.job.JobRequest
 import com.tfcporciuncula.flow.Preference
 import dagger.android.AndroidInjector
 import dagger.android.ContributesAndroidInjector
@@ -52,6 +54,7 @@ import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -216,6 +219,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     private val notificationManager by lazy {
         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
+    private val workManager by lazy {
+        WorkManager.getInstance(application)
+    }
 
     /**
      * The flag to indicate periodical notification active state
@@ -230,8 +236,8 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     /**
      * Receiver used to handle actions from the pending intent used for periodical alarms
      */
-    private val pendingIntentReceiver by lazy {
-        ScheduledSoundNotificationReceiver()
+    private val remindJobHandler by lazy {
+        RemindJobHandler()
     }
 
     /**
@@ -326,12 +332,8 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         }
 
         // initialize broadcast receiver
-        var filter = IntentFilter()
-        filter.addAction(PENDING_INTENT_ACTION)
-        registerReceiver(pendingIntentReceiver, filter)
-        filter = IntentFilter(
-                AudioManager.RINGER_MODE_CHANGED_ACTION)
-        registerReceiver(ringerModeChangedReceiver, filter)
+        registerReceiver(ringerModeChangedReceiver, IntentFilter(
+                AudioManager.RINGER_MODE_CHANGED_ACTION))
         applicationContext.contentResolver.registerContentObserver(Settings.System.CONTENT_URI, true, zenModeObserver)
 
         // initialize dismiss notification service and receiver
@@ -444,7 +446,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         // monitor for the remind events sent via event bus
         mEventBus.toFlow()
                 .filter { event -> event === RemindEvents.REMIND }
-                .onEach { pendingIntentReceiver.onReceive(applicationContext, Intent()) }
+                .onEach { remindJobHandler.remind() }
                 .launchIn(lifecycleScope)
         mEventBus.toFlow()
                 .filter { event: Event -> event === RemindEvents.GET_CURRENT_NOTIFICATIONS_DATA }
@@ -580,18 +582,23 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      */
     private fun scheduleNextWakeupForOffset(timeOffset: Long) {
         Timber.d("scheduleNextWakup: called")
-        if (wakeLock != null) {
-            // use the manual timer action to trigger pending intent receiver instead instead of alarm manager
-            timerJob = lifecycleScope.launch {
+        timerJob = lifecycleScope.launch {
+            if (wakeLock != null) {
+                // use the manual timer action to trigger pending intent receiver instead instead of alarm manager
                 delay(timeOffset)
                 Timber.d("Wake from subscription")
-                pendingIntentReceiver.onReceive(applicationContext, Intent())
+                remindJobHandler.remind()
+            } else {
+                workManager.beginUniqueWork(
+                        RemindJob.TAG,
+                        ExistingWorkPolicy.REPLACE,
+                        OneTimeWorkRequest.Builder(RemindJob::class.java)
+                                .setInitialDelay(timeOffset, TimeUnit.MILLISECONDS)
+                                .addTag(RemindJob.TAG)
+                                .build())
+                        .enqueue()
+                        .await()
             }
-        } else {
-            JobRequest.Builder(RemindJob.TAG)
-                    .setExact(timeOffset)
-                    .build()
-                    .schedule()
         }
     }
 
@@ -606,8 +613,8 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             timerJob = null
         }
         // cancel any pending remind jobs
-        JobManager.instance().cancelAllForTag(RemindJob.TAG)
-        pendingIntentReceiver.interruptReminderIfActive()
+        workManager.cancelAllWorkByTag(RemindJob.TAG)
+        remindJobHandler.interruptReminderIfActive()
         releaseWakeLockIfRequired()
         cancelDismissNotification()
     }
@@ -650,8 +657,6 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         Timber.d("onDestroy")
         // stop any scheduled alarms
         stopWaking()
-        // unregister pending intent receiver
-        unregisterReceiver(pendingIntentReceiver)
         // unregister ringer mode changed receiver
         unregisterReceiver(ringerModeChangedReceiver)
         // unregister zen mode changed observer
@@ -816,9 +821,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     }
 
     /**
-     * The broadcast receiver for the pending intent action fired by alarm manager
+     * The reminder job handler
      */
-    internal inner class ScheduledSoundNotificationReceiver : BroadcastReceiver() {
+    internal inner class RemindJobHandler {
         /**
          * Media player used to play notification sound
          */
@@ -832,15 +837,15 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         /**
          * The reminder subscription
          */
-        private var reminderSubscription: Job? = null
+        private var reminderJob: Job? = null
 
         /**
          * Reference to the current device wake lock used while vibrator is active
          */
         var vibrationWakeLock: WakeLock? = null
 
-        override fun onReceive(context: Context, intent: Intent) {
-            reminderSubscription = lifecycleScope.launch {
+        suspend fun remind() = coroutineScope {
+            reminderJob = launch {
                 Timber.d("onReceive: current thread %1\$s", Thread.currentThread().name)
                 if (!active.get()) {
                     Timber.w("onReceive: Invalid service activity state, stopping reminder")
@@ -879,11 +884,11 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         }
 
         private suspend fun reminderCompleted() {
-            scheduleNextWakeup(true)
             actualizeNotificationData()
             cancelVibrator()
             // notify listeners about reminder completion
             mEventBus.send(RemindEvents.REMINDER_COMPLETED)
+            scheduleNextWakeup(true)
         }
 
         private fun cancelVibrator() {
@@ -1023,7 +1028,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
          * Interrupt previously started reminder if it is active
          */
         fun interruptReminderIfActive() {
-            reminderSubscription?.cancel()
+            reminderJob?.cancel()
         }
     }
 
@@ -1048,12 +1053,6 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     }
 
     companion object {
-        /**
-         * Action for the pending intent used by alarm manager to periodically wake the device and send broadcast with this
-         * action
-         */
-        val PENDING_INTENT_ACTION = ReminderNotificationListenerService::class.qualifiedName
-
         /**
          * Action for the pending intent sent when dismiss notification has been cancelled.
          */

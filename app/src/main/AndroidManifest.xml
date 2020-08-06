@@ -38,6 +38,14 @@
                 android:resource="@xml/filepaths" />
         </provider>
 
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:directBootAware="false"
+            android:exported="false"
+            android:multiprocess="true"
+            tools:node="remove"
+            tools:targetApi="n" />
     </application>
 
 </manifest>

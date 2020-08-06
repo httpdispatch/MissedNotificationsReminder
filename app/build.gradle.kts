@@ -175,8 +175,8 @@ configurations.onEach {
 
 dependencies {
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES_VERSION}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.COROUTINES_VERSION}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.COROUTINES}")
     implementation("com.github.akarnokd:kotlin-flow-extensions:0.0.5")
 
     implementation("androidx.multidex:multidex:2.0.1")
@@ -188,8 +188,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("androidx.activity:activity-ktx:1.2.0-alpha07")
     implementation("androidx.fragment:fragment-ktx:1.3.0-alpha07")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE_VERSION}")
-    implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE_VERSION}")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE}")
+    implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE}")
     implementation("com.google.android.material:material:1.3.0-alpha02")
 
     implementation("com.jakewharton.timber:timber:4.7.1")
@@ -220,7 +220,8 @@ dependencies {
 
     implementation("com.wdullaer:materialdatetimepicker:4.2.3")
 
-    implementation("com.evernote:android-job:1.4.2")
+    implementation("androidx.work:work-runtime:${Versions.WORK}")
+    implementation("androidx.work:work-runtime-ktx:${Versions.WORK}")
 
     androidTestImplementation("junit:junit:4.13")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
@@ -233,9 +234,9 @@ dependencies {
         exclude(module = "recyclerview-v7")
     }
 
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.COROUTINES_VERSION}")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES_VERSION}")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.COROUTINES_VERSION}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.COROUTINES}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.COROUTINES}")
     testImplementation("junit:junit:4.13")
     testImplementation("org.mockito:mockito-core:3.3.3")
     testImplementation("com.google.truth:truth:1.0.1")
