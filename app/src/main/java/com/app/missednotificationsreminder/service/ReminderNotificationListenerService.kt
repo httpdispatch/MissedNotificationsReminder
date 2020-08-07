@@ -794,23 +794,23 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      */
     private inner class ZenModeObserver internal constructor(handler: Handler) : ContentObserver(handler) {
         val DND_OFF = 0
-        override fun deliverSelfNotifications(): Boolean {
-            return super.deliverSelfNotifications()
-        }
 
         override fun onChange(selfChange: Boolean) {
             super.onChange(selfChange)
             zenModeUpdated()
         }
 
-        @SuppressLint("NewApi")
         private fun zenModeUpdated() {
             Timber.d("zenModeUpdated() called")
             try {
-                val zenMode = Settings.Global.getInt(contentResolver, "zen_mode")
+                val zenMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    Settings.Global.getInt(contentResolver, "zen_mode")
+                } else {
+                    DND_OFF
+                }
                 Timber.d("zenModeUpdated: %d", zenMode)
                 dndEnabled.value = zenMode != DND_OFF
-            } catch (e: SettingNotFoundException) {
+            } catch (e: Throwable) {
                 Timber.e(e)
             }
         }

@@ -11,6 +11,7 @@ import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.service.util.NotificationParser
 import com.app.missednotificationsreminder.service.util.StatusBarWindowUtils
 import com.app.missednotificationsreminder.util.coroutines.debounce
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 
@@ -32,9 +33,11 @@ abstract class AbstractReminderNotificationListenerService : AccessibilityServic
         debounce<List<NotificationData>>(
                 1000L,
                 lifecycleScope) { notificationData ->
-            for (data in notificationData) {
-                if (!createDismissNotification || ignoredNotificationsData.contains(data)) {
-                    onNotificationRemoved(data)
+            lifecycleScope.launch {
+                for (data in notificationData) {
+                    if (!createDismissNotification || ignoredNotificationsData.contains(data)) {
+                        onNotificationRemoved(data)
+                    }
                 }
             }
         }
@@ -45,7 +48,7 @@ abstract class AbstractReminderNotificationListenerService : AccessibilityServic
         onReady()
     }
 
-    override fun actualizeNotificationData() {
+    override suspend fun actualizeNotificationData() {
         // do nothing
     }
 
@@ -59,12 +62,14 @@ abstract class AbstractReminderNotificationListenerService : AccessibilityServic
                     val n = accessibilityEvent.parcelableData as Notification
                     val packageName = accessibilityEvent.packageName.toString()
                     Timber.d("onAccessibilityEvent: notification posted package: %1\$s; notification: %2\$s", packageName, n)
-                    // fire event
-                    onNotificationPosted(ExtendedNotificationData(
-                            notificationParser.getNotificationTitle(n, packageName),
-                            packageName,
-                            SystemClock.elapsedRealtime(),
-                            n.flags))
+                    lifecycleScope.launch {
+                        // fire event
+                        onNotificationPosted(ExtendedNotificationData(
+                                notificationParser.getNotificationTitle(n, packageName),
+                                packageName,
+                                SystemClock.elapsedRealtime(),
+                                n.flags))
+                    }
                 }
             }
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
@@ -92,9 +97,11 @@ abstract class AbstractReminderNotificationListenerService : AccessibilityServic
                     Timber.d("onAccessibilityEvent: status bar content clicked")
                     if (statusBarWindowUtils.isClearNotificationsButtonEvent(accessibilityEvent)) {
                         // if clicked image view element with the clear button name content description
-                        Timber.d("onAccessibilityEvent: clear notifications button clicked")
-                        for (data in notificationsData) {
-                            onNotificationRemoved(data)
+                        lifecycleScope.launch {
+                            Timber.d("onAccessibilityEvent: clear notifications button clicked")
+                            for (data in notificationsData) {
+                                onNotificationRemoved(data)
+                            }
                         }
                     } else {
                         // update notifications if another view is clicked
@@ -136,10 +143,12 @@ abstract class AbstractReminderNotificationListenerService : AccessibilityServic
      * @param packageName
      */
     private fun removeNotificationsFor(packageName: String) {
-        Timber.d("removeNotificationsFor: %1\$s", packageName)
-        for (data in notificationsData) {
-            if (TextUtils.equals(packageName, data.packageName)) {
-                onNotificationRemoved(data)
+        lifecycleScope.launch {
+            Timber.d("removeNotificationsFor: %1\$s", packageName)
+            for (data in notificationsData) {
+                if (TextUtils.equals(packageName, data.packageName)) {
+                    onNotificationRemoved(data)
+                }
             }
         }
     }
