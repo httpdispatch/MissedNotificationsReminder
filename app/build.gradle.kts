@@ -3,6 +3,7 @@ import java.io.FileInputStream
 import java.util.*
 
 plugins {
+    id("class-loader-plugin")
     id("com.android.application")
     kotlin("android")
     kotlin("android.extensions")
