@@ -20,7 +20,6 @@ import android.net.Uri
 import android.os.*
 import android.os.PowerManager.WakeLock
 import android.provider.Settings
-import android.provider.Settings.SettingNotFoundException
 import android.text.TextUtils
 import android.util.Log
 import android.view.Display
@@ -30,6 +29,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDeepLinkBuilder
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
@@ -201,6 +201,13 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      */
     private val stopRemindersIntent: PendingIntent by lazy {
         PendingIntent.getBroadcast(this.applicationContext, 0, Intent(STOP_REMINDERS_INTENT_ACTION), 0)
+    }
+
+    private val openAppIntent: PendingIntent by lazy {
+        NavDeepLinkBuilder(applicationContext)
+                .setGraph(R.navigation.nav_graph)
+                .setDestination(R.id.applicationsSelectionFragment)
+                .createPendingIntent()
     }
 
     /**
@@ -523,6 +530,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 .setContentTitle(getText(R.string.dismiss_notification_title))
                 .setContentText(getText(R.string.dismiss_notification_text)) // main color of the logo
                 .setColor(ResourcesCompat.getColor(resources, R.color.logo_color, theme))
+                .setContentIntent(openAppIntent)
                 .setDeleteIntent(stopRemindersIntent)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId,
@@ -532,7 +540,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             channel.enableVibration(false)
             notificationManager.createNotificationChannel(channel)
         }
-        notificationManager.notify(DISMISS_NOTIFICATION_ID, builder.build())
+        notificationManager.notify(DISMISS_NOTIFICATION_ID, builder.build().apply {
+            flags = flags and NotificationCompat.FLAG_AUTO_CANCEL.inv()
+        })
     }
 
     /**
