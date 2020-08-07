@@ -30,7 +30,12 @@
     <string name="settings_battery_optimization">Пестене на заряда в батерията</string>
     <string name="settings_manage_battery_optimization">Управление на пестенето на заряда на батерията</string>
     <string name="settings_battery_optimization_enabled">Android OS оптимизира използването на батерията от това приложение. Ако срещате нередности с работата на известията, моля изключете пестенето на заряда за приложението "Missed Notification Reminder".</string>
-    <string name="settings_battery_optimization_disabled">Приложението е добавено в белия списък за пестене на заряда на батерията</string>
+    <string name="settings_battery_optimization_disabled"><![CDATA[
+    Приложението е добавено в белия списък за пестене на заряда на батерията<br/><br/>
+    Някои устройства могат да имат допълнителни ограничения за използване на батерията.
+    Ако имате проблеми с приложението, моля, посетете
+    <u><a href="https://dontkillmyapp.com/">https://dontkillmyapp.com</a></u>
+    уебсайт за намиране на възможно решение]]></string>
     <string name="settings_permissions">Разрешения</string>
     <string name="settings_permissions_grant">Дайте достъп</string>
     <string name="settings_permissions_required">Следващите разрешения са необходими за правилната работа на приложението: \"%1$s\" Моля, дайте достъп.</string>

@@ -1,8 +1,11 @@
 package com.app.missednotificationsreminder.binding.util
 
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.util.doOnApplyWindowInsets
@@ -138,5 +141,22 @@ fun addSystemInsets(view: View,
             // required for some android versions
             view.parent.requestLayout()
         }
+    }
+}
+
+@BindingAdapter(value = [
+    "htmlText",
+    "enableLinks"
+], requireAll = false)
+fun setHtmlText(view: TextView, text: String?, enableLinks: Boolean) {
+    if (text != null) {
+        @Suppress("DEPRECATION")
+        view.text = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
+            Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT)
+        else
+            Html.fromHtml(text)
+    }
+    if (enableLinks) {
+        view.movementMethod = LinkMovementMethod()
     }
 }

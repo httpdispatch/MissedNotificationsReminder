@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".settings.MainActivity">
 
     <data>
@@ -47,7 +48,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_battery_optimization_disabled"
+                    app:htmlText="@{@string/settings_battery_optimization_disabled}"
+                    app:enableLinks="@{true}"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:visibility="@{viewState.batteryOptimizationDisabled ? View.VISIBLE :View.GONE}" />
 

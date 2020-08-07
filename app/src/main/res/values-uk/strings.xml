@@ -29,7 +29,12 @@
     <string name="settings_battery_optimization">Економія заряду батареї</string>
     <string name="settings_manage_battery_optimization">Керування економією заряду батареї</string>
     <string name="settings_battery_optimization_enabled">Android OS оптимізує використання батареї для цього додатку. Якщо у Вас спостерігаються проблеми з работою нагадувань, будь ласка, відключіть економію заряду для додатку "Missed Notification Reminder".</string>
-    <string name="settings_battery_optimization_disabled">Додаток додано в білий список економії заряду батареї</string>
+    <string name="settings_battery_optimization_disabled"><![CDATA[
+    Додаток додано в білий список економії заряду батареї<br/><br/>
+    Деякі пристрої можуть додаткові обмеження використання батареї.
+    Якщо ви зіткнулись з проблемами роботи додатку, будь ласка відвідайте
+    <u><a href="https://dontkillmyapp.com/">https://dontkillmyapp.com</a></u>
+    вебсайт для пошуку можливого рішення]]></string>
     <string name="settings_permissions">Дозволи</string>
     <string name="settings_permissions_grant">Надати доступ</string>
     <string name="settings_permissions_required">Наступні дозволи потрібні для корректної роботи додатку: \"%1$s\" Будь ласка, надайте доступ.</string>

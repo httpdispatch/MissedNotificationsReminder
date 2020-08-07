@@ -29,7 +29,12 @@
     <string name="settings_permissions_grant">Grant required permissions</string>
 
     <!-- Battery optimization settings -->
-    <string name="settings_battery_optimization_disabled">The application is already excluded from battery optimization</string>
+    <string name="settings_battery_optimization_disabled"><![CDATA[
+    The application is already excluded from battery optimization<br/><br/>
+    Some devices may have additional battery usage limitation settings.
+    If you experience issues with the app please check
+    <u><a href="https://dontkillmyapp.com/">https://dontkillmyapp.com</a></u>
+    website for possible solution]]></string>
     <string name="settings_battery_optimization_enabled">The Android OS optimizes battery usage for the application.
         If you experience problems with the reminder work please disable battery optimization for the "Missed Notification Reminder" application</string>
     <string name="settings_manage_battery_optimization">Manage Battery Optimization</string>

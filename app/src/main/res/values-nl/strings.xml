@@ -25,7 +25,12 @@
     <string name="settings_permissions_grant">Vereiste machtigingen verlenen</string>
 
     <!-- Battery optimization settings -->
-    <string name="settings_battery_optimization_disabled">De app is al uitgesloten van accu-optimalisatie</string>
+    <string name="settings_battery_optimization_disabled"><![CDATA[
+    De app is al uitgesloten van accu-optimalisatie<br/><br/>
+    Sommige apparaten hebben mogelijk extra instellingen voor batterijgebruik.
+    Als u problemen ondervindt met de app, controleer dan
+    <u><a href="https://dontkillmyapp.com/">https://dontkillmyapp.com</a></u>
+    website voor mogelijke oplossing]]></string>
     <string name="settings_battery_optimization_enabled">Android optimaliseert het accugebruik van deze app.
         Als je problemen ervaart met het ontvangen van herinneringen, schakel accu-optimalisatie dan uit voor de "Missed Notification Reminder"-app.</string>
     <string name="settings_manage_battery_optimization">Accu-optimalisatie beheren</string>
