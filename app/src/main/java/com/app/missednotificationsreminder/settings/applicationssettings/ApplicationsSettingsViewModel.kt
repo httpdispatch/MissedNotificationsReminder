@@ -43,28 +43,28 @@ class ApplicationsSettingsViewModel @Inject constructor(
             launch {
                 _viewState.bindWithPreferences(ignorePersistentNotifications,
                         { newValue, vs ->
-                            vs.copy(ignorePersistentNotifications = newValue)
+                            ApplicationsSettingsViewStatePartialChanges.IgnorePersistentNotificationsChange(newValue).reduce(vs)
                         },
                         { it.ignorePersistentNotifications })
             }
             launch {
                 _viewState.bindWithPreferences(respectPhoneCalls,
                         { newValue, vs ->
-                            vs.copy(respectPhoneCalls = newValue)
+                            ApplicationsSettingsViewStatePartialChanges.RespectPhoneCallsChange(newValue).reduce(vs)
                         },
                         { it.respectPhoneCalls })
             }
             launch {
                 _viewState.bindWithPreferences(respectRingerMode,
                         { newValue, vs ->
-                            vs.copy(respectRingerMode = newValue)
+                            ApplicationsSettingsViewStatePartialChanges.RespectRingerModeChange(newValue).reduce(vs)
                         },
                         { it.respectRingerMode })
             }
             launch {
                 _viewState.bindWithPreferences(remindWhenScreenIsOn,
                         { newValue, vs ->
-                            vs.copy(remindWhenScreenIsOn = newValue)
+                            ApplicationsSettingsViewStatePartialChanges.RemindWhenScreenIsOnChange(newValue).reduce(vs)
                         },
                         { it.remindWhenScreenIsOn })
             }

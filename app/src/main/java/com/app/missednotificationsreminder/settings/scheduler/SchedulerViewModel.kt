@@ -51,14 +51,14 @@ class SchedulerViewModel @Inject constructor(
             launch {
                 _viewState.bindWithPreferences(schedulerEnabled,
                         { newValue, vs ->
-                            vs.copy(enabled = newValue)
+                            SchedulerViewStatePartialChanges.EnabledChange(newValue).reduce(vs)
                         },
                         { it.enabled })
             }
             launch {
                 _viewState.bindWithPreferences(schedulerMode,
                         { newValue, vs ->
-                            vs.copy(mode = newValue)
+                            SchedulerViewStatePartialChanges.ModeChange(newValue).reduce(vs)
                         },
                         { it.mode })
             }

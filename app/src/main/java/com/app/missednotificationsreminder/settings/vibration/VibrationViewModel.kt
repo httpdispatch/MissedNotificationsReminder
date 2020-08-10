@@ -48,15 +48,14 @@ class VibrationViewModel @Inject constructor(
             launch {
                 _viewState.bindWithPreferences(vibrationEnabled,
                         { newValue, vs ->
-                            vs.copy(enabled = newValue)
+                            VibrationViewStatePartialChanges.EnabledChange(newValue).reduce(vs)
                         },
                         { it.enabled })
             }
             launch {
                 _viewState.bindWithPreferences(vibrationPattern,
                         { newValue, vs ->
-                            vs.copy(pattern = newValue,
-                                    lastValidPattern = newValue)
+                            VibrationViewStatePartialChanges.PatternChange(newValue, "").reduce(vs)
                         },
                         { if (it.patternError.isEmpty()) it.pattern else it.lastValidPattern })
             }

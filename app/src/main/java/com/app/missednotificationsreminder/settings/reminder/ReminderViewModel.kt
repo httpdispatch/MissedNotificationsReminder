@@ -68,14 +68,14 @@ class ReminderViewModel @Inject constructor(
             launch {
                 _viewState.bindWithPreferences(reminderEnabled,
                         { newValue, vs ->
-                            vs.copy(reminderEnabled = newValue)
+                            ReminderViewStatePartialChanges.ReminderEnabledChange(newValue).reduce(vs)
                         },
                         { it.reminderEnabled })
             }
             launch {
                 _viewState.bindWithPreferences(forceWakeLock,
                         { newValue, vs ->
-                            vs.copy(forceWakeLock = newValue)
+                            ReminderViewStatePartialChanges.ForceWakeLockChange(newValue).reduce(vs)
                         },
                         { it.forceWakeLock })
             }
@@ -102,21 +102,21 @@ class ReminderViewModel @Inject constructor(
             launch {
                 _viewState.bindWithPreferences(limitReminderRepeats,
                         { newValue, vs ->
-                            vs.copy(limitReminderRepeats = newValue)
+                            ReminderViewStatePartialChanges.LimitReminderRepeatsChange(newValue).reduce(vs)
                         },
                         { it.limitReminderRepeats })
             }
             launch {
                 _viewState.bindWithPreferences(createDismissNotification,
                         { newValue, vs ->
-                            vs.copy(createDismissNotification = newValue)
+                            ReminderViewStatePartialChanges.CreateDismissNotificationChange(newValue).reduce(vs)
                         },
                         { it.createDismissNotification })
             }
             launch {
                 _viewState.bindWithPreferences(createDismissNotificationImmediately,
                         { newValue, vs ->
-                            vs.copy(createDismissNotificationImmediately = newValue)
+                            ReminderViewStatePartialChanges.CreateDismissNotificationImmediatelyChange(newValue).reduce(vs)
                         },
                         { it.createDismissNotificationImmediately })
             }
