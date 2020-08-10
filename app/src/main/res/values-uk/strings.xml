@@ -35,6 +35,8 @@
     Якщо ви зіткнулись з проблемами роботи додатку, будь ласка відвідайте
     <u><a href="https://dontkillmyapp.com/">https://dontkillmyapp.com</a></u>
     вебсайт для пошуку можливого рішення]]></string>
+    <string name="settings_battery_wakelock_disabled">Служба переднього плану вимкнута. Змініть, якщо спостерыгаєте проблеми з роботою нагадувань</string>
+    <string name="settings_battery_wakelock_enabled">Служба переднього плану увімкнута. Використовуйте тільки якщо спостерігаєте проблеми з роботою нагадувань. Ця опція буде утримувати пристрій увімкненим весь час, поки працюють нагадування</string>
     <string name="settings_permissions">Дозволи</string>
     <string name="settings_permissions_grant">Надати доступ</string>
     <string name="settings_permissions_required">Наступні дозволи потрібні для корректної роботи додатку: \"%1$s\" Будь ласка, надайте доступ.</string>

@@ -38,6 +38,8 @@
     <string name="settings_battery_optimization_enabled">The Android OS optimizes battery usage for the application.
         If you experience problems with the reminder work please disable battery optimization for the "Missed Notification Reminder" application</string>
     <string name="settings_manage_battery_optimization">Manage Battery Optimization</string>
+    <string name="settings_battery_wakelock_disabled">Foreground service disabled. Adjust if you experience issues with app stable work</string>
+    <string name="settings_battery_wakelock_enabled">Foreground service is enabled. Use this only if you experience issues with the reminder work. This will keep device ON all the time while reminder interval is scheduled</string>
 
     <!-- Reminder Settings -->
     <string name="reminder_interval_hint">Reminder Interval (minutes)</string>

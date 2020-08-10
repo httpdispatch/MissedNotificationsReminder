@@ -148,11 +148,12 @@
             android:visibility="@{parentViewState.advancedSettingsVisible}" />
 
         <TextView
+            android:id="@+id/wake_lock_settings_label"
             style="@style/Label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewState.forceWakeLock ? @string/wakelock_enabled : @string/wakelock_disabled}"
-            android:visibility="@{parentViewState.advancedSettingsVisible || viewState.forceWakeLock ? View.VISIBLE : View.GONE}"
+            android:visibility="@{!parentViewState.batteryOptimizationSettingsVisible &amp;&amp; (parentViewState.advancedSettingsVisible || viewState.forceWakeLock) ? View.VISIBLE : View.GONE}"
             tools:text="@string/wakelock_enabled" />
 
         <androidx.appcompat.widget.SwitchCompat
@@ -163,7 +164,7 @@
             android:onCheckedChanged="@{(v, checked) -> viewModel.forceWakeLockChanged(checked)}"
             android:textOff="@string/wakelock_disabled"
             android:textOn="@string/wakelock_enabled"
-            android:visibility="@{parentViewState.advancedSettingsVisible || viewState.forceWakeLock ? View.VISIBLE : View.GONE}" />
+            android:visibility="@{wakeLockSettingsLabel.visibility}" />
 
     </LinearLayout>
 </layout>

@@ -33,6 +33,8 @@
     <string name="wakelock_enabled">Не позволять устройству засыпать (ВНИМАНИЕ, используйте эту опцию только, если испытываете проблемы с периодичностью напоминаний)</string>
     <string name="settings_battery_optimization">Экономия заряда батареи</string>
     <string name="settings_manage_battery_optimization">Управление экономией заряда батареи</string>
+    <string name="settings_battery_wakelock_disabled">Служба переднего плана отключена. Измените, если испытываете проблемы с работой напоминаний</string>
+    <string name="settings_battery_wakelock_enabled">Служба переднего плана включена. Используйте только если испытываете проблемы с работой напоминаний. Эта опция будет удерживать устройство включенным все время, пока работают напоминания</string>
     <string name="settings_battery_optimization_enabled">Android OS оптимизиурует расходования батареи для данного приложения. Если у Вас наблюдаются проблемы с работой напоминаний, пожалуйста, отключите экономию заряда для приложения "Missed Notification Reminder".</string>
     <string name="settings_battery_optimization_disabled"><![CDATA[
     Приложение добавлено в белый список экономии заряда батареи<br/><br/>

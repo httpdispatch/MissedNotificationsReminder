@@ -34,6 +34,8 @@
     <string name="settings_battery_optimization_enabled">Android optimaliseert het accugebruik van deze app.
         Als je problemen ervaart met het ontvangen van herinneringen, schakel accu-optimalisatie dan uit voor de "Missed Notification Reminder"-app.</string>
     <string name="settings_manage_battery_optimization">Accu-optimalisatie beheren</string>
+    <string name="settings_battery_wakelock_disabled">Voorgrondservice uitgeschakeld. Pas deze aan als u problemen ondervindt met app-stabiel werk</string>
+    <string name="settings_battery_wakelock_enabled">Voorgrondservice is ingeschakeld. Gebruik dit alleen als u problemen ondervindt met het herinneringswerk. Hierdoor blijft het apparaat altijd AAN terwijl het herinneringsinterval is gepland</string>
 
     <!-- Reminder Settings -->
     <string name="reminder_interval_hint">Herinneringstijd (in minuten)</string>

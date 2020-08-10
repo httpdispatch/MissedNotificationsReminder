@@ -13,6 +13,10 @@
             type="com.app.missednotificationsreminder.settings.SettingsFragment" />
 
         <variable
+            name="viewModel"
+            type="com.app.missednotificationsreminder.settings.SettingsViewModel" />
+
+        <variable
             name="viewState"
             type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.SettingsViewState&gt;" />
     </data>
@@ -73,6 +77,25 @@
                         android:onClick="@{fragment::onManageBatteryOptimizationPressed}"
                         android:text="@string/settings_manage_battery_optimization" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_marginTop="@dimen/default_widget_interval"
+                    android:id="@+id/foreground_service_enabled_label"
+                    style="@style/Label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewState.forceWakeLock ? @string/settings_battery_wakelock_enabled : @string/settings_battery_wakelock_disabled}"
+                    android:visibility="@{viewState.batteryOptimizationDisabled}"
+                    tools:text="@string/wakelock_enabled" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="@{viewState.forceWakeLock}"
+                    android:onCheckedChanged="@{(v, checked) -> viewModel.forceWakeLockChanged(checked)}"
+                    android:textOff="@string/settings_battery_wakelock_disabled"
+                    android:textOn="@string/settings_battery_wakelock_enabled"
+                    android:visibility="@{foregroundServiceEnabledLabel.visibility}" />
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

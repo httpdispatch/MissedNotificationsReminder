@@ -36,6 +36,8 @@
     Ако имате проблеми с приложението, моля, посетете
     <u><a href="https://dontkillmyapp.com/">https://dontkillmyapp.com</a></u>
     уебсайт за намиране на възможно решение]]></string>
+    <string name="settings_battery_wakelock_disabled">Услугата за преден план е деактивирана. Моля, променете се, ако срещнете проблеми с напомняния</string>
+    <string name="settings_battery_wakelock_enabled">Услугата за преден план е активирана. Използвайте само ако имате проблеми с напомнянията. Тази опция ще поддържа устройството включено, докато напомнянията работят</string>
     <string name="settings_permissions">Разрешения</string>
     <string name="settings_permissions_grant">Дайте достъп</string>
     <string name="settings_permissions_required">Следващите разрешения са необходими за правилната работа на приложението: \"%1$s\" Моля, дайте достъп.</string>

@@ -79,7 +79,8 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
             // Set the lifecycle owner to the lifecycle of the view
             lifecycleOwner = viewLifecycleOwner
             fragment = this@SettingsFragment
-            viewState = viewModel.viewState.asLiveData()
+            viewModel = this@SettingsFragment.viewModel
+            viewState = this@SettingsFragment.viewModel.viewState.asLiveData()
             applicationsSettingsViewState = applicationsSettingsModel.viewState.asLiveData()
             lifecycleScope.launchWhenResumed { scroll.scrollTo(0, scrollPosition) }
         }

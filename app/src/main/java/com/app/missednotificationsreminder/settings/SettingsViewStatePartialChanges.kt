@@ -41,4 +41,10 @@ sealed class SettingsViewStatePartialChanges : ViewStatePartialChanges<SettingsV
             return previousState.copy(nightMode = newValue)
         }
     }
+
+    data class ForceWakeLockChange(private val newValue: Boolean) : SettingsViewStatePartialChanges() {
+        override fun reduce(previousState: SettingsViewState): SettingsViewState {
+            return previousState.copy(forceWakeLock = newValue)
+        }
+    }
 }

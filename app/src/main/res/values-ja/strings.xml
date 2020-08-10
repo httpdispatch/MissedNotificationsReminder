@@ -32,6 +32,8 @@
     <string name="settings_battery_optimization_enabled">Android OS はアプリケーションのバッテリー使用状況を最適化します。
         リマインダーの動作に問題がある場合は、"Missed Notification Reminder" アプリケーションのバッテリー最適化を無効にしてください</string>
     <string name="settings_manage_battery_optimization">バッテリー最適化を管理</string>
+    <string name="settings_battery_wakelock_disabled">フォアグラウンドサービスが無効になっています。 アプリの安定した動作で問題が発生した場合に調整する</string>
+    <string name="settings_battery_wakelock_enabled">フォアグラウンドサービスが有効になっています。 これは、リマインダーの作業で問題が発生した場合にのみ使用してください。 これにより、通知間隔がスケジュールされている間、デバイスは常にオンになります</string>
 
     <!-- Reminder Interval -->
     <string name="reminder_interval_hint">リマインダー間隔 (分)</string>

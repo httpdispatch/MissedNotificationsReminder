@@ -13,6 +13,10 @@
             type="com.app.missednotificationsreminder.settings.SettingsFragment"/>
 
         <variable
+            name="viewModel"
+            type="com.app.missednotificationsreminder.settings.SettingsViewModel" />
+
+        <variable
             name="viewState"
             type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.settings.SettingsViewState&gt;"/>
 
@@ -90,6 +94,7 @@
                 <include
                     layout="@layout/view_settings_battery_optimization"
                     tools:fragment="@{fragment}"
+                    tools:viewModel="@{viewModel}"
                     tools:viewState="@{viewState}"/>
 
                 <androidx.legacy.widget.Space
