@@ -216,6 +216,11 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     private var wakeLock: WakeLock? = null
 
     /**
+     * Whether the service has been started in foreground
+     */
+    private var startedInForeground: Boolean = false
+
+    /**
      * Number of remaining reminder repetitions.
      */
     private var remainingRepeats = 0
@@ -520,7 +525,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     /**
      * Create dismiss notification unless one is already present.
      */
-    private fun createDismissNotification() {
+    private fun createDismissNotification(): Notification {
         Timber.d("createDismissNotification() called")
         val channelId = "MNR dismiss notification"
         val builder = NotificationCompat.Builder(this, channelId)
@@ -532,7 +537,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 .setColor(ResourcesCompat.getColor(resources, R.color.logo_color, theme))
                 .setContentIntent(openAppIntent)
                 .setDeleteIntent(stopRemindersIntent)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                .addAction(0, getString(R.string.dismiss_action), stopRemindersIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                notificationManager.getNotificationChannel(channelId) == null) {
             val channel = NotificationChannel(channelId,
                     getText(R.string.dismiss_notification_title),
                     NotificationManager.IMPORTANCE_DEFAULT)
@@ -540,10 +547,12 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             channel.enableVibration(false)
             notificationManager.createNotificationChannel(channel)
         }
-        notificationManager.notify(DISMISS_NOTIFICATION_ID, builder.build().apply {
+        return builder.build().apply {
             flags = flags and NotificationCompat.FLAG_AUTO_CANCEL.inv()
-        })
+        }
     }
+
+    private fun foregroundAllowed() = forceWakeLock.get() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
 
     /**
      * Schedule wakeup alarm for the sound notification pending intent
@@ -556,15 +565,30 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             stopWaking()
             return
         }
-        if (createDismissNotificationPref.get() && (repeating || createDismissNotificationImmediately.get())) {
-            createDismissNotification()
-        }
         if (schedulerEnabled.get()) {
             // if custom scheduler is enabled
             scheduledTime = TimeUtils.getScheduledTime(
                     if (schedulerMode.get()) TimeUtils.SchedulerMode.WORKING_PERIOD else TimeUtils.SchedulerMode.NON_WORKING_PERIOD,
                     schedulerRangeBegin.get(), schedulerRangeEnd.get(),
                     System.currentTimeMillis() + reminderInterval.get() * TimeUtils.MILLIS_IN_SECOND)
+        }
+        if (createDismissNotificationPref.get() && (repeating || createDismissNotificationImmediately.get())) {
+            val notification = createDismissNotification()
+            if (!repeating && foregroundAllowed() && scheduledTime == 0L) {
+                Timber.d("Starting foreground")
+                startedInForeground = true
+                startForeground(DISMISS_NOTIFICATION_ID, notification.apply{
+                    if (foregroundAllowed()) {
+                        flags = flags or NotificationCompat.FLAG_FOREGROUND_SERVICE
+                    }
+                })
+            } else {
+                if(startedInForeground){
+                    stopForeground(true)
+                    startedInForeground = false
+                }
+                notificationManager.notify(DISMISS_NOTIFICATION_ID, notification)
+            }
         }
         if (scheduledTime == 0L) {
             Timber.d("scheduleNextWakup: Schedule reminder for %1\$d seconds",
@@ -627,6 +651,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         remindJobHandler.interruptReminderIfActive()
         releaseWakeLockIfRequired()
         cancelDismissNotification()
+        if(startedInForeground) {
+            stopForeground(true)
+        }
     }
 
     /**

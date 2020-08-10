@@ -66,6 +66,7 @@
     <string name="create_dismiss_notification_enabled">Создавать дополнительное уведомление, когда напоминания активны, которое позволяет остановить напоминания без удаления уведомлений других приложений</string>
     <string name="create_dismiss_notification_immediately_disabled">Создавать дополнительное уведомление во время первого напоминания</string>
     <string name="create_dismiss_notification_immediately_enabled">Создавать дополнительное уведомление сразу при обнаружении уведомлений от наблюдаемых приложений</string>
-    <string name="dismiss_notification_text">Удалите это уведомление, чтобы остановить напоминания</string>
+    <string name="dismiss_notification_text">Отмените это уведомление, чтобы остановить напоминания</string>
     <string name="dismiss_notification_title">Напоминания активны</string>
+    <string name="dismiss_action">Отменить</string>
 </resources>

@@ -96,5 +96,6 @@
     <!-- Dismiss notification -->
     <string name="dismiss_notification_title">Reminder is active</string>
     <string name="dismiss_notification_text">Dismiss this notification to stop reminders.</string>
+    <string name="dismiss_action">Dismiss</string>
 
 </resources>

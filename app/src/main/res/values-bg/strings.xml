@@ -64,6 +64,7 @@
     <string name="create_dismiss_notification_immediately_enabled">Създайте допълнително известие веднага след откриване на известия от наблюдавани приложения</string>
     <string name="dismiss_notification_text">Изтрийте това известие, за да спрете напомнянията</string>
     <string name="dismiss_notification_title">Напомнянията са активни</string>
+    <string name="dismiss_action">Отмяна</string>
     <string name="menu_night_mode">Темная тема</string>
     <string name="menu_night_mode_follow_system">Следвайте системния настройкам</string>
     <string name="menu_night_yes">Включена</string>
