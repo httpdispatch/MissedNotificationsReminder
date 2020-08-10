@@ -8,7 +8,8 @@
         <service
             android:name="com.app.missednotificationsreminder.service.ReminderNotificationListenerService"
             android:label="@string/accessibility_service"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:foregroundServiceType="mediaPlayback">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService"/>
             </intent-filter>
