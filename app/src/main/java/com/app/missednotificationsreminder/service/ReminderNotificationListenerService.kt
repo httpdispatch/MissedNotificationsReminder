@@ -577,17 +577,19 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             if (!repeating && foregroundAllowed() && scheduledTime == 0L) {
                 Timber.d("Starting foreground")
                 startedInForeground = true
-                startForeground(DISMISS_NOTIFICATION_ID, notification.apply{
-                    if (foregroundAllowed()) {
-                        flags = flags or NotificationCompat.FLAG_FOREGROUND_SERVICE
-                    }
+                startForeground(DISMISS_NOTIFICATION_ID, notification.apply {
+                    flags = flags or NotificationCompat.FLAG_FOREGROUND_SERVICE
                 })
             } else {
-                if(startedInForeground){
+                if (startedInForeground && scheduledTime != 0L) {
                     stopForeground(true)
                     startedInForeground = false
                 }
-                notificationManager.notify(DISMISS_NOTIFICATION_ID, notification)
+                notificationManager.notify(DISMISS_NOTIFICATION_ID, notification.apply {
+                    if (startedInForeground) {
+                        flags = flags or NotificationCompat.FLAG_FOREGROUND_SERVICE
+                    }
+                })
             }
         }
         if (scheduledTime == 0L) {
@@ -651,7 +653,8 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         remindJobHandler.interruptReminderIfActive()
         releaseWakeLockIfRequired()
         cancelDismissNotification()
-        if(startedInForeground) {
+        if (startedInForeground) {
+            startedInForeground = false
             stopForeground(true)
         }
     }
