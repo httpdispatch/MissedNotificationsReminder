@@ -1,6 +1,7 @@
 package com.app.missednotificationsreminder.settings.reminder
 
 import com.app.missednotificationsreminder.util.TimeUtils
+import java.util.*
 
 /**
  * @property forceUpdate the counter to force update view state in the view when data validation error occurs
@@ -46,7 +47,7 @@ data class ReminderViewState(
         val seekRepeats: Int = 0,
         val maxIntervalSeekBarValue: Int) {
     val intervalMinutesString: String
-        get() = "%.${2}f".format(intervalMinutes)
+        get() = "%.${2}f".format(Locale.US, intervalMinutes)
 
     val repeatsString: String
         get() = repeats.toString()
