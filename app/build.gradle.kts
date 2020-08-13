@@ -11,7 +11,7 @@ plugins {
 }
 // Manifest version information!
 val versionMajor = 1
-val versionMinor = 4
+val versionMinor = 5
 val versionPatch = 1
 val versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
