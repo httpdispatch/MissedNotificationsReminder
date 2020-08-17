@@ -1034,8 +1034,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                     })
                     .catch { t: Throwable? -> Timber.e(t) }
                     .onCompletion { Timber.d("Playback completed") }
-                    .launchIn(lifecycleScope)
-                    .join()
+                    .collect()
         }
 
         /**
