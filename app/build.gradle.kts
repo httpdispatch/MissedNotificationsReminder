@@ -12,7 +12,7 @@ plugins {
 // Manifest version information!
 val versionMajor = 1
 val versionMinor = 5
-val versionPatch = 1
+val versionPatch = 2
 val versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 val gitSha = "git rev-parse --short HEAD".runCommand(project.rootDir).trim()
