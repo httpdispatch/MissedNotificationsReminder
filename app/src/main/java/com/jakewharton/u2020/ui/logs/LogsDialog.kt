@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.Toast
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.app.missednotificationsreminder.databinding.DebugLogsBinding
 import com.app.missednotificationsreminder.ui.widget.dialog.LifecycleAlertDialog
@@ -25,7 +26,9 @@ import java.util.*
 import java.util.regex.Pattern
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-class LogsDialog(context: Context, private val lumberYard: LumberYard) : LifecycleAlertDialog(context) {
+class LogsDialog(context: Context,
+                 private val lumberYard: LumberYard,
+                 private val parentLifecycleOwner: LifecycleOwner) : LifecycleAlertDialog(context) {
     private val adapter: LogAdapter = LogAdapter(context)
     private val query: EditText
 
@@ -114,7 +117,7 @@ class LogsDialog(context: Context, private val lumberYard: LumberYard) : Lifecyc
         return result
     }
 
-    private fun share() {
+    private suspend fun share() {
         lumberYard.save() //
                 .flowOn(Dispatchers.IO)
                 .catch { e ->
@@ -122,8 +125,7 @@ class LogsDialog(context: Context, private val lumberYard: LumberYard) : Lifecyc
                     Toast.makeText(context, "Couldn't save the logs for sharing.", Toast.LENGTH_SHORT)
                             .show()
                 }
-                .onEach { ShareUtils.shareFile(ShareUtils.getAppFileProviderUri(it, context), context) }
-                .launchIn(lifecycleScope)
+                .collect { ShareUtils.shareFile(ShareUtils.getAppFileProviderUri(it, context), context) }
     }
 
     init {
@@ -136,7 +138,7 @@ class LogsDialog(context: Context, private val lumberYard: LumberYard) : Lifecyc
         setTitle("Logs")
         setView(binding.root)
         setButton(DialogInterface.BUTTON_NEGATIVE, "Close") { _, _ -> }
-        setButton(DialogInterface.BUTTON_POSITIVE, "Share") { _, _ -> share() }
+        setButton(DialogInterface.BUTTON_POSITIVE, "Share") { _, _ -> parentLifecycleOwner.lifecycleScope.launch { share() } }
         window!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
     }
 }

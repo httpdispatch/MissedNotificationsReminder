@@ -128,7 +128,7 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
                 true
             }
             R.id.show_log -> {
-                LogsDialog(ContextThemeWrapper(context, R.style.AppTheme), lumberYard).show()
+                LogsDialog(ContextThemeWrapper(context, R.style.AppTheme), lumberYard, this).show()
                 true
             }
             R.id.night_mode_follow_system -> {
