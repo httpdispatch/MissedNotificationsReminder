@@ -48,10 +48,10 @@ class LogsDialog(context: Context,
                     .buffer()
                     .onEach { adapter.addLogs(it) }
                     .launchIn(lifecycleScope)
-            callbackFlow {
+            callbackFlow<String> {
                 val listener = object : TextWatcher {
                     override fun afterTextChanged(s: Editable?) {
-                        offer(s.toString())
+                        offer(s?.toString() ?: "")
                     }
 
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
