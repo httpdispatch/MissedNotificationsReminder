@@ -716,7 +716,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         if (!initializing) {
             mEventBus.send(NotificationsUpdatedEvent(notificationsData))
         }
-        if (ready.value && selectedApplications.get().contains(notificationData.packageName)) {
+        if (!initializing && ready.value && selectedApplications.get().contains(notificationData.packageName)) {
             // check waking conditions only if notification has been posted for the monitored application to prevent
             // mRemainingRepeats overcome in case reminder is already stopped but new notification arrived from any not
             // monitored app
