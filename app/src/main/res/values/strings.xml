@@ -1,5 +1,7 @@
 <resources>
     <!-- General -->
+    <string name="app_name" translatable="false">Missed Notifications Reminder</string>
+    <string name="launcher_name" translatable="false">Missed Notifications Reminder</string>
     <string name="loading_message">loading…</string>
 
     <!-- Settings -->
