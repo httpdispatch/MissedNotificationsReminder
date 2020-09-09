@@ -19,8 +19,15 @@ open class BaseViewStateModel<
     fun process(event: PARTIAL_CHANGES) {
         Timber.d("process() called: with event=${event}")
         viewModelScope.launch {
-            _viewState.apply { value = event.reduce(value) }
+            processSync(event)
         }
     }
 
+    protected fun processSync(event: PARTIAL_CHANGES) {
+        _viewState.apply { value = event.reduce(value) }
+    }
+
+    override fun toString(): String {
+        return "${this::class.simpleName}: state = ${_viewState.value}"
+    }
 }
