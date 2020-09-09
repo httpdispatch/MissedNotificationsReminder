@@ -8,6 +8,8 @@ import android.media.RingtoneManager
 import android.os.Vibrator
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.data.model.NightMode
+import com.app.missednotificationsreminder.data.source.DefaultResourceDataSource
+import com.app.missednotificationsreminder.data.source.ResourceDataSource
 import com.app.missednotificationsreminder.di.qualifiers.*
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEvent
@@ -18,6 +20,7 @@ import com.app.missednotificationsreminder.util.event.FlowEventBus
 import com.squareup.picasso.Picasso
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import com.tfcporciuncula.flow.Preference
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +32,7 @@ import javax.inject.Singleton
 /**
  * The Dagger dependency injection module for the data layer
  */
-@Module
+@Module(includes = [DataModuleBinds::class])
 @OptIn(ExperimentalCoroutinesApi::class)
 class DataModule {
 
@@ -298,4 +301,12 @@ class DataModule {
                 .onEach { data: List<NotificationData> -> Timber.d("notificationDataFlow: %d", data.size) }
                 .debounce(500)
     }
+}
+
+@Module
+abstract class DataModuleBinds {
+
+    @Singleton
+    @Binds
+    abstract fun bindResources(resources: DefaultResourceDataSource): ResourceDataSource
 }
