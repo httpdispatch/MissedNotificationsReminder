@@ -2,6 +2,7 @@
     <style name="AppTheme" parent="AppTheme.Base">
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
         <item name="colorSurface">#F2F2F2</item>
+        <item name="colorAccent">#ff0288d1</item>
     </style>
 
     <style name="Toolbar" parent="BaseToolbar">
