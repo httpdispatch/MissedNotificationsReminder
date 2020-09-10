@@ -202,9 +202,9 @@ class CoroutinesQueueTest {
             jobs.joinAll()
             jobs.onEach { println(it) }
         }
-        // only one action executed till the end (can't find a way to cancel already running execution when parent scope cancels)
-        assertEquals(1, launchedActions.get())
-        assertEquals(0, canceledActions.get())
+        // No actions should be executed till the end
+        assertEquals(0, launchedActions.get())
+        assertEquals(1, canceledActions.get())
     }
 
     @Test

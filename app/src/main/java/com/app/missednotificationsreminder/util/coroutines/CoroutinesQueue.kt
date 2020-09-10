@@ -19,15 +19,15 @@ class CoroutinesQueue(private val scope: CoroutineScope = CoroutineScope(EmptyCo
         try {
             val response = CompletableDeferred<T>(supervisor)
             queue.send(Message.LaunchInQueue(response) {
-                withContext(parentContext) {
-                    val disposableHandle = scope.coroutineContext[Job]
-                            ?.invokeOnCompletion {
-                                supervisor.cancel("Queue canceled", it)
-                            }
-                    try {
+                coroutineScope {
+                    val deferred = async(parentContext) {
                         block()
-                    } finally {
-                        disposableHandle?.dispose()
+                    }
+                    try {
+                        deferred.await()
+                    } catch (ex: CancellationException) {
+                        deferred.cancel(ex)
+                        throw ex
                     }
                 }
             })
