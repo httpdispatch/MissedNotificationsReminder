@@ -198,10 +198,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE}")
     implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE}")
     implementation("com.google.android.material:material:1.3.0-alpha02")
+    implementation("androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}")
+    implementation("androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}")
 
     implementation("com.jakewharton.timber:timber:4.7.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.3.0")
-    implementation("androidx.navigation:navigation-ui-ktx:2.3.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.9.3")
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.9.3")
 
     debugImplementation("com.jakewharton.madge:madge:1.1.4")
     debugImplementation("com.jakewharton.scalpel:scalpel:1.1.2")

@@ -17,12 +17,16 @@ import com.app.missednotificationsreminder.service.event.RemindEvents
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.app.missednotificationsreminder.util.event.Event
 import com.app.missednotificationsreminder.util.event.FlowEventBus
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.squareup.picasso.Picasso
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import com.tfcporciuncula.flow.Preference
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.multibindings.ElementsIntoSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -284,6 +288,23 @@ class DataModule {
     @Singleton
     fun provideEventBus(): FlowEventBus {
         return FlowEventBus()
+    }
+
+    @Provides
+    @ElementsIntoSet
+    fun provideJsonAdapters(): Set<JsonAdapter<Any>> {
+        return emptySet()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMoshi(adapters: Set<@JvmSuppressWildcards JsonAdapter<Any>>): Moshi {
+        return Moshi.Builder()
+                .apply {
+                    adapters.forEach { add(it) }
+                }
+                .add(KotlinJsonAdapterFactory())
+                .build()
     }
 
     @FlowPreview
