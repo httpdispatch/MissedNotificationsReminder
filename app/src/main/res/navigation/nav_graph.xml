@@ -24,5 +24,28 @@
         android:id="@+id/applicationsSelectionFragment"
         android:name="com.app.missednotificationsreminder.settings.applicationselection.ApplicationsSelectionFragment"
         android:label="@string/applications_selection_title"
-        tools:layout="@layout/fragment_applications_selection"/>
+        tools:layout="@layout/fragment_applications_selection" />
+
+    <dialog
+        android:id="@+id/alertDialogFragment"
+        android:name="com.app.missednotificationsreminder.ui.fragment.dialog.AlertDialogFragment">
+        <argument
+            android:name="title"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="message"
+            app:argType="string" />
+        <argument
+            android:name="okButton"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="cancelButton"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+    </dialog>
 </navigation>

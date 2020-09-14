@@ -1,6 +1,7 @@
 <resources>
     <!-- General -->
-    <string name="loading_message">loading…</string>
+    <string name="loading_message">Loading…</string>
+    <string name="common_ok_action" translatable="false">OK</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
