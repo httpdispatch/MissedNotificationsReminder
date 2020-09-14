@@ -8,6 +8,7 @@ plugins {
     kotlin("android")
     kotlin("android.extensions")
     kotlin("kapt")
+    id("androidx.navigation.safeargs.kotlin")
 }
 // Manifest version information!
 val versionMajor = 1
