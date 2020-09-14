@@ -28,3 +28,16 @@ allprojects {
 tasks.register<Delete>("clean").configure {
     delete(rootProject.buildDir)
 }
+
+tasks.register<Zip>("zipBackup") {
+    archiveFileName.set("backup_" +
+            java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) +
+            ".zip")
+    from(project.rootDir) {
+        include("*")
+        include("app/**")
+        exclude("**/build")
+        exclude("backup**")
+    }
+    destinationDirectory.set(project.rootDir)
+}
