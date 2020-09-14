@@ -193,9 +193,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
-    implementation("androidx.activity:activity-ktx:1.2.0-alpha07")
-    implementation("androidx.fragment:fragment-ktx:1.3.0-alpha07")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.1")
+    implementation("androidx.activity:activity-ktx:1.2.0-alpha08")
+    implementation("androidx.fragment:fragment-ktx:1.3.0-alpha08")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE}")
     implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE}")
     implementation("com.google.android.material:material:1.3.0-alpha02")
@@ -234,9 +234,9 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:${Versions.WORK}")
 
     androidTestImplementation("junit:junit:4.13")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
-    androidTestImplementation("androidx.test:runner:1.2.0")
-    androidTestImplementation("androidx.test:rules:1.2.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation("androidx.test:rules:1.3.0")
     // Espresso-contrib for DatePicker, RecyclerView, Drawer actions, Accessibility checks, CountingIdlingResource
     androidTestImplementation("androidx.test.espresso:espresso-contrib:3.2.0") {
         exclude(group = "com.android.support", module = "appcompat")
