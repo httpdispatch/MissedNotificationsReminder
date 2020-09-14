@@ -537,6 +537,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 .setColor(ResourcesCompat.getColor(resources, R.color.logo_color, theme))
                 .setContentIntent(openAppIntent)
                 .setDeleteIntent(stopRemindersIntent)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(getText(R.string.dismiss_notification_text)))
                 .addAction(0, getString(R.string.dismiss_action), stopRemindersIntent)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 notificationManager.getNotificationChannel(channelId) == null) {
@@ -832,7 +833,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     /**
      * The content observer for the DND mode changes
      */
-    private inner class ZenModeObserver internal constructor(handler: Handler) : ContentObserver(handler) {
+    private inner class ZenModeObserver constructor(handler: Handler) : ContentObserver(handler) {
         val DND_OFF = 0
 
         override fun onChange(selfChange: Boolean) {
