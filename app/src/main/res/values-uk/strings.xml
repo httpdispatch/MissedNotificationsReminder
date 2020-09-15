@@ -71,4 +71,10 @@
     <string name="menu_night_mode_follow_system">Відповідно системим налаштуванням</string>
     <string name="menu_night_yes">Ввімкнена</string>
     <string name="menu_night_mode_no">Вимкнута</string>
+
+    <!-- Purchase -->
+    <string name="payment_error_billing_unavailable">Покупки не доступні на цьому устройстве</string>
+    <string name="payment_error_service_unavailable">Сервіс не доступний, спробуйте пізніше</string>
+    <string name="payment_error_user_canceled">Покупка скасована</string>
+    <string name="payment_error_purchase_pending">Очікується оплата!</string>
 </resources>

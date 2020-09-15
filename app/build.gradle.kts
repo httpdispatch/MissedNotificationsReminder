@@ -199,6 +199,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE}")
     implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE}")
     implementation("com.google.android.material:material:1.3.0-alpha02")
+    implementation("com.android.billingclient:billing:3.0.0")
     implementation("androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}")
     implementation("androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}")
 

@@ -17,6 +17,10 @@
     <string name="settings_applications_select_button">アプリケーションを選択</string>
     <string name="menu_advanced_settings_visible">高度な設定を表示</string>
     <string name="menu_show_logs">ログを表示</string>
+    <string name="menu_night_mode">ダークモード</string>
+    <string name="menu_night_mode_follow_system">システムをフォロー</string>
+    <string name="menu_night_yes">有効</string>
+    <string name="menu_night_mode_no">無効</string>
 
     <!-- Permissions settings -->
     <string name="settings_permissions_required">アプリの動作に次のアクセス許可が必要です: \"%1$s\"。 許可してください。</string>
@@ -95,8 +99,10 @@
     <string name="dismiss_notification_title">リマインダがアクティブです。</string>
     <string name="dismiss_notification_text">この通知を閉じて、リマインダーを停止します。</string>
     <string name="dismiss_action">断る</string>
-    <string name="menu_night_mode">ダークモード</string>
-    <string name="menu_night_mode_follow_system">システムをフォロー</string>
-    <string name="menu_night_yes">有効</string>
-    <string name="menu_night_mode_no">無効</string>
+
+    <!-- Purchase -->
+    <string name="payment_error_billing_unavailable">請求できません</string>
+    <string name="payment_error_service_unavailable">サービスを利用できません</string>
+    <string name="payment_error_user_canceled">購入がキャンセルされました</string>
+    <string name="payment_error_purchase_pending">購入は保留中です！</string>
 </resources>

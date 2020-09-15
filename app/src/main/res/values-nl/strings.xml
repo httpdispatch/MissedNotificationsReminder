@@ -19,6 +19,10 @@
     <string name="settings_applications_select_button">Kies apps</string>
     <string name="menu_advanced_settings_visible">Geavanceerde instellingen tonen</string>
     <string name="menu_show_logs">Logboeken weergeven</string>
+    <string name="menu_night_mode">Donkere modus</string>
+    <string name="menu_night_mode_follow_system">Volg Systeem</string>
+    <string name="menu_night_yes">Ingeschakeld</string>
+    <string name="menu_night_mode_no">Gehandicapt</string>
 
     <!-- Permissions settings -->
     <string name="settings_permissions_required">De volgende machtigingen zijn benodigd om de app te laten werken: \"%1$s\". Verleen deze machtigingen.</string>
@@ -95,9 +99,11 @@
     <string name="dismiss_notification_title">Herinneringen zijn ingeschakeld</string>
     <string name="dismiss_notification_text">Verwerp deze melding om herinneringen uit te schakelen.</string>
     <string name="dismiss_action">Ontslaan</string>
-    <string name="menu_night_mode">Donkere modus</string>
-    <string name="menu_night_mode_follow_system">Volg Systeem</string>
-    <string name="menu_night_yes">Ingeschakeld</string>
-    <string name="menu_night_mode_no">Gehandicapt</string>
+
+    <!-- Purchase -->
+    <string name="payment_error_billing_unavailable">Facturering niet beschikbaar</string>
+    <string name="payment_error_service_unavailable">Service niet beschikbaar</string>
+    <string name="payment_error_user_canceled">Aankoop geannuleerd</string>
+    <string name="payment_error_purchase_pending">De aankoop is in behandeling!</string>
 
 </resources>

@@ -71,4 +71,10 @@
     <string name="dismiss_notification_text">Отмените это уведомление, чтобы остановить напоминания</string>
     <string name="dismiss_notification_title">Напоминания активны</string>
     <string name="dismiss_action">Отменить</string>
+
+    <!-- Purchase -->
+    <string name="payment_error_billing_unavailable">Покупки не доступны на этом устройстве</string>
+    <string name="payment_error_service_unavailable">Сервис не доступен, попробуйте позже</string>
+    <string name="payment_error_user_canceled">Покупка отменена</string>
+    <string name="payment_error_purchase_pending">Ожидается оплата!</string>
 </resources>

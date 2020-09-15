@@ -101,4 +101,11 @@
     <string name="dismiss_notification_text">Dismiss this notification to stop reminders.</string>
     <string name="dismiss_action">Dismiss</string>
 
+    <!-- Purchase -->
+    <string name="payment_error_title" translatable="false">@string/applications_error_title</string>
+    <string name="payment_error_billing_unavailable">Billing unavailable</string>
+    <string name="payment_error_service_unavailable">Service unavailable</string>
+    <string name="payment_error_user_canceled">Purchase canceled</string>
+    <string name="payment_error_purchase_pending">The purchase is pending!</string>
+
 </resources>
