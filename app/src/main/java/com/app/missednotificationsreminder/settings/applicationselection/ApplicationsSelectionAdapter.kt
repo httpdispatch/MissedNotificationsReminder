@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
 import com.app.missednotificationsreminder.databinding.ItemSelectableApplicationBinding
-import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
+import com.app.missednotificationsreminder.settings.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.ui.widget.recyclerview.LifecycleAdapter
 import com.app.missednotificationsreminder.ui.widget.recyclerview.LifecycleViewHolder

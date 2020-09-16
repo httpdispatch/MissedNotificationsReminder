@@ -3,7 +3,7 @@ package com.app.missednotificationsreminder.settings.scheduler
 import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
 import com.app.missednotificationsreminder.binding.util.bindWithPreferences
-import com.app.missednotificationsreminder.di.qualifiers.*
+import com.app.missednotificationsreminder.settings.di.qualifiers.*
 import com.app.missednotificationsreminder.util.coroutines.debounce
 import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
 import com.app.missednotificationsreminder.binding.util.bindWithPreferences
 import com.app.missednotificationsreminder.data.model.NightMode
-import com.app.missednotificationsreminder.di.qualifiers.ForceWakeLock
+import com.app.missednotificationsreminder.settings.di.qualifiers.ForceWakeLock
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.util.BatteryUtils

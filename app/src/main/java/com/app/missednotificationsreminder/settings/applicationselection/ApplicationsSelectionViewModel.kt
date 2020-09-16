@@ -5,7 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
 import com.app.missednotificationsreminder.binding.model.ViewStatePartialChanges
-import com.app.missednotificationsreminder.di.qualifiers.SelectedApplications
+import com.app.missednotificationsreminder.settings.di.qualifiers.SelectedApplications
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.settings.applicationselection.data.model.util.ApplicationIconHandler
 import com.tfcporciuncula.flow.Preference

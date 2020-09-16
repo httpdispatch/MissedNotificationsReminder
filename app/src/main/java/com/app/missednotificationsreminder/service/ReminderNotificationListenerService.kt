@@ -36,11 +36,11 @@ import androidx.work.WorkManager
 import androidx.work.await
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.di.Injector.Companion.obtain
-import com.app.missednotificationsreminder.di.qualifiers.*
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEvent
 import com.app.missednotificationsreminder.service.event.RemindEvents
 import com.app.missednotificationsreminder.service.util.PhoneStateUtils
+import com.app.missednotificationsreminder.settings.di.qualifiers.*
 import com.app.missednotificationsreminder.util.TimeUtils
 import com.app.missednotificationsreminder.util.event.Event
 import com.app.missednotificationsreminder.util.event.FlowEventBus

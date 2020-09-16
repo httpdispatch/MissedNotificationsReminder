@@ -9,8 +9,8 @@ import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
 import com.app.missednotificationsreminder.binding.util.bindWithPreferences
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication
-import com.app.missednotificationsreminder.di.qualifiers.Vibrate
-import com.app.missednotificationsreminder.di.qualifiers.VibrationPattern
+import com.app.missednotificationsreminder.settings.di.qualifiers.Vibrate
+import com.app.missednotificationsreminder.settings.di.qualifiers.VibrationPattern
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.util.coroutines.debounce
 import com.tfcporciuncula.flow.Preference

@@ -11,6 +11,7 @@ import com.app.missednotificationsreminder.data.onSuccess
 import com.app.missednotificationsreminder.databinding.FragmentContributeBinding
 import com.app.missednotificationsreminder.di.ViewModelKey
 import com.app.missednotificationsreminder.di.qualifiers.FragmentScope
+import com.app.missednotificationsreminder.payment.di.PurchaseDataModule
 import com.app.missednotificationsreminder.settings.SettingsFragment
 import com.app.missednotificationsreminder.settings.SettingsViewState
 import com.app.missednotificationsreminder.ui.fragment.common.CommonFragmentWithViewBinding
@@ -83,7 +84,7 @@ class ContributeFragment : CommonFragmentWithViewBinding<FragmentContributeBindi
         }
     }
 
-    @dagger.Module
+    @dagger.Module(includes = [PurchaseDataModule::class])
     abstract class Module {
         @FragmentScope
         @ContributesAndroidInjector(modules = [ModuleExt::class])

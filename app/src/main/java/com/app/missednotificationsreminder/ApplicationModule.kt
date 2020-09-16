@@ -10,6 +10,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ForApplication
 import com.app.missednotificationsreminder.payment.di.PurchaseDataModule
 import com.app.missednotificationsreminder.service.RemindJob
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
+import com.app.missednotificationsreminder.settings.MainActivity
 import com.app.missednotificationsreminder.ui.UiModule
 import dagger.Module
 import dagger.Provides
@@ -21,11 +22,10 @@ import javax.inject.Singleton
 @Module(includes = [
     UiModule::class,
     DataModule::class,
-    PurchaseDataModule::class,
+    MainActivity.Module::class,
     ReminderNotificationListenerService.Module::class,
     RemindJob.Module::class,
-    ApplicationModuleExt::class,
-    ViewModelBuilder::class])
+    ApplicationModuleExt::class])
 class ApplicationModule {
     @Provides
     @Singleton

@@ -13,6 +13,7 @@ import com.app.missednotificationsreminder.di.qualifiers.ActivityScope
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity
 import com.app.missednotificationsreminder.payment.ContributeFragment
 import com.app.missednotificationsreminder.settings.applicationselection.ApplicationsSelectionFragment
+import com.app.missednotificationsreminder.settings.di.SettingsDataModule
 import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity
 import com.app.missednotificationsreminder.ui.fragment.dialog.AlertDialogFragment
 import dagger.Provides
@@ -42,7 +43,12 @@ class MainActivity : CommonFragmentActivity() {
     /**
      * The Dagger dependency injection module for the settings activity
      */
-    @dagger.Module()
+    @dagger.Module(
+            includes = [
+                SettingsDataModule::class,
+                ContributeFragment.Module::class,
+                AlertDialogFragment.Module::class]
+    )
     abstract class Module {
         @ActivityScope
         @ContributesAndroidInjector(
@@ -50,8 +56,7 @@ class MainActivity : CommonFragmentActivity() {
                     ModuleExt::class,
                     SettingsFragment.Module::class,
                     ApplicationsSelectionFragment.Module::class,
-                    ContributeFragment.Module::class,
-                    AlertDialogFragment.Module::class
+
                 ]
         )
         abstract fun contribute(): MainActivity
