@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="common_general_error">Виникла помилка</string>
     <string name="applications_empty_message">Не вдається знайти жодного додатку</string>
     <string name="applications_empty_title">Дивно…</string>
     <string name="applications_error_message">Виникла помилка, поки завантажувались дані додатків. Будь ласка, спробуйте пізніше</string>
@@ -70,6 +71,7 @@
     <string name="menu_night_mode">Темна тема</string>
     <string name="menu_night_mode_follow_system">Відповідно системим налаштуванням</string>
     <string name="menu_night_yes">Ввімкнена</string>
+    <string name="menu_contribute">Підтримати</string>
     <string name="menu_night_mode_no">Вимкнута</string>
 
     <!-- Purchase -->
@@ -77,4 +79,16 @@
     <string name="payment_error_service_unavailable">Сервіс не доступний, спробуйте пізніше</string>
     <string name="payment_error_user_canceled">Покупка скасована</string>
     <string name="payment_error_purchase_pending">Очікується оплата!</string>
+    <string name="contribution_title">Підтримати розробку</string>
+    <string name="contribution_contribute_options"><![CDATA[
+    Ви можете здійснити свій вклад, створивши звіт про помилку чи здійснивши правки в проект
+    в <u><a href="https://github.com/httpdispatch/MissedNotificationsReminder">github сховищі</a></u>
+    <br/><br/>
+    Також ви можете придбати деякі товари, щоб підтримати розробку.
+    <b>Зверніть увагу</b>, що покупка будь-якого товара <b>не розблоковує</b> ніяких додаткових можливостей]]></string>
+    <string name="contribution_action_purchase">Придбати</string>
+    <string name="payment_loading_purchase_items">Завантаження…</string>
+    <string name="payment_purchasing">Покупка…</string>
+    <string name="payment_purchase_done">Дякую за підтримку!</string>
+    <string name="payment_contributions">Ваш вклад: %s</string>
 </resources>

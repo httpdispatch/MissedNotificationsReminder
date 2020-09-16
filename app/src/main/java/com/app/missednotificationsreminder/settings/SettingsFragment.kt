@@ -143,6 +143,11 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
                 viewModel.process(SettingsViewStatePartialChanges.NightModeChanged(NightMode.NO))
                 true
             }
+            R.id.contribute -> {
+                findNavController()
+                        .navigate(ActionOnlyNavDirections(R.id.action_settingsFragment_to_contributionFragment))
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

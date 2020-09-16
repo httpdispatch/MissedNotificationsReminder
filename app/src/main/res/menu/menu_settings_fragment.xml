@@ -32,4 +32,9 @@
             </group>
         </menu>
     </item>
+    <item
+        android:id="@+id/contribute"
+        android:checkable="false"
+        android:title="@string/menu_contribute"
+        app:showAsAction="never" />
 </menu>

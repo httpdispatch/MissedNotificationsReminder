@@ -1,6 +1,7 @@
 <resources>
     <!-- General -->
     <string name="loading_message">Bezig met laden…</string>
+    <string name="common_general_error">Fout opgetreden</string>
 
     <!-- Settings -->
     <string name="settings_title">Instellingen</string>
@@ -18,6 +19,7 @@
         op gemiste meldingen</string>
     <string name="settings_applications_select_button">Kies apps</string>
     <string name="menu_advanced_settings_visible">Geavanceerde instellingen tonen</string>
+    <string name="menu_contribute">Bijdragen</string>
     <string name="menu_show_logs">Logboeken weergeven</string>
     <string name="menu_night_mode">Donkere modus</string>
     <string name="menu_night_mode_follow_system">Volg Systeem</string>
@@ -105,5 +107,16 @@
     <string name="payment_error_service_unavailable">Service niet beschikbaar</string>
     <string name="payment_error_user_canceled">Aankoop geannuleerd</string>
     <string name="payment_error_purchase_pending">De aankoop is in behandeling!</string>
+    <string name="contribution_title">Ondersteuning ontwikkeling</string>
+    <string name="contribution_contribute_options"><![CDATA[
+     U kunt bijdragen door een probleem aan te maken of door een verzoek in het project op te halen
+     <u><a href="https://github.com/httpdispatch/MissedNotificationsReminder">github-opslagplaats</a></u>
+     <br/><br/>
+     Of u kunt enkele van de items kopen om de ontwikkeling te ondersteunen. <b>Merk op</b> dat het kopen van een item <b>nog geen functies ontgrendelt</b>]]> </string>
+    <string name="contribution_action_purchase"> Kopen </string>
+    <string name="payment_loading_purchase_items"> Laden… </string>
+    <string name="payment_purchasing"> Aankopen… </string>
+    <string name="payment_purchase_done"> Bedankt voor je ondersteuning! </string>
+    <string name="payment_contributions"> Uw bijdragen:% s </string>
 
 </resources>

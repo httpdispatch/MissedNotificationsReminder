@@ -13,7 +13,7 @@ abstract class LifecycleAdapter<VH : LifecycleViewHolder> : RecyclerView.Adapter
     private val attachListener = object : View.OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(v: View?) {
             Timber.d("onViewAttachedToWindow: $v")
-            lifecycleRegistry.currentState = Lifecycle.State.CREATED
+            lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
 
         override fun onViewDetachedFromWindow(v: View?) {
@@ -29,7 +29,7 @@ abstract class LifecycleAdapter<VH : LifecycleViewHolder> : RecyclerView.Adapter
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         Timber.d("onAttachedToRecyclerView")
         if (recyclerView.isAttachedToWindow) {
-            lifecycleRegistry.currentState = Lifecycle.State.CREATED
+            lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
         recyclerView.addOnAttachStateChangeListener(attachListener)
         super.onAttachedToRecyclerView(recyclerView)

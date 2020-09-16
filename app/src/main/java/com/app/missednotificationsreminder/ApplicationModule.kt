@@ -7,6 +7,7 @@ import android.os.Vibrator
 import com.app.missednotificationsreminder.data.DataModule
 import com.app.missednotificationsreminder.di.ViewModelBuilder
 import com.app.missednotificationsreminder.di.qualifiers.ForApplication
+import com.app.missednotificationsreminder.payment.di.PurchaseDataModule
 import com.app.missednotificationsreminder.service.RemindJob
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.ui.UiModule
@@ -20,6 +21,7 @@ import javax.inject.Singleton
 @Module(includes = [
     UiModule::class,
     DataModule::class,
+    PurchaseDataModule::class,
     ReminderNotificationListenerService.Module::class,
     RemindJob.Module::class,
     ApplicationModuleExt::class,

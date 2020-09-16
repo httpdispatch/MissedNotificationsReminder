@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.payment.PurchaseViewState&gt;" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:clipToPadding="false"
+                android:padding="@dimen/default_widget_interval_half"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                app:paddingBottomSystemWindowInsets="@{true}"
+                app:spanCount="@integer/purchase_columns_count"
+                tools:itemCount="6"
+                tools:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:listitem="@layout/item_donate" />
+
+            <TextView
+                android:id="@+id/error"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@{viewState.error}"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?colorError"
+                android:visibility="@{viewState.errorVisible}"
+                app:layout_constraintBottom_toBottomOf="@+id/list"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/list"
+                tools:text="Error occurred!" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <FrameLayout
+            android:id="@+id/loading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/overlay_color"
+            android:padding="@dimen/default_widget_interval"
+            android:visibility="@{viewState.loadingState.loading}"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/loading_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@{viewState.loadingState.status}"
+                tools:text="@string/loading_message" />
+        </FrameLayout>
+    </FrameLayout>
+</layout>

@@ -4,4 +4,6 @@
     <dimen name="applications_divider_padding_start">116dp</dimen>
     <dimen name="application_icon_size">40dip</dimen>
     <dimen name="default_widget_interval">16dip</dimen>
+    <dimen name="default_widget_interval_half">8dip</dimen>
+    <integer name="purchase_columns_count">2</integer>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="common_general_error">Възникна грешка</string>
     <string name="applications_empty_message">Не е открито нито едно приложение</string>
     <string name="applications_empty_title">Странно…</string>
     <string name="applications_error_message">Възникна грешка при зареждането на данните на приложението. Моля, опитайте отново</string>
@@ -71,4 +72,21 @@
     <string name="menu_night_mode_follow_system">Следвайте системния настройкам</string>
     <string name="menu_night_yes">Включена</string>
     <string name="menu_night_mode_no">Отключена</string>
+    <string name="menu_contribute">Поддържа</string>
+    <string name="payment_error_billing_unavailable">Покупките не са налични на това устройство</string>
+    <string name="payment_error_service_unavailable">Услугата не е налична, моля, опитайте по-късно</string>
+    <string name="payment_error_user_canceled">Покупката е отменена</string>
+    <string name="payment_error_purchase_pending">Плащане в очакване!</string>
+    <string name="contribution_title">Принос към разработката</string>
+    <string name="contribution_contribute_options"><![CDATA[
+    Можете да допринесете, като създадете доклад за грешка или редактирате проекта
+    в <u><a href="https://github.com/httpdispatch/MissedNotificationsReminder">хранилище на github</a></u>
+    <br/><br/>
+    Можете също така да закупите някои продукти в подкрепа на развитието.
+    <b>Моля, обърнете внимание</b> че закупуването на какъвто и да е продукт <b>няма да отключи</b> всички допълнителни функции]]></string>
+    <string name="contribution_action_purchase">Покупка</string>
+    <string name="payment_loading_purchase_items">Зареждане…</string>
+    <string name="payment_purchasing">Покупка…</string>
+    <string name="payment_purchase_done">Благодарим за вашата подкрепа!</string>
+    <string name="payment_contributions">Вашият принос: %s</string>
 </resources>

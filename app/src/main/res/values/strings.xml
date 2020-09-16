@@ -1,6 +1,7 @@
 <resources>
     <!-- General -->
     <string name="loading_message">Loading…</string>
+    <string name="common_general_error">Error occurred</string>
     <string name="common_ok_action" translatable="false">OK</string>
 
     <!-- Settings -->
@@ -20,6 +21,7 @@
     <string name="settings_applications_select_button">Select Applications</string>
     <string name="menu_advanced_settings_visible">Show Advanced Settings</string>
     <string name="menu_show_logs">Show Logs</string>
+    <string name="menu_contribute">Contribute</string>
     <string name="menu_night_mode">Dark Mode</string>
     <string name="menu_night_mode_follow_system">Follow System</string>
     <string name="menu_night_yes">Enabled</string>
@@ -107,5 +109,16 @@
     <string name="payment_error_service_unavailable">Service unavailable</string>
     <string name="payment_error_user_canceled">Purchase canceled</string>
     <string name="payment_error_purchase_pending">The purchase is pending!</string>
+    <string name="contribution_title">Support development</string>
+    <string name="contribution_contribute_options"><![CDATA[
+    You may contribute either via creating an issue or pull request in the project
+    <u><a href="https://github.com/httpdispatch/MissedNotificationsReminder">github repository</a></u>
+    <br/><br/>
+    Or you may purchase some of the items to support development. <b>Note</b> that purchasing any item <b>doesn\'t unlock</b> any features yet]]></string>
+    <string name="contribution_action_purchase">Buy</string>
+    <string name="payment_loading_purchase_items">Loading…</string>
+    <string name="payment_purchasing">Purchasing…</string>
+    <string name="payment_purchase_done">Thanks for support!</string>
+    <string name="payment_contributions">Your contributions: %s</string>
 
 </resources>

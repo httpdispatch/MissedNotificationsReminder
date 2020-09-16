@@ -57,7 +57,7 @@ inline fun <R, T> ResultWrapper<T>.map(transform: (value: T) -> R): ResultWrappe
  * original encapsulated value if it is [Success].
  *
  * Note, that this function rethrows any [Throwable] exception thrown by [transform] function.
-*/
+ */
 inline fun <T> ResultWrapper<T>.onErrorReturn(transform: (error: Error) -> ResultWrapper<T>): ResultWrapper<T> {
     return when (this@onErrorReturn) {
         is Success -> this@onErrorReturn
@@ -77,6 +77,17 @@ inline fun <R, T> ResultWrapper<T>.flatMap(transform: (value: T) -> ResultWrappe
         is Success -> transform(data)
         is Error -> this@flatMap
     }
+}
+
+/**
+ * Performs the given [action] on the encapsulated value if this instance represents [Success].
+ * Returns the original `ResultWrapper` unchanged.
+ */
+inline fun <T> ResultWrapper<T>.onSuccess(action: (value: T) -> Unit): ResultWrapper<T> {
+    when (this) {
+        is Success -> action(data)
+    }
+    return this
 }
 
 /**

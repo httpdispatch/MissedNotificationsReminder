@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="common_general_error">Возникла ошибка</string>
     <string name="applications_empty_message">Не удаётся найти ни одного приложения</string>
     <string name="applications_empty_title">Странно…</string>
     <string name="applications_error_message">Возникла ошибка, пока загружались данные приложений. Пожалуйста, попробуйте позже</string>
@@ -29,6 +30,7 @@
     <string name="menu_night_mode_follow_system">Следовать системным настройкам</string>
     <string name="menu_night_yes">Включена</string>
     <string name="menu_night_mode_no">Отключена</string>
+    <string name="menu_contribute">Поддержать</string>
     <string name="wakelock_disabled">Позволять устройству засыпать (РЕКОМЕНДУЕТСЯ)</string>
     <string name="wakelock_enabled">Не позволять устройству засыпать (ВНИМАНИЕ, используйте эту опцию только, если испытываете проблемы с периодичностью напоминаний)</string>
     <string name="settings_battery_optimization">Экономия заряда батареи</string>
@@ -77,4 +79,16 @@
     <string name="payment_error_service_unavailable">Сервис не доступен, попробуйте позже</string>
     <string name="payment_error_user_canceled">Покупка отменена</string>
     <string name="payment_error_purchase_pending">Ожидается оплата!</string>
+    <string name="contribution_title">Поддержать разработку</string>
+    <string name="contribution_contribute_options"><![CDATA[
+    Вы можете сделать свой вклад, создав отчет об ошибке или внеся правки в проект
+    в <u><a href="https://github.com/httpdispatch/MissedNotificationsReminder">github хранилище</a></u>
+    <br/><br/>
+    Также вы можете приобрести некоторые товары, чтобы поддержкать разработку.
+    <b>Обратите внимание</b>, что покупка любого товара <b>не разблокирует</b> никаких дополнительных возможностей]]></string>
+    <string name="contribution_action_purchase">Приобрести</string>
+    <string name="payment_loading_purchase_items">Загрузка…</string>
+    <string name="payment_purchasing">Покупка…</string>
+    <string name="payment_purchase_done">Спасибо за поддержку!</string>
+    <string name="payment_contributions">Ваш вклад: %s</string>
 </resources>

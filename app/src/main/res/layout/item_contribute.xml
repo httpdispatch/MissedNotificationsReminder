@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewState"
+            type="androidx.lifecycle.LiveData&lt;com.app.missednotificationsreminder.payment.PurchaseViewState&gt;" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/default_widget_interval_half">
+
+        <TextView
+            android:id="@+id/contribute_options"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/default_widget_interval"
+            android:layout_marginTop="@dimen/default_widget_interval_half"
+            android:layout_marginRight="@dimen/default_widget_interval"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            app:enableLinks="@{true}"
+            app:htmlText="@{viewState.contributeOptions}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/contribution_contribute_options" />
+
+        <TextView
+            android:id="@+id/contributed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/default_widget_interval"
+            android:layout_marginTop="@dimen/default_widget_interval"
+            android:layout_marginRight="@dimen/default_widget_interval"
+            android:text="@{viewState.purchases}"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold"
+            android:visibility="@{viewState.purchasesVisible}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contribute_options" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

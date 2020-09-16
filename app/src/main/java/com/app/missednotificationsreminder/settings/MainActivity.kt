@@ -2,7 +2,6 @@ package com.app.missednotificationsreminder.settings
 
 import android.content.Context
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -12,8 +11,10 @@ import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.databinding.ActivityMainBinding
 import com.app.missednotificationsreminder.di.qualifiers.ActivityScope
 import com.app.missednotificationsreminder.di.qualifiers.ForActivity
-import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity
+import com.app.missednotificationsreminder.payment.ContributeFragment
 import com.app.missednotificationsreminder.settings.applicationselection.ApplicationsSelectionFragment
+import com.app.missednotificationsreminder.ui.activity.common.CommonFragmentActivity
+import com.app.missednotificationsreminder.ui.fragment.dialog.AlertDialogFragment
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 
@@ -48,7 +49,9 @@ class MainActivity : CommonFragmentActivity() {
                 modules = [
                     ModuleExt::class,
                     SettingsFragment.Module::class,
-                    ApplicationsSelectionFragment.Module::class
+                    ApplicationsSelectionFragment.Module::class,
+                    ContributeFragment.Module::class,
+                    AlertDialogFragment.Module::class
                 ]
         )
         abstract fun contribute(): MainActivity

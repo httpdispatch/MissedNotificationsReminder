@@ -1,6 +1,7 @@
 <resources>
     <!-- General -->
     <string name="loading_message">読み込み中…</string>
+    <string name="common_general_error">エラーが発生しました</string>
 
     <!-- Settings -->
     <string name="settings_title">設定</string>
@@ -16,6 +17,7 @@
         アプリケーション</string>
     <string name="settings_applications_select_button">アプリケーションを選択</string>
     <string name="menu_advanced_settings_visible">高度な設定を表示</string>
+    <string name="menu_contribute">助ける</string>
     <string name="menu_show_logs">ログを表示</string>
     <string name="menu_night_mode">ダークモード</string>
     <string name="menu_night_mode_follow_system">システムをフォロー</string>
@@ -105,4 +107,15 @@
     <string name="payment_error_service_unavailable">サービスを利用できません</string>
     <string name="payment_error_user_canceled">購入がキャンセルされました</string>
     <string name="payment_error_purchase_pending">購入は保留中です！</string>
+    <string name="contribution_title">サポート開発</string>
+    <string name="contribution_contribute_options"><![CDATA[
+     プロジェクトで課題またはプルリクエストを作成することで貢献できます。
+     <u><a href="https://github.com/httpdispatch/MissedNotificationsReminder">githubリポジトリ</a></u>
+     <br/><br/>
+     または、開発をサポートするためにいくつかのアイテムを購入することもできます。 <b>注</b>：アイテムを購入しても、まだ機能は<b>ロックされていません</b>]]></string>
+    <string name="contribution_action_purchase">購入</string>
+    <string name="payment_loading_purchase_items">読み込み中…</string>
+    <string name="payment_purchasing">購入…</string>
+    <string name="payment_purchase_done">サポートありがとうございます</string>
+    <string name="payment_contributions">あなたの投稿：％s</string>
 </resources>
