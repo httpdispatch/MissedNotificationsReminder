@@ -9,9 +9,13 @@ import androidx.lifecycle.viewModelScope
 import com.app.missednotificationsreminder.binding.model.BaseViewStateModel
 import com.app.missednotificationsreminder.binding.util.bindWithPreferences
 import com.app.missednotificationsreminder.data.model.NightMode
-import com.app.missednotificationsreminder.settings.di.qualifiers.ForceWakeLock
+import com.app.missednotificationsreminder.payment.ObservesPendingPayments
+import com.app.missednotificationsreminder.payment.ObservesPendingPaymentsImpl
+import com.app.missednotificationsreminder.payment.billing.data.source.PurchaseRepository
+import com.app.missednotificationsreminder.payment.data.model.Purchase
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
+import com.app.missednotificationsreminder.settings.di.qualifiers.ForceWakeLock
 import com.app.missednotificationsreminder.util.BatteryUtils
 import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,8 +29,11 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
                                             private val nightMode: Preference<NightMode>,
-                                            @param:ForceWakeLock private val forceWakeLock: Preference<Boolean>) :
-        BaseViewStateModel<SettingsViewState, SettingsViewStatePartialChanges>(SettingsViewState()) {
+                                            @param:ForceWakeLock private val forceWakeLock: Preference<Boolean>,
+                                            private val purchaseRepository: PurchaseRepository,
+                                            private val purchases: Preference<List<Purchase>>) :
+        BaseViewStateModel<SettingsViewState, SettingsViewStatePartialChanges>(SettingsViewState()),
+        ObservesPendingPayments by ObservesPendingPaymentsImpl(purchaseRepository, purchases) {
 
     init {
         Timber.d("SettingsViewModel: init")
@@ -45,6 +52,7 @@ class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
                         },
                         { it.forceWakeLock })
             }
+            observePendingPayments(initialDelay = 0)
         }
     }
 

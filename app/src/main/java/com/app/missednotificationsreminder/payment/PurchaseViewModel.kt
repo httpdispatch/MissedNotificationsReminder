@@ -135,7 +135,7 @@ class ObservesPendingPaymentsImpl(
         private val purchaseRepository: PurchaseRepository,
         private val purchases: Preference<List<Purchase>>) : ObservesPendingPayments {
     override suspend fun observePendingPayments(initialDelay: Long, interval: Long) {
-        Timber.d("observePendingPayments() called")
+        Timber.d("observePendingPayments() called with: initialDelay = $initialDelay, interval = $interval")
         delay(initialDelay)
         while (true) {
             purchaseRepository.verifyAndConsumePendingPurchases()
