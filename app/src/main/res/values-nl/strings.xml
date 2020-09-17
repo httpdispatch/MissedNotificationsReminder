@@ -19,6 +19,7 @@
         op gemiste meldingen</string>
     <string name="settings_applications_select_button">Kies apps</string>
     <string name="menu_advanced_settings_visible">Geavanceerde instellingen tonen</string>
+    <string name="menu_rate_app">Beoordeel app</string>
     <string name="menu_contribute">Bijdragen</string>
     <string name="menu_show_logs">Logboeken weergeven</string>
     <string name="menu_night_mode">Donkere modus</string>

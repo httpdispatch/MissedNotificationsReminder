@@ -1,8 +1,12 @@
 package com.app.missednotificationsreminder.settings
 
 import android.Manifest
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Vibrator
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewModelScope
@@ -16,6 +20,7 @@ import com.app.missednotificationsreminder.payment.data.model.Purchase
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.settings.di.qualifiers.ForceWakeLock
+import com.app.missednotificationsreminder.settings.di.qualifiers.RateAppClicked
 import com.app.missednotificationsreminder.util.BatteryUtils
 import com.tfcporciuncula.flow.Preference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,6 +35,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
                                             private val nightMode: Preference<NightMode>,
                                             @param:ForceWakeLock private val forceWakeLock: Preference<Boolean>,
+                                            @param:RateAppClicked private val rateAppClicked: Preference<Boolean>,
                                             private val purchaseRepository: PurchaseRepository,
                                             private val purchases: Preference<List<Purchase>>) :
         BaseViewStateModel<SettingsViewState, SettingsViewStatePartialChanges>(SettingsViewState()),
@@ -102,6 +108,25 @@ class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
 
     fun forceWakeLockChanged(value: Boolean) {
         process(SettingsViewStatePartialChanges.ForceWakeLockChange(value))
+    }
+
+    fun rateApp(activity: Activity) {
+        rateAppClicked.set(true)
+        val uri = Uri.parse("market://details?id=${activity.packageName}")
+        val goToMarket = Intent(Intent.ACTION_VIEW, uri)
+        // To count with Play market backstack, After pressing back button,
+        // to taken back to our application, we need to add following flags to intent.
+        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+        }
+        try {
+            activity.startActivity(goToMarket)
+        } catch (e: ActivityNotFoundException) {
+            activity.startActivity(Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=${activity.packageName}")))
+        }
     }
 
     companion object {

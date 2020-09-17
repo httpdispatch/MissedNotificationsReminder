@@ -71,8 +71,9 @@
     <string name="menu_night_mode">Темна тема</string>
     <string name="menu_night_mode_follow_system">Відповідно системим налаштуванням</string>
     <string name="menu_night_yes">Ввімкнена</string>
-    <string name="menu_contribute">Підтримати</string>
     <string name="menu_night_mode_no">Вимкнута</string>
+    <string name="menu_rate_app">Оцінити додаток</string>
+    <string name="menu_contribute">Підтримати</string>
 
     <!-- Purchase -->
     <string name="payment_error_billing_unavailable">Покупки не доступні на цьому устройстве</string>

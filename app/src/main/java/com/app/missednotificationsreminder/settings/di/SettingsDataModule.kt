@@ -246,6 +246,13 @@ class SettingsDataModule {
         return prefs.getInt("SCHEDULER_RANGE_END", schedulerRangeDefaultEnd)
     }
 
+    @Provides
+    @Singleton
+    @RateAppClicked
+    fun provideRateAppClicked(prefs: FlowSharedPreferences): Preference<Boolean> {
+        return prefs.getBoolean("RATE_APP_CLICKED", false)
+    }
+
     @FlowPreview
     @Provides
     fun provideNotificationDataFlow(eventBus: FlowEventBus): Flow<List<NotificationData>> {

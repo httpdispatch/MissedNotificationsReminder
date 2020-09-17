@@ -33,6 +33,11 @@
         </menu>
     </item>
     <item
+        android:id="@+id/rate_app"
+        android:checkable="false"
+        android:title="@string/menu_rate_app"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/contribute"
         android:checkable="false"
         android:title="@string/menu_contribute"

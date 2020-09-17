@@ -148,6 +148,10 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
                         .navigate(ActionOnlyNavDirections(R.id.action_settingsFragment_to_contributionFragment))
                 true
             }
+            R.id.rate_app -> {
+                viewModel.rateApp(requireActivity())
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

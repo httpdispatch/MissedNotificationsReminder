@@ -21,6 +21,7 @@
     <string name="settings_applications_select_button">Select Applications</string>
     <string name="menu_advanced_settings_visible">Show Advanced Settings</string>
     <string name="menu_show_logs">Show Logs</string>
+    <string name="menu_rate_app">Rate App</string>
     <string name="menu_contribute">Contribute</string>
     <string name="menu_night_mode">Dark Mode</string>
     <string name="menu_night_mode_follow_system">Follow System</string>
@@ -104,7 +105,6 @@
     <string name="dismiss_action">Dismiss</string>
 
     <!-- Purchase -->
-    <string name="payment_error_title" translatable="false">@string/applications_error_title</string>
     <string name="payment_error_billing_unavailable">Billing unavailable</string>
     <string name="payment_error_service_unavailable">Service unavailable</string>
     <string name="payment_error_user_canceled">Purchase canceled</string>

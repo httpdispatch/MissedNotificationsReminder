@@ -17,6 +17,7 @@
         アプリケーション</string>
     <string name="settings_applications_select_button">アプリケーションを選択</string>
     <string name="menu_advanced_settings_visible">高度な設定を表示</string>
+    <string name="menu_rate_app">アプリを評価</string>
     <string name="menu_contribute">助ける</string>
     <string name="menu_show_logs">ログを表示</string>
     <string name="menu_night_mode">ダークモード</string>

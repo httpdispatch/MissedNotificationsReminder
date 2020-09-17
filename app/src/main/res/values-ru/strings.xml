@@ -30,6 +30,7 @@
     <string name="menu_night_mode_follow_system">Следовать системным настройкам</string>
     <string name="menu_night_yes">Включена</string>
     <string name="menu_night_mode_no">Отключена</string>
+    <string name="menu_rate_app">Оценить приложение</string>
     <string name="menu_contribute">Поддержать</string>
     <string name="wakelock_disabled">Позволять устройству засыпать (РЕКОМЕНДУЕТСЯ)</string>
     <string name="wakelock_enabled">Не позволять устройству засыпать (ВНИМАНИЕ, используйте эту опцию только, если испытываете проблемы с периодичностью напоминаний)</string>
