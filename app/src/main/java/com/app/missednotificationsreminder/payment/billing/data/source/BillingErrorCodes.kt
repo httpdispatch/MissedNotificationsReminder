@@ -9,6 +9,7 @@ import com.app.missednotificationsreminder.payment.billing.data.source.remote.Bi
 object BillingErrorCodes {
     const val BILLING_UNAVAILABLE = BillingClient.BillingResponseCode.BILLING_UNAVAILABLE
     const val SERVICE_UNAVAILABLE = BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE
+    const val ITEM_ALREADY_OWNED = BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED
     const val USER_CANCELED = BillingClient.BillingResponseCode.USER_CANCELED
 
     /**
@@ -32,6 +33,8 @@ object BillingErrorCodes {
                     return ResultWrapper.Error(error, SERVICE_UNAVAILABLE, resourceDataSource.getString(R.string.payment_error_service_unavailable))
                 BillingClient.BillingResponseCode.USER_CANCELED ->
                     return ResultWrapper.Error(error, USER_CANCELED, resourceDataSource.getString(R.string.payment_error_user_canceled))
+                BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED ->
+                    return ResultWrapper.Error(error, ITEM_ALREADY_OWNED, resourceDataSource.getString(R.string.payment_error_purchase_pending))
             }
         }
         return ResultWrapper.Error(error)

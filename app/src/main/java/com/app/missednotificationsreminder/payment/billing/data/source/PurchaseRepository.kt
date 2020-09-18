@@ -7,10 +7,7 @@ import com.android.billingclient.api.BillingClient.SkuType
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
 import com.app.missednotificationsreminder.R
-import com.app.missednotificationsreminder.data.ResultWrapper
-import com.app.missednotificationsreminder.data.collectWithLastErrorOrSuccessStatus
-import com.app.missednotificationsreminder.data.flatMap
-import com.app.missednotificationsreminder.data.onErrorReturn
+import com.app.missednotificationsreminder.data.*
 import com.app.missednotificationsreminder.data.source.ResourceDataSource
 import com.app.missednotificationsreminder.payment.billing.data.source.BillingErrorCodes.handleBillingError
 import com.app.missednotificationsreminder.payment.billing.data.source.remote.BillingOperationException
@@ -56,7 +53,7 @@ class PurchaseRepository(scope: CoroutineScope = CoroutineScope(EmptyCoroutineCo
                 skuList.asFlow()
                         .buffer()
                         .map { processBillingCall("getSkuDetails", 2) { billing.getSkuDetails(listOf(it), skuType) } }
-                        .collectWithLastErrorOrSuccessStatus(ResultWrapper.Success(emptyList())) { acc, value ->
+                        .collectWithLastErrorOrSuccessStatusSimple(ResultWrapper.Success(emptyList())) { acc, value ->
                             acc + value
                         }
             }
@@ -126,23 +123,48 @@ class PurchaseRepository(scope: CoroutineScope = CoroutineScope(EmptyCoroutineCo
     /**
      * Check whether there are any unhandled purchases and try to handle them
      */
-    suspend fun verifyAndConsumePendingPurchases(): ResultWrapper<List<SkuDetails>> {
+    suspend fun verifyAndConsumePendingPurchases(): ConsumeResult {
         Timber.d("verifyAndConsumePendingPurchases() called")
         return attachLoading("verifyAndConsumePendingPurchases") {
             attachLoadingStatus("Verifying and consuming pending purchases") {
                 flowOf(SkuType.INAPP, SkuType.SUBS)
                         .map { skuType ->
                             queryPurchases(skuType)
-                                    .flatMap {
+                                    .map {
                                         acknowledgePurchases(it, skuType == SkuType.INAPP, skuType)
                                     }
                         }
-                        .collectWithLastErrorOrSuccessStatus(ResultWrapper.Success(emptyList())) { acc, value -> acc + value }
+                        .collectWithLastErrorOrSuccessStatus(ConsumeResult(emptyList(), ResultWrapper.Success(Unit)),
+                                { it is ResultWrapper.Success && it.data.operationStatus.succeededOrPurchasePending() }) { acc, value ->
+                            value.fold({ consumeResult ->
+                                with(acc) {
+                                    copy(
+                                            skuDetails = skuDetails + consumeResult.skuDetails,
+                                            operationStatus = operationStatus.fold(
+                                                    // if accumulated operation status is success
+                                                    // use last received operation status as accumulated
+                                                    { consumeResult.operationStatus },
+                                                    // else don't overwrite accumulated operation status
+                                                    { it })
+                                    )
+                                }
+                            }, { error ->
+                                with(acc) {
+                                    // calculate new operation status for accumulated value
+                                    copy(operationStatus = operationStatus.fold(
+                                            // if accumulated operation status is success
+                                            // use last received operation status as accumulated
+                                            { error },
+                                            // else don't overwrite accumulated operation status
+                                            { operationStatus }))
+                                }
+                            })
+                        }
             }
         }
     }
 
-    private suspend fun acknowledgePurchases(purchases: List<Purchase>, consumable: Boolean, skuType: String): ResultWrapper<List<SkuDetails>> {
+    private suspend fun acknowledgePurchases(purchases: List<Purchase>, consumable: Boolean, skuType: String): ConsumeResult {
         return purchases.asFlow()
                 .filter { !it.isAcknowledged || consumable }
                 .flatMapMerge(concurrency = 1) { purchase ->
@@ -164,8 +186,22 @@ class PurchaseRepository(scope: CoroutineScope = CoroutineScope(EmptyCoroutineCo
                         }
                     }
                 }
-                .collectWithLastErrorOrSuccessStatus(ResultWrapper.Success(emptyList<SkuDetails>())) { acc, value ->
-                    acc + value
+                .collectWithLastErrorOrSuccessStatus(ConsumeResult(emptyList(), ResultWrapper.Success(Unit)),
+                        { it.succeededOrPurchasePending() }) { acc, value ->
+                    value.fold({
+                        acc.copy(skuDetails = acc.skuDetails + it)
+                    }, { error ->
+                        acc.operationStatus.fold({ acc.copy(operationStatus = error) }, { acc })
+                    })
                 }
     }
+
+}
+
+data class ConsumeResult(val skuDetails: List<SkuDetails>, val operationStatus: ResultWrapper<Unit>)
+
+private fun <R> ResultWrapper<R>.succeededOrPurchasePending(): Boolean {
+    val rw = this@succeededOrPurchasePending
+    return rw.succeeded ||
+            (rw is ResultWrapper.Error && rw.code == BillingErrorCodes.PURCHASE_PENDING)
 }

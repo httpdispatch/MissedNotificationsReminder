@@ -79,7 +79,8 @@ class PurchaseViewModel @Inject constructor(
             attachLoading("loadData") {
                 attachLoadingStatus(resourcesDataSource.getString(R.string.payment_loading_purchase_items)) {
                     purchaseRepository.verifyAndConsumePendingPurchases()
-                            .flatMap { purchaseRepository.getSkuDetails(skus, BillingClient.SkuType.INAPP) }
+                            .also { purchaseCompleted(it.skuDetails) }
+                    purchaseRepository.getSkuDetails(skus, BillingClient.SkuType.INAPP)
                             .map { skuDetails ->
                                 skuDetails
                                         .asSequence()
@@ -104,10 +105,13 @@ class PurchaseViewModel @Inject constructor(
             attachLoading("purchase") {
                 attachLoadingStatus(resourcesDataSource.getString(R.string.payment_purchasing)) {
                     purchaseRepository.purchase(skuDetails = skuDetails, activity = activity)
-                            .flatMap { purchaseRepository.verifyAndConsumePendingPurchases() }
+                            .flatMap {
+                                purchaseRepository.verifyAndConsumePendingPurchases()
+                                        .also { purchaseCompleted(it.skuDetails) }
+                                        .operationStatus
+                            }
                             .fold(
                                     {
-                                        purchaseCompleted(it)
                                         requestViewEffect(PurchaseViewEffect.Message(resourcesDataSource.getString(R.string.payment_purchase_done)))
                                     },
                                     { error ->
@@ -139,23 +143,27 @@ class ObservesPendingPaymentsImpl(
         delay(initialDelay)
         while (true) {
             purchaseRepository.verifyAndConsumePendingPurchases()
+                    .also { purchaseCompleted(it.skuDetails) }
+                    .operationStatus
                     .fold({
-                        purchaseCompleted(it)
-                        return
+                        return@observePendingPayments
                     }, { error ->
                         if (!canRetryPendingPayments(error)) {
-                            return
+                            return@observePendingPayments
                         }
                     })
             delay(DurationUnit.MINUTES.toMillis(3))
         }
     }
 
-    override fun canRetryPendingPayments(error: ResultWrapper.Error) =
-            setOf(BillingErrorCodes.PURCHASE_PENDING, BillingErrorCodes.SERVICE_UNAVAILABLE)
-                    .any { error.code == it }
+    override fun canRetryPendingPayments(error: ResultWrapper.Error): Boolean {
+        Timber.d("canRetryPendingPayments() called with: error = $error")
+        return setOf(BillingErrorCodes.PURCHASE_PENDING, BillingErrorCodes.SERVICE_UNAVAILABLE)
+                .any { error.code == it }
+    }
 
     override fun purchaseCompleted(purchasedGoods: List<SkuDetails>) {
+        Timber.d("purchaseCompleted() called with: purchasedGoods = $purchasedGoods")
         purchasedGoods
                 .map { Purchase(it.sku, it.price) }
                 .takeIf { it.isNotEmpty() }

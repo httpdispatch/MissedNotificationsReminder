@@ -123,17 +123,33 @@ inline fun <R, T> ResultWrapper<T>.fold(
  *
  * Note, that this function rethrows any [Throwable] exception thrown by [collector] function.
  */
-suspend fun <T, R> Flow<ResultWrapper<T>>.collectWithLastErrorOrSuccessStatus(
+suspend fun <T, R> Flow<ResultWrapper<T>>.collectWithLastErrorOrSuccessStatusSimple(
         defaultValue: ResultWrapper<R>,
-        collector: (T, R) -> R): ResultWrapper<R> {
+        collector: (R, T) -> R): ResultWrapper<R> {
+    return collectWithLastErrorOrSuccessStatus(
+            defaultValue,
+            { it.succeeded })
+    { mergedValue, value ->
+        value.map {
+            val mergedData = (mergedValue as Success<R>).data
+            collector(mergedData, it)
+        }
+    }
+}
+
+/**
+ * Collect the `Flow` results until last or not succeeded value is emitted. Collect
+ * data using [collector].
+ *
+ * Note, that this function rethrows any [Throwable] exception thrown by [collector] function.
+ */
+suspend fun <T, R> Flow<T>.collectWithLastErrorOrSuccessStatus(
+        defaultValue: R,
+        succeededTest: (T) -> Boolean,
+        collector: suspend (R, T) -> R): R {
     return transformWhile {
         emit(it)
-        it.succeeded
+        succeededTest(it)
     }
-            .fold(defaultValue) { mergedValue, value ->
-                value.map {
-                    val mergedData = (mergedValue as Success<R>).data
-                    collector(it, mergedData)
-                }
-            }
+            .fold(defaultValue, collector)
 }
