@@ -255,6 +255,11 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     private var remainingRepeats = 0
 
     /**
+     * Whether the reminder occurs for the first time in the session
+     */
+    private var firstTimeSessionReminder = false
+
+    /**
      * Notification manager for creating/removing dismiss notification.
      */
     private val notificationManager by lazy {
@@ -606,9 +611,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             stopWaking()
             return
         }
-        if (!repeating) {
-            reminderSessionsCount.run { set(get() + 1) }
-        }
+        firstTimeSessionReminder = !repeating
         if (schedulerEnabled.get()) {
             // if custom scheduler is enabled
             scheduledTime = TimeUtils.getScheduledTime(
@@ -972,6 +975,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             cancelVibrator()
             // notify listeners about reminder completion
             mEventBus.send(RemindEvents.REMINDER_COMPLETED)
+            if(firstTimeSessionReminder){
+                reminderSessionsCount.run { set(get() + 1) }
+            }
             scheduleNextWakeup(true)
         }
 
