@@ -26,6 +26,7 @@ import android.view.Display
 import androidx.annotation.CallSuper
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.lifecycleScope
@@ -36,10 +37,12 @@ import androidx.work.WorkManager
 import androidx.work.await
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.di.Injector.Companion.obtain
+import com.app.missednotificationsreminder.payment.data.model.Purchase
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEvent
 import com.app.missednotificationsreminder.service.event.RemindEvents
 import com.app.missednotificationsreminder.service.util.PhoneStateUtils
+import com.app.missednotificationsreminder.settings.SettingsFragment
 import com.app.missednotificationsreminder.settings.di.qualifiers.*
 import com.app.missednotificationsreminder.util.TimeUtils
 import com.app.missednotificationsreminder.util.event.Event
@@ -151,6 +154,17 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     lateinit var vibrationPattern: Preference<String>
 
     @Inject
+    lateinit var purchases: Preference<List<Purchase>>
+
+    @Inject
+    @RateAppClicked
+    lateinit var rateAppClicked: Preference<Boolean>
+
+    @Inject
+    @ReminderSessionsCount
+    lateinit var reminderSessionsCount: Preference<Int>
+
+    @Inject
     lateinit var mEventBus: FlowEventBus
 
     /**
@@ -207,6 +221,21 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         NavDeepLinkBuilder(applicationContext)
                 .setGraph(R.navigation.nav_graph)
                 .setDestination(R.id.applicationsSelectionFragment)
+                .createPendingIntent()
+    }
+
+    private val contributeIntent: PendingIntent by lazy {
+        NavDeepLinkBuilder(applicationContext)
+                .setGraph(R.navigation.nav_graph)
+                .setDestination(R.id.contributionFragment)
+                .createPendingIntent()
+    }
+
+    private val rateAppIntent: PendingIntent? by lazy {
+        NavDeepLinkBuilder(applicationContext)
+                .setGraph(R.navigation.nav_graph)
+                .setDestination(R.id.settingsFragment)
+                .setArguments(bundleOf(SettingsFragment.RATE_APP_EXTRA to true))
                 .createPendingIntent()
     }
 
@@ -539,6 +568,17 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 .setDeleteIntent(stopRemindersIntent)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(getText(R.string.dismiss_notification_text)))
                 .addAction(0, getString(R.string.dismiss_action), stopRemindersIntent)
+                .apply {
+                    // show extra options when there were at least 15 reminder sessions
+                    if(reminderSessionsCount.get() > 15) {
+                        if(purchases.get().isEmpty()) {
+                            addAction(0, getString(R.string.contribute_action), contributeIntent)
+                        }
+                        if (rateAppIntent != null && !rateAppClicked.get()) {
+                            addAction(0, getString(R.string.rate_action), rateAppIntent)
+                        }
+                    }
+                }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 notificationManager.getNotificationChannel(channelId) == null) {
             val channel = NotificationChannel(channelId,
@@ -565,6 +605,9 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             Timber.d("scheduleNextWakeup: ran out of reminder repeats, stopping")
             stopWaking()
             return
+        }
+        if (!repeating) {
+            reminderSessionsCount.run { set(get() + 1) }
         }
         if (schedulerEnabled.get()) {
             // if custom scheduler is enabled

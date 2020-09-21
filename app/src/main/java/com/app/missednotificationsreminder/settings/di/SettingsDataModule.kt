@@ -253,6 +253,13 @@ class SettingsDataModule {
         return prefs.getBoolean("RATE_APP_CLICKED", false)
     }
 
+    @Provides
+    @Singleton
+    @ReminderSessionsCount
+    fun provideReminderSessionsCount(prefs: FlowSharedPreferences): Preference<Int> {
+        return prefs.getInt("REMINDER_SESSIONS_COUNT", 0)
+    }
+
     @FlowPreview
     @Provides
     fun provideNotificationDataFlow(eventBus: FlowEventBus): Flow<List<NotificationData>> {

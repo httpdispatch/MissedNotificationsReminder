@@ -103,6 +103,8 @@
     <string name="dismiss_notification_title">Reminder is active</string>
     <string name="dismiss_notification_text">Dismiss this notification to stop reminders.</string>
     <string name="dismiss_action">Dismiss</string>
+    <string name="contribute_action" translatable="false">@string/menu_contribute</string>
+    <string name="rate_action" translatable="false">@string/menu_rate_app</string>
 
     <!-- Purchase -->
     <string name="payment_error_billing_unavailable">Billing unavailable</string>

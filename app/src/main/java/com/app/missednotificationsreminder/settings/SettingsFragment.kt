@@ -67,6 +67,7 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        rateAppIfNecessary()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -149,11 +150,22 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
                 true
             }
             R.id.rate_app -> {
-                viewModel.rateApp(requireActivity())
+                rateApp()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun rateAppIfNecessary() {
+        Timber.d("rateAppIfNecessary() called")
+        arguments
+                ?.takeIf { it.getBoolean(RATE_APP_EXTRA) }
+                ?.run { lifecycleScope.launchWhenResumed { rateApp() } }
+    }
+
+    private fun rateApp() {
+        viewModel.rateApp(requireActivity())
     }
 
 
@@ -212,6 +224,10 @@ class SettingsFragment : CommonFragmentWithViewBinding<FragmentSettingsBinding>(
     fun onGrantPermissionsPressed(v: View?) {
         Timber.d("onGrantPermissionsPressed")
         grantRequiredPermissions.launch(SettingsViewModel.REQUIRED_PERMISSIONS.toTypedArray())
+    }
+
+    companion object {
+        const val RATE_APP_EXTRA = "rateApp"
     }
 
     @dagger.Module
