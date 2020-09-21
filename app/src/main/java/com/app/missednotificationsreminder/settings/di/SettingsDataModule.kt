@@ -116,7 +116,7 @@ class SettingsDataModule {
     @Singleton
     @ForceWakeLock
     fun provideForceWakeLock(prefs: FlowSharedPreferences): Preference<Boolean> {
-        return prefs.getBoolean(ForceWakeLock::class.java.simpleName, false)
+        return prefs.getBoolean(ForceWakeLock::class.java.simpleName, true)
     }
 
     @Provides

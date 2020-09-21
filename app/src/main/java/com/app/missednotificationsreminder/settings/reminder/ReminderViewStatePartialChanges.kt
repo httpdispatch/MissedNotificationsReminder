@@ -47,10 +47,10 @@ sealed class ReminderViewStatePartialChanges : ViewStatePartialChanges<ReminderV
                     intervalSeconds = correctedNewValue,
                     intervalMinutes = intervalMinutes,
                     forceUpdate = previousState.forceUpdate + 1,
-                    forceWakeLock = if (newValue > previousState.maxIntervalForWakeLock)
-                        false
-                    else
-                        previousState.forceWakeLock)
+                    forceWakeLock = when {
+                        (correctedNewValue > previousState.maxIntervalForWakeLock) -> false
+                        else -> true
+                    })
                     .let { updatedState ->
                         correctedNewValue
                                 .let {
