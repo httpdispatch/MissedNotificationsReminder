@@ -31,6 +31,7 @@ abstract class CustomApplicationBase : DaggerApplication(), Configuration.Provid
     }
 
     override fun onCreate() {
+        AndroidThreeTen.init(this)
         super.onCreate()
         // initialize logging
         if (BuildConfig.DEBUG) {
@@ -40,7 +41,6 @@ abstract class CustomApplicationBase : DaggerApplication(), Configuration.Provid
         }
         lumberYard.cleanUp()
         Timber.plant(lumberYard.tree())
-        AndroidThreeTen.init(this)
         registerActivityLifecycleCallbacks(activityHierarchyServer)
         registerActivityLifecycleCallbacks(CommonActivityLifecycleCallback())
     }
