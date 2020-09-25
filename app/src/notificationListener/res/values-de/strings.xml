@@ -1,0 +1,7 @@
+<resources>
+    <!-- Settings -->
+    <string name="settings_acess_disabled">Benachrichtigungszugriff deakiviert.
+        Klicke auf \"Zugriff verwalten\" und aktiviere die App \"Missed Notification Reminder\".
+        Andernfalls kann die Benachrichtigung nicht ausgeführt werden.</string>
+
+</resources>

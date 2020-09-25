@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings -->
+    <string name="settings_acess_disabled">Benachrichtigungszugriff deakiviert.
+        Klicke auf \"Zugriff verwalten\" und aktiviere die App \"Missed Notification Reminder\".
+        Andernfalls kann die Benachrichtigung nicht ausgeführt werden.</string>
+
+    <string name="accessibility_service_description">
+        Aktivieren Sie diese Option, um die Erinnerung an verpasste Benachrichtigungen zuzulassen
+         alle eingehenden Benachrichtigungen erhalten.
+         Diese App sammelt keine Ihrer Daten. Bitte beachten Sie, dass diese App kein Internet hat
+         Zugriffsberechtigung, sodass die Daten tatsächlich nirgendwo gesendet werden können.</string>
+    <string name="accessibility_service">Missed Notifications Reminder Service</string>
+</resources>

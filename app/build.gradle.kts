@@ -251,4 +251,6 @@ dependencies {
     testImplementation("junit:junit:4.13")
     testImplementation("org.mockito:mockito-core:3.3.3")
     testImplementation("com.google.truth:truth:1.0.1")
+    testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8")
+    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.+")
 }

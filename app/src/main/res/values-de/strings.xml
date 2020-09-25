@@ -1,0 +1,120 @@
+<resources>
+    <!-- General -->
+    <string name="loading_message">Lade…</string>
+    <string name="common_general_error">Ein Fehler ist aufgetreten</string>
+    <string name="common_ok_action" translatable="false">OK</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_access_title">Benachrichtigungszugriff</string>
+    <string name="settings_battery_optimization">Batterieoptimierung</string>
+    <string name="settings_permissions">Berechtigungen</string>
+    <string name="settings_access_enabled">Benachrichtigungszugriff aktiviert</string>
+    <string name="settings_access_manage">Zugriff verwalten</string>
+    <string name="settings_reminder">Erinnerungseinstellungen</string>
+    <string name="settings_vibration">Vibration</string>
+    <string name="settings_scheduler">Benutzerdefinierter Planer</string>
+    <string name="settings_sound">Ton</string>
+    <string name="settings_applications_select_title">Applikationsüberwachung</string>
+    <string name="settings_applications_select_button">Applikationsauswahl</string>
+    <string name="menu_advanced_settings_visible">Erweiterte Einstellungen</string>
+    <string name="menu_show_logs">Protokolle anzeigen</string>
+    <string name="menu_rate_app">Bewerte die App</string>
+    <string name="menu_contribute">Unterstützung</string>
+    <string name="menu_night_mode">Dunkler Modus</string>
+    <string name="menu_night_mode_follow_system">System folgen</string>
+    <string name="menu_night_yes">Aktiviert</string>
+    <string name="menu_night_mode_no">Deaktiviert</string>
+
+    <!-- Permissions settings -->
+    <string name="settings_permissions_required">Die folgenden Berechtigungen sind für die Funktion der App erforderlich: \"%1$s\". Bitte erteile sie.</string>
+    <string name="settings_permissions_grant">Erteile die erforderlichen Berechtigungen</string>
+
+    <!-- Battery optimization settings -->
+    <string name="settings_battery_optimization_disabled"><![CDATA[
+    Die Applikation ist bereits von der Batterieoptimierung ausgeschlossen<br/><br/>
+    Einige Geräte verfügen Möglicherweise über zusätzliche Einstellungen zur Begrenzung
+    des Batterieverbrauchs. Wenn Probleme mit der App auftreten, 
+    besuche bitte die Website 
+    <u><a href=https://dontkillmyapp.com/>https://dontkillmyapp.com</a></u> 
+    um eine mögliche Lösung zu finden]]></string>
+    <string name="settings_battery_optimization_enabled">Das Android OS optimiert den Batterieverbrauch für diese App. Wenn Probleme bei der Ausführung auftreten, deaktiviere die Batterieoptimierung für die App \"Missed Notification Reminder\".</string>
+    <string name="settings_manage_battery_optimization">Batterieoptimierung verwalten</string>
+    <string name="settings_battery_wakelock_disabled">Der Vordergrunddienst ist deaktiviert. Passe die Einstellung an, falls Probleme bei der stabilen Ausführung der App auftreten</string>
+    <string name="settings_battery_wakelock_enabled">Der Vordergrunddienst ist aktiviert. Verwende ihn nur, wenn Probleme mit der Erinnerung auftreten. Dadurch wird das Gerät die ganze Zeit wach gehalten, während das Erinnerungsintervall geplant ist</string>
+    
+    <!-- Reminder Settings -->
+    <string name="reminder_interval_hint">Erinnerungsintervall (Minuten)</string>
+    <string name="reminder_repeats_hint">Anzahl der Erinnerungswiederholungen (maximal)</string>
+    <string name="reminder_disabled">Deaktiviert</string>
+    <string name="reminder_enabled">Aktiviert</string>
+    <string name="limit_reminder_repeats_disabled">Erinnerung ständig wiederholen</string>
+    <string name="limit_reminder_repeats_enabled">Erinnerung in begrenzter Anzahl wiederholen</string>
+    <string name="create_dismiss_notification_disabled">Erstellt keine zusätzliche Benachrichtigung</string>
+    <string name="create_dismiss_notification_enabled">Erstellt eine zusätzliche Benachrichtigung, wenn die Erinnerung aktiv ist, damit sie gestoppt werden kann, ohne Benachrichtigungen von anderen Apps abzuweisen</string>
+    <string name="create_dismiss_notification_immediately_disabled">Erstellt eine zusätzliche Benachrichtigung, wenn das erste Benachrichtigungsereignis eintritt</string>
+    <string name="create_dismiss_notification_immediately_enabled">Erstellt eine zusätzliche Benachrichtigung sofort, nachdem eine überwachte App eine Benachrichtigung veröffentlicht hat</string>
+    <string name="wakelock_disabled">Gerät nicht wach halten (EMPFOHLEN)</string>
+    <string name="wakelock_enabled">Gerät wach halten (WARNUNG, verwende diese Option nur, wenn Probleme bei der Benachrichtigung auftreten. Dadurch bleibt das Gerät während des Benachrichtigungsintervalls ständig aktiv)</string>
+
+    <!-- Scheduler-->
+    <string name="scheduler_begin_hint">Beginnt um</string>
+    <string name="scheduler_end_hint">Endet um</string>
+    <string name="scheduler_disabled">Deaktiviert</string>
+    <string name="scheduler_enabled">Aktiviert</string>
+    <string name="scheduler_working_period">Aktiver Zeitraum</string>
+    <string name="scheduler_disabled_period">Inaktiver Zeitraum</string>
+
+    <!-- Sound -->
+    <string name="sound_reminder_ringtone_button">Benachrichtigungston</string>
+    <string name="sound_select_ringtone_dialog_title">Benachrichtigungston auswählen</string>
+
+    <!-- Vibration -->
+    <string name="vibration_disabled">Deaktiviert</string>
+    <string name="vibration_enabled">Aktiviert</string>
+    <string name="vibration_pattern_hint">Vibrationsmuster</string>
+    <string name="vibration_pattern_error">Das Muster muss in ganzen Zahlen nacheinander, durch Komma getrennt, angegeben werden. Der erste Wert gibt die Millisekunden an, die gewartet werden, bevor der Vibrator eingeschaltet wird. Der nächste Wert gibt die Millisekunden an, die der Vibrator eingeschaltet bleibt, bevor er ausgeschaltet wird. Nachfolgende Werte in Millisekunden wechseln periodisch, um den Vibrator aus- oder einzuschalten. Beispiel: 0, 100, 50, 100, 200</string>
+
+    <!-- Application selection-->
+    <string name="ignore_persistent_notifications_disabled">Laufende (permanente) Benachrichtigungen nicht ignorieren</string>
+    <string name="ignore_persistent_notifications_enabled">Laufende (permanente) Benachrichtigungen ignorieren</string>
+    <string name="remind_when_screen_is_on_disabled">Keine Erinnerung, bei eingeschaltetem Bildschirm</string>
+    <string name="remind_when_screen_is_on_enabled">Erinnerung, bei eingeschaltetem Bildschirm</string>
+    <string name="respect_phone_calls_disabled">Erinnerung, während eines Telefongesprächs</string>
+    <string name="respect_phone_calls_enabled">Keine Erinnerung, während eines Telefongesprächs</string>
+    <string name="respect_ringer_mode_disabled">Geräte-Audioprofil ignorieren (Erinnerung im stillen Modus beibehalten)</string>
+    <string name="respect_ringer_mode_enabled">Geräte-Audioprofil prüfen (keine Erinnerung im stillen Modus)</string>
+
+    <!-- Applications selection activity -->
+    <string name="applications_selection_title">Applikationsauswahl</string>
+    <!-- Applications selection list -->
+    <string name="applications_error_title">Hoppla!</string>
+    <string name="applications_error_message">Beim Laden der Anwendungsdaten ist ein Fehler aufgetreten. Bitte, versuche es später noch einmal</string>
+    <string name="applications_empty_title">Seltsam…</string>
+    <string name="applications_empty_message">Es scheinen keine Apps verfügbar zu sein</string>
+
+    <!-- Dismiss notification -->
+    <string name="dismiss_notification_title">Erinnerung ist aktiv</string>
+    <string name="dismiss_notification_text">Abweisen, um die Erinnerung zu stoppen</string>
+    <string name="dismiss_action">Abweisen</string>
+
+    <!-- Purchase -->
+    <string name="payment_error_billing_unavailable">Rechnung nicht verfügbar</string>
+    <string name="payment_error_service_unavailable">Der Dienst ist nicht erreichbar</string>
+    <string name="payment_error_user_canceled">Der Kauf wurde storniert</string>
+    <string name="payment_error_purchase_pending">Der Kauf steht noch aus!</string>
+    <string name="contribution_title">Entwicklung unterstützen</string>
+    <string name="contribution_contribute_options"><![CDATA[
+    Du kannst einen Beitrag leisten, indem Du ein Problembericht erstellst oder das Projekt 
+    im <u><a href=https://github.com/httpdispatch/MissedNotificationsReminder>GitHub-Repository</a></u> 
+    bearbeitest
+    <br/><br/>
+    Du kannst auch einige Artikel erwerben, um die Entwicklung zu unterstützen. <b>Beachte</b>,
+    dass durch den Kauf eines Artikels <b>keine Funktionen freischaltet</b> werden]]></string>
+    <string name="contribution_action_purchase">Kaufen</string>
+    <string name="payment_loading_purchase_items">Lade…</string>
+    <string name="payment_purchasing">Einkaufen…</string>
+    <string name="payment_purchase_done">Danke für die Unterstützung!</string>
+    <string name="payment_contributions">Dein Beitrag: %s</string>
+
+</resources>
