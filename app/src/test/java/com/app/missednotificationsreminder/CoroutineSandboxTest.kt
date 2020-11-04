@@ -462,4 +462,21 @@ class CoroutineSandboxTest {
             }
         }
     }
+
+    @Test
+    fun testMutableStateFlowFlatternMerge() = runBlocking {
+        val flows = mutableListOf<MutableStateFlow<Int>>()
+        repeat(20) {
+            flows.add(MutableStateFlow(0))
+        }
+        val job = launch {
+            flows.asFlow()
+                    .flattenMerge()
+                    .collect { println("received $it in ${Thread.currentThread().name}") }
+        }
+        delay(1000)
+        flows.forEachIndexed { index, flow -> flow.value = index + 1 }
+        delay(1000)
+        job.cancel()
+    }
 }

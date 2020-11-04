@@ -24,6 +24,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.Display
 import androidx.annotation.CallSuper
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
@@ -294,6 +295,17 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     }
 
     /**
+     * Receiver used to handle ringer mode changed events
+     */
+    private val interruptionFilterChangedReceiver by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            InterruptionFilterChangedReceiver()
+        } else {
+            throw IllegalStateException("This is not supported at platform below Android 6")
+        }
+    }
+
+    /**
      * Observer used to handle DND mode changes events
      */
     private val zenModeObserver by lazy {
@@ -380,7 +392,13 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         // initialize broadcast receiver
         registerReceiver(ringerModeChangedReceiver, IntentFilter(
                 AudioManager.RINGER_MODE_CHANGED_ACTION))
-        applicationContext.contentResolver.registerContentObserver(Settings.System.CONTENT_URI, true, zenModeObserver)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            registerReceiver(interruptionFilterChangedReceiver, IntentFilter(
+                    NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED))
+        } else {
+            applicationContext.contentResolver.registerContentObserver(Settings.System.CONTENT_URI, true, zenModeObserver)
+        }
 
         // initialize dismiss notification service and receiver
         registerReceiver(stopRemindersReceiver, IntentFilter(STOP_REMINDERS_INTENT_ACTION))
@@ -473,7 +491,8 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                         .drop(1) // skip initial value emitted right after the subscription
                         .onEach { v -> Timber.d("DND mode changed to %b", v) }
                         .filter { respectRingerMode.get() })
-                .flattenMerge()
+                // increase number to the value which is greature than merged flows count
+                .flattenMerge(20)
                 .filter { ready.value }
                 .onEach {
                     // restart alarm with new conditions if necessary
@@ -575,8 +594,8 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 .addAction(0, getString(R.string.dismiss_action), stopRemindersIntent)
                 .apply {
                     // show extra options when there were at least 15 reminder sessions
-                    if(reminderSessionsCount.get() > 15) {
-                        if(purchases.get().isEmpty()) {
+                    if (reminderSessionsCount.get() > 15) {
+                        if (purchases.get().isEmpty()) {
                             addAction(0, getString(R.string.contribute_action), contributeIntent)
                         }
                         if (rateAppIntent != null && !rateAppClicked.get()) {
@@ -747,7 +766,11 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         // unregister ringer mode changed receiver
         unregisterReceiver(ringerModeChangedReceiver)
         // unregister zen mode changed observer
-        applicationContext.contentResolver.unregisterContentObserver(zenModeObserver)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            unregisterReceiver(interruptionFilterChangedReceiver)
+        } else {
+            applicationContext.contentResolver.unregisterContentObserver(zenModeObserver)
+        }
         // unregister dismiss notification receiver
         unregisterReceiver(stopRemindersReceiver)
     }
@@ -877,6 +900,34 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
     }
 
     /**
+     * The broadcast receiver for interruption filter changed events
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    internal inner class InterruptionFilterChangedReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            Timber.d("onReceive: %s", intent)
+            if (NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED == intent.getAction()) {
+                interruptionFilterUpdated()
+            }
+        }
+
+        /**
+         * Called when ringer mode is updated
+         */
+        private fun interruptionFilterUpdated() {
+            dndEnabled.value = when (notificationManager.currentInterruptionFilter) {
+                NotificationManager.INTERRUPTION_FILTER_ALL -> false
+                else -> true
+            }
+        }
+
+        init {
+            // update to initial value
+            interruptionFilterUpdated()
+        }
+    }
+
+    /**
      * The content observer for the DND mode changes
      */
     private inner class ZenModeObserver constructor(handler: Handler) : ContentObserver(handler) {
@@ -975,7 +1026,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             cancelVibrator()
             // notify listeners about reminder completion
             mEventBus.send(RemindEvents.REMINDER_COMPLETED)
-            if(firstTimeSessionReminder){
+            if (firstTimeSessionReminder) {
                 reminderSessionsCount.run { set(get() + 1) }
             }
             scheduleNextWakeup(true)

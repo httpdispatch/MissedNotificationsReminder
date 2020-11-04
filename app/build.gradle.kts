@@ -227,7 +227,7 @@ dependencies {
 
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    implementation("com.github.tfcporciuncula:flow-preferences:1.3.1")
+    implementation("com.github.tfcporciuncula:flow-preferences:1.3.3")
 
     implementation("com.wdullaer:materialdatetimepicker:4.2.3")
 
