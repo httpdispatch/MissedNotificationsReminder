@@ -992,8 +992,10 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 }
                 if (!remindWhenScreenIsOn.get() && isScreenOn(applicationContext)) {
                     Timber.d("onReceive: The screen is on and remind when screen is on is not specified, skip notification")
+                    reminderSkipped()
                 } else if (PhoneStateUtils.isCallActive(applicationContext) && respectPhoneCalls.get()) {
                     Timber.d("onReceive: The phone call is active and respect phone calls setting is specified, skip notification")
+                    reminderSkipped()
                 } else {
                     try {
                         Timber.d("onReceive: The screen is off, notify")
@@ -1030,6 +1032,14 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 reminderSessionsCount.run { set(get() + 1) }
             }
             scheduleNextWakeup(true)
+        }
+
+        private suspend fun reminderSkipped(){
+            actualizeNotificationData()
+            // notify listeners about reminder completion
+            mEventBus.send(RemindEvents.REMINDER_COMPLETED)
+            scheduleNextWakeup(true)
+
         }
 
         private fun cancelVibrator() {
