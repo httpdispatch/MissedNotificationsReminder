@@ -193,13 +193,13 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.0.1")
-    implementation("androidx.activity:activity-ktx:1.2.0-alpha08")
-    implementation("androidx.fragment:fragment-ktx:1.3.0-alpha08")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.4")
+    implementation("androidx.activity:activity-ktx:1.2.0")
+    implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE}")
     implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE}")
-    implementation("com.google.android.material:material:1.3.0-alpha02")
-    implementation("com.android.billingclient:billing:3.0.0")
+    implementation("com.google.android.material:material:1.3.0")
+    implementation("com.android.billingclient:billing:3.0.2")
     implementation("androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}")
     implementation("androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}")
 
@@ -210,7 +210,7 @@ dependencies {
     debugImplementation("com.jakewharton.madge:madge:1.1.4")
     debugImplementation("com.jakewharton.scalpel:scalpel:1.1.2")
     implementation("com.jakewharton.threetenabp:threetenabp:1.2.4")
-    implementation("com.squareup.okio:okio:2.6.0")
+    implementation("com.squareup.okio:okio:2.8.0")
     debugImplementation("com.mattprecious.telescope:telescope:2.2.0")
 
     // Dagger
