@@ -557,7 +557,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
                 if (limitReminderRepeats.get()) {
                     remainingRepeats = reminderRepeats.get()
                 }
-                scheduleNextWakeup(false)
+                scheduleNextWakeup(repeating = false)
             } else {
                 Timber.d("checkWakingConditions: there are no notifications from selected applications to periodically remind")
             }
@@ -623,14 +623,17 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
      * Schedule wakeup alarm for the sound notification pending intent
      */
     @SuppressLint("TimberArgCount")
-    private fun scheduleNextWakeup(repeating: Boolean) {
+    private fun scheduleNextWakeup(repeating: Boolean, skipped: Boolean = false) {
+        Timber.d("scheduleNextWakeup() called with: repeating = $repeating, skipped = $skipped")
         var scheduledTime: Long = 0
-        if (limitReminderRepeats.get() && remainingRepeats-- <= 0) {
-            Timber.d("scheduleNextWakeup: ran out of reminder repeats, stopping")
-            stopWaking()
-            return
+        if (!skipped) {
+            if (limitReminderRepeats.get() && remainingRepeats-- <= 0) {
+                Timber.d("scheduleNextWakeup: ran out of reminder repeats, stopping")
+                stopWaking()
+                return
+            }
+            firstTimeSessionReminder = !repeating
         }
-        firstTimeSessionReminder = !repeating
         if (schedulerEnabled.get()) {
             // if custom scheduler is enabled
             scheduledTime = TimeUtils.getScheduledTime(
@@ -1024,6 +1027,7 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
         }
 
         private suspend fun reminderCompleted() {
+            Timber.d("reminderCompleted() called")
             actualizeNotificationData()
             cancelVibrator()
             // notify listeners about reminder completion
@@ -1031,14 +1035,15 @@ class ReminderNotificationListenerService : AbstractReminderNotificationListener
             if (firstTimeSessionReminder) {
                 reminderSessionsCount.run { set(get() + 1) }
             }
-            scheduleNextWakeup(true)
+            scheduleNextWakeup(repeating = true)
         }
 
-        private suspend fun reminderSkipped(){
+        private suspend fun reminderSkipped() {
+            Timber.d("reminderSkipped() called")
             actualizeNotificationData()
             // notify listeners about reminder completion
             mEventBus.send(RemindEvents.REMINDER_COMPLETED)
-            scheduleNextWakeup(true)
+            scheduleNextWakeup(repeating = true, skipped = true)
 
         }
 
