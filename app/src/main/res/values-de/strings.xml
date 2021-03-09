@@ -33,16 +33,16 @@
     <!-- Battery optimization settings -->
     <string name="settings_battery_optimization_disabled"><![CDATA[
     Die Applikation ist bereits von der Batterieoptimierung ausgeschlossen<br/><br/>
-    Einige Geräte verfügen Möglicherweise über zusätzliche Einstellungen zur Begrenzung
-    des Batterieverbrauchs. Wenn Probleme mit der App auftreten, 
-    besuche bitte die Website 
-    <u><a href=https://dontkillmyapp.com/>https://dontkillmyapp.com</a></u> 
+    Einige Geräte verfügen möglicherweise über zusätzliche Einstellungen zur Begrenzung
+    des Batterieverbrauchs. Wenn Probleme mit der App auftreten,
+    besuche bitte die Website
+    <u><a href=https://dontkillmyapp.com/>https://dontkillmyapp.com</a></u>
     um eine mögliche Lösung zu finden]]></string>
     <string name="settings_battery_optimization_enabled">Das Android OS optimiert den Batterieverbrauch für diese App. Wenn Probleme bei der Ausführung auftreten, deaktiviere die Batterieoptimierung für die App \"Missed Notification Reminder\".</string>
     <string name="settings_manage_battery_optimization">Batterieoptimierung verwalten</string>
     <string name="settings_battery_wakelock_disabled">Der Vordergrunddienst ist deaktiviert. Passe die Einstellung an, falls Probleme bei der stabilen Ausführung der App auftreten</string>
     <string name="settings_battery_wakelock_enabled">Der Vordergrunddienst ist aktiviert. Verwende ihn nur, wenn Probleme mit der Erinnerung auftreten. Dadurch wird das Gerät die ganze Zeit wach gehalten, während das Erinnerungsintervall geplant ist</string>
-    
+
     <!-- Reminder Settings -->
     <string name="reminder_interval_hint">Erinnerungsintervall (Minuten)</string>
     <string name="reminder_repeats_hint">Anzahl der Erinnerungswiederholungen (maximal)</string>
@@ -105,12 +105,12 @@
     <string name="payment_error_purchase_pending">Der Kauf steht noch aus!</string>
     <string name="contribution_title">Entwicklung unterstützen</string>
     <string name="contribution_contribute_options"><![CDATA[
-    Du kannst einen Beitrag leisten, indem Du ein Problembericht erstellst oder das Projekt 
-    im <u><a href=https://github.com/httpdispatch/MissedNotificationsReminder>GitHub-Repository</a></u> 
+    Du kannst einen Beitrag leisten, indem Du ein Problembericht erstellst oder das Projekt
+    im <u><a href=https://github.com/httpdispatch/MissedNotificationsReminder>GitHub-Repository</a></u>
     bearbeitest
     <br/><br/>
     Du kannst auch einige Artikel erwerben, um die Entwicklung zu unterstützen. <b>Beachte</b>,
-    dass durch den Kauf eines Artikels <b>keine Funktionen freischaltet</b> werden]]></string>
+    dass durch den Kauf eines Artikels <b>keine Funktionen freischaltet werden</b>]]></string>
     <string name="contribution_action_purchase">Kaufen</string>
     <string name="payment_loading_purchase_items">Lade…</string>
     <string name="payment_purchasing">Einkaufen…</string>
