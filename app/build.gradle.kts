@@ -14,7 +14,7 @@ plugins {
 val versionMajor = 1
 val versionMinor = 6
 val versionPatch = 5
-val versionBuild = 0 // bump for dogfood builds, public betas, etc.
+val versionBuild = 1 // bump for dogfood builds, public betas, etc.
 
 val gitSha = "git rev-parse --short HEAD".runCommand(project.rootDir).trim()
 val gitTimestamp = "git log -n 1 --format=%at".runCommand(project.rootDir).trim()
