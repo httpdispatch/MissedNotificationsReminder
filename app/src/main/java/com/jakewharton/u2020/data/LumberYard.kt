@@ -3,9 +3,8 @@ package com.jakewharton.u2020.data
 import android.app.Application
 import android.util.Log
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import okio.buffer
 import okio.sink
@@ -23,10 +22,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class LumberYard @Inject constructor(private val app: Application) {
     private val entries: Deque<Entry> = ArrayDeque(BUFFER_SIZE + 1)
-    private val entrySubject = BroadcastChannel<Entry>(2000)
+    private val entrySubject = MutableSharedFlow<Entry>()
     fun tree(): Timber.Tree {
         val scope = CoroutineScope(Executors
                 .newSingleThreadExecutor { runnable -> Thread(runnable, "LumberYard") }
@@ -44,7 +42,7 @@ class LumberYard @Inject constructor(private val app: Application) {
         if (entries.size > BUFFER_SIZE) {
             entries.removeFirst()
         }
-        entrySubject.send(entry)
+        entrySubject.emit(entry)
     }
 
     fun bufferedLogs(): List<Entry> {
@@ -52,12 +50,13 @@ class LumberYard @Inject constructor(private val app: Application) {
     }
 
     fun logs(): Flow<Entry> {
-        return entrySubject.asFlow()
+        return entrySubject
     }
 
     /**
      * Save the current logs to disk.
      */
+    @Suppress("BlockingMethodInNonBlockingContext")
     fun save(): Flow<File> = flow {
         val folder = app.getExternalFilesDir(null)
                 ?: throw IOException("External storage is not mounted.")
