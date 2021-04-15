@@ -2,6 +2,10 @@
 <lint>
 
     <!-- Ignore the UnusedResources issue in the given ids -->
+    <issue id="UnusedResources" severity="ignore">
+        <ignore
+            regexp="payment_error_service_unavailable|payment_error_user_canceled|payment_error_purchase_pending" />
+    </issue>
     <issue id="OverrideAbstract" severity="ignore">
         <ignore regexp="ReminderNotificationListenerService" />
     </issue>

@@ -38,7 +38,7 @@ import androidx.work.WorkManager
 import androidx.work.await
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.di.Injector.Companion.obtain
-import com.app.missednotificationsreminder.payment.data.model.Purchase
+import com.app.missednotificationsreminder.payment.model.Purchase
 import com.app.missednotificationsreminder.service.data.model.NotificationData
 import com.app.missednotificationsreminder.service.event.NotificationsUpdatedEvent
 import com.app.missednotificationsreminder.service.event.RemindEvents
@@ -67,7 +67,6 @@ import javax.inject.Inject
  * there are available notifications from applications which matches user selected applications. The notification interval
  * is also specified by the user in the corresponding window.
  */
-@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class ReminderNotificationListenerService : AbstractReminderNotificationListenerService() {
     private val mDispatcher = ServiceLifecycleDispatcher(this)
 

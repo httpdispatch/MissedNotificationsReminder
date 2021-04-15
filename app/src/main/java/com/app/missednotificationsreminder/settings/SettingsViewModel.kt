@@ -15,8 +15,8 @@ import com.app.missednotificationsreminder.binding.util.bindWithPreferences
 import com.app.missednotificationsreminder.data.model.NightMode
 import com.app.missednotificationsreminder.payment.ObservesPendingPayments
 import com.app.missednotificationsreminder.payment.ObservesPendingPaymentsImpl
-import com.app.missednotificationsreminder.payment.billing.data.source.PurchaseRepository
-import com.app.missednotificationsreminder.payment.data.model.Purchase
+import com.app.missednotificationsreminder.payment.billing.domain.repository.PurchaseRepository
+import com.app.missednotificationsreminder.payment.model.Purchase
 import com.app.missednotificationsreminder.service.ReminderNotificationListenerService
 import com.app.missednotificationsreminder.service.util.ReminderNotificationListenerServiceUtils
 import com.app.missednotificationsreminder.settings.di.qualifiers.ForceWakeLock
@@ -32,12 +32,14 @@ import javax.inject.Inject
  * The view model for the settings view
  */
 @ExperimentalCoroutinesApi
-class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
-                                            private val nightMode: Preference<NightMode>,
-                                            @param:ForceWakeLock private val forceWakeLock: Preference<Boolean>,
-                                            @param:RateAppClicked private val rateAppClicked: Preference<Boolean>,
-                                            private val purchaseRepository: PurchaseRepository,
-                                            private val purchases: Preference<List<Purchase>>) :
+class SettingsViewModel @Inject constructor(
+        private val vibrator: Vibrator,
+        private val nightMode: Preference<NightMode>,
+        @param:ForceWakeLock private val forceWakeLock: Preference<Boolean>,
+        @param:RateAppClicked private val rateAppClicked: Preference<Boolean>,
+        private val purchaseRepository: PurchaseRepository,
+        private val purchases: Preference<List<Purchase>>
+) :
         BaseViewStateModel<SettingsViewState, SettingsViewStatePartialChanges>(SettingsViewState()),
         ObservesPendingPayments by ObservesPendingPaymentsImpl(purchaseRepository, purchases) {
 
@@ -66,7 +68,10 @@ class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
      * Run the operation to check whether the notification service is enabled
      */
     fun checkServiceEnabled(context: Context) {
-        ReminderNotificationListenerServiceUtils.isServiceEnabled(context, ReminderNotificationListenerService::class.java)
+        ReminderNotificationListenerServiceUtils.isServiceEnabled(
+                context,
+                ReminderNotificationListenerService::class.java
+        )
                 .run {
                     process(SettingsViewStatePartialChanges.AccessEnabledChange(this))
                 }
@@ -116,16 +121,22 @@ class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
         val goToMarket = Intent(Intent.ACTION_VIEW, uri)
         // To count with Play market backstack, After pressing back button,
         // to taken back to our application, we need to add following flags to intent.
-        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or
-                Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        goToMarket.addFlags(
+                Intent.FLAG_ACTIVITY_NO_HISTORY or
+                        Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+        )
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
         }
         try {
             activity.startActivity(goToMarket)
         } catch (e: ActivityNotFoundException) {
-            activity.startActivity(Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=${activity.packageName}")))
+            activity.startActivity(
+                    Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://play.google.com/store/apps/details?id=${activity.packageName}")
+                    )
+            )
         }
     }
 
@@ -136,6 +147,7 @@ class SettingsViewModel @Inject constructor(private val vibrator: Vibrator,
         val REQUIRED_PERMISSIONS = listOf(
                 Manifest.permission.WAKE_LOCK,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.VIBRATE)
+                Manifest.permission.VIBRATE
+        )
     }
 }

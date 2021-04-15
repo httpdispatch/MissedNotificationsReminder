@@ -1,6 +1,6 @@
 package com.app.missednotificationsreminder.payment
 
-import com.android.billingclient.api.SkuDetails
+import com.app.missednotificationsreminder.payment.billing.domain.entities.SkuDetails
 
 sealed class PurchaseViewEffect {
     /**

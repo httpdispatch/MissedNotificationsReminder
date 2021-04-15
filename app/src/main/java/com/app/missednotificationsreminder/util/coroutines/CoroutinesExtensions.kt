@@ -1,7 +1,7 @@
 package com.app.missednotificationsreminder.util.coroutines
 
-import com.app.missednotificationsreminder.data.ResultWrapper
-import com.app.missednotificationsreminder.data.asResultWrapper
+import com.app.missednotificationsreminder.common.domain.entities.ResultWrapper
+import com.app.missednotificationsreminder.common.domain.entities.asResultWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

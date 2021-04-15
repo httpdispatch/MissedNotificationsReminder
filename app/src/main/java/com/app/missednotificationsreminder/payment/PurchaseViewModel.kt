@@ -2,22 +2,21 @@ package com.app.missednotificationsreminder.payment
 
 import android.app.Activity
 import androidx.lifecycle.viewModelScope
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.SkuDetails
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.binding.model.BaseViewStateViewEffectModel
 import com.app.missednotificationsreminder.binding.util.bindWithPreferences
-import com.app.missednotificationsreminder.data.*
+import com.app.missednotificationsreminder.common.domain.entities.*
 import com.app.missednotificationsreminder.data.source.ResourceDataSource
-import com.app.missednotificationsreminder.payment.billing.data.source.BillingErrorCodes
-import com.app.missednotificationsreminder.payment.billing.data.source.PurchaseRepository
-import com.app.missednotificationsreminder.payment.data.model.Purchase
+import com.app.missednotificationsreminder.payment.billing.domain.entities.BillingErrorCodes
+import com.app.missednotificationsreminder.payment.billing.domain.entities.SkuDetails
+import com.app.missednotificationsreminder.payment.billing.domain.entities.SkuType
+import com.app.missednotificationsreminder.payment.billing.domain.repository.PurchaseRepository
 import com.app.missednotificationsreminder.payment.di.qualifiers.AvailableSkus
+import com.app.missednotificationsreminder.payment.model.Purchase
 import com.app.missednotificationsreminder.util.loadingstate.HasLoadingStateManager
 import com.app.missednotificationsreminder.util.loadingstate.LoadingState
 import com.app.missednotificationsreminder.util.loadingstate.LoadingStateManager
 import com.tfcporciuncula.flow.Preference
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -28,8 +27,6 @@ import kotlin.time.ExperimentalTime
 /**
  * The view model for the applications selection view
  */
-@ExperimentalCoroutinesApi
-@OptIn(ExperimentalTime::class)
 class PurchaseViewModel @Inject constructor(
         @param:AvailableSkus private val skus: List<String>,
         private val purchaseRepository: PurchaseRepository,
@@ -37,7 +34,8 @@ class PurchaseViewModel @Inject constructor(
         private val resourcesDataSource: ResourceDataSource,
 ) :
         BaseViewStateViewEffectModel<PurchaseViewState, PurchaseViewEffect, PurchaseViewStatePartialChanges>(
-                PurchaseViewState(contributeOptions = resourcesDataSource.getString(R.string.contribution_contribute_options))),
+                PurchaseViewState(contributeOptions = resourcesDataSource.getString(R.string.contribution_contribute_options))
+        ),
         ObservesPendingPayments by ObservesPendingPaymentsImpl(purchaseRepository, purchases),
         HasLoadingStateManager {
     init {
@@ -55,8 +53,7 @@ class PurchaseViewModel @Inject constructor(
             override var loadingState: LoadingState
                 get() = viewState.value.loadingState
                 set(value) {
-                    processSync(PurchaseViewStatePartialChanges.LoadingStateChange(
-                            value))
+                    processSync(PurchaseViewStatePartialChanges.LoadingStateChange(value))
                 }
 
         }
@@ -80,7 +77,7 @@ class PurchaseViewModel @Inject constructor(
                 attachLoadingStatus(resourcesDataSource.getString(R.string.payment_loading_purchase_items)) {
                     purchaseRepository.verifyAndConsumePendingPurchases()
                             .also { purchaseCompleted(it.skuDetails) }
-                    purchaseRepository.getSkuDetails(skus, BillingClient.SkuType.INAPP)
+                    purchaseRepository.getSkuDetails(skus, SkuType.INAPP)
                             .map { skuDetails ->
                                 skuDetails
                                         .asSequence()
@@ -111,10 +108,16 @@ class PurchaseViewModel @Inject constructor(
                                         .operationStatus
                             }
                             .fold(
-                                    {
-                                        requestViewEffect(PurchaseViewEffect.Message(resourcesDataSource.getString(R.string.payment_purchase_done)))
+                                    onSuccess = {
+                                        requestViewEffect(
+                                                PurchaseViewEffect.Message(
+                                                        resourcesDataSource.getString(
+                                                                R.string.payment_purchase_done
+                                                        )
+                                                )
+                                        )
                                     },
-                                    { error ->
+                                    onFailure = { error ->
                                         if (canRetryPendingPayments(error)) {
                                             viewModelScope.launch { observePendingPayments() }
                                         }
@@ -129,7 +132,11 @@ class PurchaseViewModel @Inject constructor(
 
 @ExperimentalTime
 interface ObservesPendingPayments {
-    suspend fun observePendingPayments(initialDelay: Long = DurationUnit.MINUTES.toMillis(3), interval: Long = DurationUnit.MINUTES.toMillis(3))
+    suspend fun observePendingPayments(
+            initialDelay: Long = DurationUnit.MINUTES.toMillis(3),
+            interval: Long = DurationUnit.MINUTES.toMillis(3)
+    )
+
     fun canRetryPendingPayments(error: ResultWrapper.Error): Boolean
     fun purchaseCompleted(purchasedGoods: List<SkuDetails>)
 }
@@ -137,7 +144,8 @@ interface ObservesPendingPayments {
 @ExperimentalTime
 class ObservesPendingPaymentsImpl(
         private val purchaseRepository: PurchaseRepository,
-        private val purchases: Preference<List<Purchase>>) : ObservesPendingPayments {
+        private val purchases: Preference<List<Purchase>>
+) : ObservesPendingPayments {
     override suspend fun observePendingPayments(initialDelay: Long, interval: Long) {
         Timber.d("observePendingPayments() called with: initialDelay = $initialDelay, interval = $interval")
         delay(initialDelay)

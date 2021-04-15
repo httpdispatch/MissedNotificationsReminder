@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.RecyclerView
-import com.app.missednotificationsreminder.data.onSuccess
+import com.app.missednotificationsreminder.common.domain.entities.onSuccess
 import com.app.missednotificationsreminder.databinding.ItemContributeBinding
 import com.app.missednotificationsreminder.databinding.ItemDonateBinding
 import com.app.missednotificationsreminder.ui.widget.recyclerview.LifecycleAdapterWithViewEffect

@@ -2,10 +2,10 @@ package com.app.missednotificationsreminder.payment
 
 import com.app.missednotificationsreminder.R
 import com.app.missednotificationsreminder.binding.model.ViewStatePartialChanges
-import com.app.missednotificationsreminder.data.ResultWrapper
+import com.app.missednotificationsreminder.common.domain.entities.ResultWrapper
 import com.app.missednotificationsreminder.data.source.ResourceDataSource
+import com.app.missednotificationsreminder.payment.model.Purchase
 import com.app.missednotificationsreminder.util.loadingstate.LoadingState
-import com.app.missednotificationsreminder.payment.data.model.Purchase
 
 sealed class PurchaseViewStatePartialChanges : ViewStatePartialChanges<PurchaseViewState> {
     data class LoadingStateChange(
@@ -16,7 +16,8 @@ sealed class PurchaseViewStatePartialChanges : ViewStatePartialChanges<PurchaseV
     }
 
     data class DataStateChange(
-            private val newValue: ResultWrapper<List<PurchaseItem>>) : PurchaseViewStatePartialChanges() {
+            private val newValue: ResultWrapper<List<PurchaseItem>>
+    ) : PurchaseViewStatePartialChanges() {
         override fun reduce(previousState: PurchaseViewState): PurchaseViewState {
             return previousState.copy(data = newValue)
         }

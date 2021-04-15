@@ -28,6 +28,13 @@ val propsFile = rootProject.file("keystore.properties")
 fun getVersionCode(minSdkVersion: Int) =
         2000000000 + versionMajor * 10000000 + versionMinor * 100000 + versionPatch * 1000 + versionBuild * 100 + minSdkVersion
 
+val proprietaryConfigurations = listOf(
+        "notificationListenerV18ProprietaryImplementation",
+        "notificationListenerV27ProprietaryImplementation",
+        "accessibilityV14ProprietaryImplementation",
+        "accessibilityV27ProprietaryImplementation"
+)
+
 android {
     compileSdkVersion(Constants.COMPILE_SDK_VERSION)
     buildToolsVersion = Constants.BUILD_TOOLS_VERSION
@@ -113,15 +120,15 @@ android {
             }
         }
     }
-    flavorDimensions("service", "api")
+    flavorDimensions("service", "api", "license")
     productFlavors {
         create("accessibility") {
             dimension = "service"
-            versionCode = 0
+            versionCode = 1
         }
         create("notificationListener") {
             dimension = "service"
-            versionCode = 1
+            versionCode = 2
         }
         create("v14") {
             minSdkVersion(14)
@@ -137,6 +144,26 @@ android {
             minSdkVersion(27)
             dimension = "api"
             versionCode = 3
+        }
+        create("Proprietary") {
+            dimension = "license"
+        }
+        create("NoProprietary") {
+            dimension = "license"
+        }
+    }
+
+
+    configurations {
+        proprietaryConfigurations.forEach { create(it) }
+    }
+
+    sourceSets {
+        create("notificationListenerV27Proprietary") {
+            manifest.srcFile("src/notificationListenerV27/AndroidManifest.xml")
+        }
+        create("notificationListenerV27NoProprietary") {
+            manifest.srcFile("src/notificationListenerV27/AndroidManifest.xml")
         }
     }
 
@@ -176,11 +203,6 @@ android {
     }
 }
 
-configurations.onEach {
-    it.resolutionStrategy {
-    }
-}
-
 dependencies {
     implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.COROUTINES}")
@@ -199,7 +221,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.LIFECYCLE}")
     implementation("androidx.lifecycle:lifecycle-service:${Versions.LIFECYCLE}")
     implementation("com.google.android.material:material:1.3.0")
-    implementation("com.android.billingclient:billing:3.0.2")
     implementation("androidx.navigation:navigation-fragment-ktx:${Versions.NAVIGATION}")
     implementation("androidx.navigation:navigation-ui-ktx:${Versions.NAVIGATION}")
 
@@ -233,6 +254,11 @@ dependencies {
 
     implementation("androidx.work:work-runtime:${Versions.WORK}")
     implementation("androidx.work:work-runtime-ktx:${Versions.WORK}")
+
+    val proprietaryDependencies = listOf("com.android.billingclient:billing:3.0.2")
+    proprietaryConfigurations.forEach { configuration ->
+        proprietaryDependencies.forEach { dependency -> add(configuration, dependency) }
+    }
 
     androidTestImplementation("junit:junit:4.13")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
