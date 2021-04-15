@@ -1,5 +1,5 @@
 object Constants {
-    const val TARGET_SDK_VERSION = 28
+    const val TARGET_SDK_VERSION = 29
     const val COMPILE_SDK_VERSION = 29
     const val BUILD_TOOLS_VERSION = "29.0.2"
 }
