@@ -7,9 +7,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:4.0.1")
+        classpath("com.android.tools.build:gradle:4.1.3")
         classpath(kotlin("gradle-plugin", version = "1.4.0"))
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.3.0")
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.3.5")
     }
     // Exclude the lombok version that the android plugin depends on.
     configurations.classpath {
