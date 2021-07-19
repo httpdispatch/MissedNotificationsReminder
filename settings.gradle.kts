@@ -1,2 +1,2 @@
-includeBuild("buildSrcIncluded  ")
+includeBuild("buildSrcIncluded")
 include(":app")
