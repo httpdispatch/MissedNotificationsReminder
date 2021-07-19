@@ -145,10 +145,10 @@ android {
             dimension = "api"
             versionCode = 3
         }
-        create("Proprietary") {
+        create("proprietary") {
             dimension = "license"
         }
-        create("NoProprietary") {
+        create("noProprietary") {
             dimension = "license"
         }
     }
