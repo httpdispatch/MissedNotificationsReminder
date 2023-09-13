@@ -5,9 +5,9 @@
     <string name="applications_empty_title">Дивно…</string>
     <string name="applications_error_message">Виникла помилка, поки завантажувались дані додатків. Будь ласка, спробуйте пізніше</string>
     <string name="applications_error_title">Ой!</string>
-    <string name="applications_selection_title">Выбір додатків</string>
+    <string name="applications_selection_title">Вибір додатків</string>
     <string name="loading_message">завантаження…</string>
-    <string name="reminder_interval_hint">Інтервал нагадувань(хвилини)</string>
+    <string name="reminder_interval_hint">Інтервал нагадувань (хвилини)</string>
     <string name="settings_access_enabled">Служба повідомлень увімкнена</string>
     <string name="settings_access_manage">Керування доступом</string>
     <string name="settings_access_title">Доступ до служби повідомлень</string>
@@ -32,11 +32,11 @@
     <string name="settings_battery_optimization_enabled">Android OS оптимізує використання батареї для цього додатку. Якщо у Вас спостерігаються проблеми з работою нагадувань, будь ласка, відключіть економію заряду для додатку "Missed Notification Reminder".</string>
     <string name="settings_battery_optimization_disabled"><![CDATA[
     Додаток додано в білий список економії заряду батареї<br/><br/>
-    Деякі пристрої можуть додаткові обмеження використання батареї.
+    Деякі пристрої можуть мати додаткові обмеження використання батареї.
     Якщо ви зіткнулись з проблемами роботи додатку, будь ласка відвідайте
     <u><a href="https://dontkillmyapp.com/">https://dontkillmyapp.com</a></u>
     вебсайт для пошуку можливого рішення]]></string>
-    <string name="settings_battery_wakelock_disabled">Служба переднього плану вимкнута. Змініть, якщо спостерыгаєте проблеми з роботою нагадувань</string>
+    <string name="settings_battery_wakelock_disabled">Служба переднього плану вимкнута. Змініть, якщо спостерігаєте проблеми з роботою нагадувань</string>
     <string name="settings_battery_wakelock_enabled">Служба переднього плану увімкнута. Використовуйте тільки якщо спостерігаєте проблеми з роботою нагадувань. Ця опція буде утримувати пристрій увімкненим весь час, поки працюють нагадування</string>
     <string name="settings_permissions">Дозволи</string>
     <string name="settings_permissions_grant">Надати доступ</string>
@@ -76,14 +76,14 @@
     <string name="menu_contribute">Підтримати</string>
 
     <!-- Purchase -->
-    <string name="payment_error_billing_unavailable">Покупки не доступні на цьому устройстве</string>
+    <string name="payment_error_billing_unavailable">Покупки не доступні на цьому пристрої</string>
     <string name="payment_error_service_unavailable">Сервіс не доступний, спробуйте пізніше</string>
     <string name="payment_error_user_canceled">Покупка скасована</string>
     <string name="payment_error_purchase_pending">Очікується оплата!</string>
     <string name="contribution_title">Підтримати розробку</string>
     <string name="contribution_contribute_options"><![CDATA[
     Ви можете здійснити свій вклад, створивши звіт про помилку чи здійснивши правки в проект
-    в <u><a href="https://github.com/httpdispatch/MissedNotificationsReminder">github сховищі</a></u>
+    в <u><a href="https://github.com/httpdispatch/MissedNotificationsReminder">GitHub сховищі</a></u>
     <br/><br/>
     Також ви можете придбати деякі товари, щоб підтримати розробку.
     <b>Зверніть увагу</b>, що покупка будь-якого товара <b>не розблоковує</b> ніяких додаткових можливостей]]></string>
